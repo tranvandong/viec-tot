@@ -7,19 +7,22 @@ import Link from "next/link"
 import Image from "next/image"
 import { Search, ChevronDown, Clock, ChevronUp } from "lucide-react"
 import { useSearchParams } from "next/navigation"
+import { JobDetailModal } from "@/components/job-detail-modal"
 
 export default function SearchResults() {
   const searchParams = useSearchParams()
   const jobQuery = searchParams.get("job") || "UI/UX Designer"
   const locationQuery = searchParams.get("location") || "Indonesia"
 
-  const [savedJobs, setSavedJobs] = useState<number[]>([])
+  const [savedJobs, setSavedJobs] = useState<string[]>([])
   const [isRemoteOpen, setIsRemoteOpen] = useState(false)
   const [expandedSections, setExpandedSections] = useState({
     jobType: true,
     rangeSalary: true,
     experience: true,
   })
+  const [selectedJob, setSelectedJob] = useState<any>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections({
@@ -28,7 +31,7 @@ export default function SearchResults() {
     })
   }
 
-  const toggleSaveJob = (id: number, e: React.MouseEvent) => {
+  const toggleSaveJob = (id: string, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     if (savedJobs.includes(id)) {
@@ -38,23 +41,56 @@ export default function SearchResults() {
     }
   }
 
+  const openJobModal = (job: any, e: React.MouseEvent) => {
+    e.preventDefault()
+    setSelectedJob(job)
+    setIsModalOpen(true)
+    // Prevent body scrolling when modal is open
+    document.body.style.overflow = "hidden"
+  }
+
+  // Update the closeJobModal function to handle animation
+  const closeJobModal = () => {
+    setIsModalOpen(false)
+    // Body scrolling will be re-enabled after the animation completes in the modal component
+  }
+
+  // Find similar jobs based on job title and experience
+  const getSimilarJobs = (job: any) => {
+    return jobs.filter(
+      (j) => j.id !== job.id && (j.title.includes(job.title.split(" ")[0]) || j.experience === job.experience),
+    )
+  }
+
+  // Find other jobs from the same company
+  const getOtherJobsFromCompany = (job: any) => {
+    return jobs.filter((j) => j.id !== job.id && j.company === job.company)
+  }
+
   const jobs = [
     {
-      id: 1,
+      id: "1",
       title: "UI/UX Designer",
       company: "Pixelz Studio",
-      location: "Yogyakarta",
+      location: "Yogyakarta, Indonesia",
       logo: "/placeholder.svg?height=60&width=60&text=P&bg=black",
       jobType: "Fulltime",
-      workType: "Hybrid",
+      workType: "Remote",
       experience: "2-4 Years",
-      postedTime: "2 day ago",
+      postedTime: "2 days ago",
       applicants: 140,
-      salary: "$1000",
+      salary: "$1000/month",
       match: true,
+      description: `As an UI/UX Designer on Pixelz Studio, you'll focus on design user-friendly on several platform (web, mobile, dashboard, etc) to our users needs. Your innovative solution will enhance the user experience on several platforms. Join us and let's making impact on user engagement at Pixelz Studio.`,
+      benefits: [
+        "Competitive salary and benefits package",
+        "Flexible working hours",
+        "Remote work options",
+        "Professional development opportunities",
+      ],
     },
     {
-      id: 2,
+      id: "2",
       title: "Product Designer",
       company: "Traveloka",
       location: "Jakarta, Indonesia",
@@ -64,11 +100,18 @@ export default function SearchResults() {
       experience: "2-4 Years",
       postedTime: "an hour ago",
       applicants: 140,
-      salary: "$1500",
+      salary: "$1500/month",
       match: true,
+      description: `We are looking for a talented Product Designer to join our team and help us create amazing user experiences for our travel platform. The ideal candidate will have a strong portfolio demonstrating their ability to solve complex design problems and create intuitive, user-friendly interfaces.`,
+      benefits: [
+        "Competitive salary and benefits package",
+        "Opportunity to work on a product used by millions",
+        "Career growth and development opportunities",
+        "Collaborative and innovative work environment",
+      ],
     },
     {
-      id: 3,
+      id: "3",
       title: "UX Designer",
       company: "Tokopedia",
       location: "Jakarta, Indonesia",
@@ -76,13 +119,20 @@ export default function SearchResults() {
       jobType: "Fulltime",
       workType: "Remote",
       experience: "2-4 Years",
-      postedTime: "2 day ago",
+      postedTime: "2 days ago",
       applicants: 140,
-      salary: "$1000",
+      salary: "$1000/month",
       match: true,
+      description: `Tokopedia is looking for a UX Designer to join our growing team. You will be responsible for creating user-centered designs that meet business requirements and enhance customer experience. As a UX Designer, you will work closely with product managers, developers, and other designers to deliver high-quality designs.`,
+      benefits: [
+        "Flexible working hours",
+        "Remote work options",
+        "Health insurance",
+        "Professional development budget",
+      ],
     },
     {
-      id: 4,
+      id: "4",
       title: "Interaction Designer",
       company: "GoPay",
       location: "Jakarta, Indonesia",
@@ -90,13 +140,20 @@ export default function SearchResults() {
       jobType: "Fulltime",
       workType: "Onsite",
       experience: "2-4 Years",
-      postedTime: "2 day ago",
+      postedTime: "2 days ago",
       applicants: 140,
-      salary: "$1000",
+      salary: "$1000/month",
       match: true,
+      description: `GoPay is looking for an Interaction Designer to join our team. You will be responsible for creating engaging and intuitive user experiences for our payment platform. The ideal candidate will have experience in designing for mobile applications and a strong understanding of user-centered design principles.`,
+      benefits: [
+        "Competitive salary and benefits",
+        "Professional development opportunities",
+        "Flexible working arrangements",
+        "Modern office with great amenities",
+      ],
     },
     {
-      id: 5,
+      id: "5",
       title: "UI Designer",
       company: "Gojek",
       location: "Jakarta, Indonesia",
@@ -104,24 +161,33 @@ export default function SearchResults() {
       jobType: "Fulltime",
       workType: "Onsite",
       experience: "0-2 Years",
-      postedTime: "2 day ago",
+      postedTime: "2 days ago",
       applicants: 521,
-      salary: "$900",
+      salary: "$900/month",
       match: true,
+      description: `Gojek is seeking a talented UI Designer to join our growing design team. You will be responsible for creating visually appealing and user-friendly interfaces for our super app. The ideal candidate will have a strong portfolio showcasing their UI design skills and a passion for creating beautiful, functional designs.`,
+      benefits: ["Competitive salary", "Health insurance", "Professional development budget", "Flexible working hours"],
     },
     {
-      id: 6,
+      id: "6",
       title: "Sr. UI/UX Designer",
       company: "Shopee",
       location: "Jakarta, Indonesia",
       logo: "/placeholder.svg?height=60&width=60&text=S&bg=orange",
       jobType: "Fulltime",
       workType: "Hybrid",
-      experience: "2-4 Years",
-      postedTime: "2 day ago",
+      experience: "3-5 Years",
+      postedTime: "2 days ago",
       applicants: 140,
-      salary: "$1000",
+      salary: "$2000/month",
       match: true,
+      description: `Shopee is looking for a Senior UI/UX Designer to join our team. You will be responsible for leading design projects and mentoring junior designers. The ideal candidate will have extensive experience in UI/UX design, a strong portfolio, and excellent leadership skills.`,
+      benefits: [
+        "Competitive salary and benefits package",
+        "Leadership opportunities",
+        "Professional development budget",
+        "Flexible working arrangements",
+      ],
     },
   ]
 
@@ -491,10 +557,11 @@ export default function SearchResults() {
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {jobs.map((job) => (
-                  <Link
-                    href={`/jobs/${job.id}`}
+                  <a
+                    href="#"
                     key={job.id}
                     className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+                    onClick={(e) => openJobModal(job, e)}
                   >
                     <div className="p-5">
                       <div className="flex justify-between items-start mb-4">
@@ -578,19 +645,32 @@ export default function SearchResults() {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <div className="font-semibold text-lg text-blue-500">{job.salary}/m</div>
+                        <div className="font-semibold text-lg text-blue-500">{job.salary}</div>
                         <button className="py-2 px-4 bg-blue-100 text-blue-600 rounded-md text-sm font-medium hover:bg-blue-200 transition-colors">
                           Apply Now
                         </button>
                       </div>
                     </div>
-                  </Link>
+                  </a>
                 ))}
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Job Detail Modal */}
+      {selectedJob && (
+        <JobDetailModal
+          job={selectedJob}
+          isOpen={isModalOpen}
+          onClose={closeJobModal}
+          similarJobs={getSimilarJobs(selectedJob)}
+          otherJobsFromCompany={getOtherJobsFromCompany(selectedJob)}
+          savedJobs={savedJobs}
+          onToggleSave={toggleSaveJob}
+        />
+      )}
     </div>
   )
 }
