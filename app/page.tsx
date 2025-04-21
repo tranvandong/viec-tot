@@ -1,3 +1,7 @@
+"use client"
+
+import { useState, type FormEvent } from "react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -16,6 +20,15 @@ import {
 } from "lucide-react"
 
 export default function Home() {
+  const router = useRouter()
+  const [jobTitle, setJobTitle] = useState("")
+  const [location, setLocation] = useState("")
+
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault()
+    router.push(`/search-results?job=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`)
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navigation */}
@@ -42,7 +55,7 @@ export default function Home() {
             </nav>
           </div>
           <div className="flex items-center gap-4">
-             <Link href="/login" className="text-sm font-medium text-white">
+            <Link href="/login" className="text-sm font-medium text-white">
               Log In
             </Link>
             <Link
@@ -71,13 +84,18 @@ export default function Home() {
               5 M+ jobs for you to explore. In the meantime, run a search to find your next job
             </p>
 
-            <div className="bg-white rounded-full p-2 flex items-center gap-2 mb-4 max-w-3xl mx-auto">
+            <form
+              onSubmit={handleSearch}
+              className="bg-white rounded-full p-2 flex items-center gap-2 mb-4 max-w-3xl mx-auto"
+            >
               <div className="flex items-center flex-1 pl-2">
                 <Search className="h-5 w-5 text-gray-400 mr-2" />
                 <input
                   type="text"
-                  className="py-2 px-3 block w-full border-0 focus:outline-none focus:ring-0 placeholder-gray-400"
+                  className="py-2 px-3 block w-full border-0 bg-transparent focus:outline-none focus:ring-0 placeholder-gray-400"
                   placeholder="Job title, keyword or company"
+                  value={jobTitle}
+                  onChange={(e) => setJobTitle(e.target.value)}
                 />
               </div>
               <div className="h-6 w-px bg-gray-200"></div>
@@ -98,17 +116,19 @@ export default function Home() {
                 </svg>
                 <input
                   type="text"
-                  className="py-2 px-3 block w-full border-0 focus:outline-none focus:ring-0 placeholder-gray-400"
+                  className="py-2 px-3 block w-full border-0 bg-transparent focus:outline-none focus:ring-0 placeholder-gray-400"
                   placeholder="City, state, zip or remote"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
                 />
               </div>
               <button
-                type="button"
+                type="submit"
                 className="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
               >
                 Search
               </button>
-            </div>
+            </form>
 
             <div className="text-sm text-blue-200 mb-12">
               <span>Upload or </span>
