@@ -23,6 +23,7 @@ export default function SearchResults() {
   })
   const [selectedJob, setSelectedJob] = useState<any>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections({
@@ -532,7 +533,11 @@ export default function SearchResults() {
                     <ChevronDown className="h-4 w-4" />
                   </button>
                   <div className="flex border border-gray-300 rounded-md">
-                    <button className="px-2 py-1.5 bg-gray-100">
+                    <button
+                      className={`px-2 py-1.5 ${viewMode === "grid" ? "bg-gray-100" : ""}`}
+                      onClick={() => setViewMode("grid")}
+                      aria-label="Grid view"
+                    >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
                         <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
@@ -540,7 +545,11 @@ export default function SearchResults() {
                         <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
                       </svg>
                     </button>
-                    <button className="px-2 py-1.5">
+                    <button
+                      className={`px-2 py-1.5 ${viewMode === "list" ? "bg-gray-100" : ""}`}
+                      onClick={() => setViewMode("list")}
+                      aria-label="List view"
+                    >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                           d="M3 5H21M3 12H21M3 19H21"
@@ -555,17 +564,118 @@ export default function SearchResults() {
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {jobs.map((job) => (
-                  <a
-                    href="#"
-                    key={job.id}
-                    className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                    onClick={(e) => openJobModal(job, e)}
-                  >
-                    <div className="p-5">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex gap-3">
+              {viewMode === "grid" ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {jobs.map((job) => (
+                    <a
+                      href="#"
+                      key={job.id}
+                      className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+                      onClick={(e) => openJobModal(job, e)}
+                    >
+                      {/* Existing grid job card content */}
+                      <div className="p-5">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex gap-3">
+                            <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
+                              <Image
+                                src={job.logo || "/placeholder.svg"}
+                                alt={job.company}
+                                width={48}
+                                height={48}
+                                className="object-cover"
+                              />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-lg">{job.title}</h3>
+                              <p className="text-gray-600 text-sm">
+                                {job.company} • {job.location}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={(e) => toggleSaveJob(job.id, e)}
+                            className="text-gray-400 hover:text-blue-500"
+                            aria-label="Save job"
+                          >
+                            {savedJobs.includes(job.id) ? (
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+
+                        {job.match && <div className="text-sm text-gray-500 mb-3">Match with your profile</div>}
+
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+                            {job.jobType}
+                          </span>
+                          <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+                            {job.workType}
+                          </span>
+                          <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+                            {job.experience}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center text-xs text-gray-500 mb-4">
+                          <Clock className="h-3 w-3 mr-1" />
+                          <span>
+                            {job.postedTime} • {job.applicants} Applicants
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="font-semibold text-lg text-blue-500">{job.salary}</div>
+                          <button className="py-2 px-4 bg-blue-100 text-blue-600 rounded-md text-sm font-medium hover:bg-blue-200 transition-colors">
+                            Apply Now
+                          </button>
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {jobs.map((job) => (
+                    <a
+                      href="#"
+                      key={job.id}
+                      className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
+                      onClick={(e) => openJobModal(job, e)}
+                    >
+                      <div className="flex justify-between">
+                        <div className="flex gap-4">
                           <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
                             <Image
                               src={job.logo || "/placeholder.svg"}
@@ -580,80 +690,81 @@ export default function SearchResults() {
                             <p className="text-gray-600 text-sm">
                               {job.company} • {job.location}
                             </p>
+
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+                                {job.jobType}
+                              </span>
+                              <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+                                {job.workType}
+                              </span>
+                              <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+                                {job.experience}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                        <button
-                          onClick={(e) => toggleSaveJob(job.id, e)}
-                          className="text-gray-400 hover:text-blue-500"
-                          aria-label="Save job"
-                        >
-                          {savedJobs.includes(job.id) ? (
-                            <svg
-                              width="20"
-                              height="20"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          ) : (
-                            <svg
-                              width="20"
-                              height="20"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          )}
-                        </button>
+
+                        <div className="flex flex-col items-end">
+                          <button
+                            onClick={(e) => toggleSaveJob(job.id, e)}
+                            className="text-gray-400 hover:text-blue-500 mb-2"
+                            aria-label="Save job"
+                          >
+                            {savedJobs.includes(job.id) ? (
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                          <div className="font-semibold text-lg text-blue-500">{job.salary}</div>
+                        </div>
                       </div>
 
-                      {job.match && <div className="text-sm text-gray-500 mb-3">Match with your profile</div>}
+                      <div className="flex justify-between items-center mt-3">
+                        <div className="flex items-center text-xs text-gray-500">
+                          <Clock className="h-3 w-3 mr-1" />
+                          <span>
+                            {job.postedTime} • {job.applicants} Applicants
+                          </span>
+                        </div>
 
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
-                          {job.jobType}
-                        </span>
-                        <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
-                          {job.workType}
-                        </span>
-                        <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
-                          {job.experience}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center text-xs text-gray-500 mb-4">
-                        <Clock className="h-3 w-3 mr-1" />
-                        <span>
-                          {job.postedTime} • {job.applicants} Applicants
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="font-semibold text-lg text-blue-500">{job.salary}</div>
-                        <button className="py-2 px-4 bg-blue-100 text-blue-600 rounded-md text-sm font-medium hover:bg-blue-200 transition-colors">
+                        <button className="py-1.5 px-3 bg-blue-100 text-blue-600 rounded-md text-sm font-medium hover:bg-blue-200 transition-colors">
                           Apply Now
                         </button>
                       </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

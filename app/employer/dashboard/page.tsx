@@ -1,7 +1,5 @@
 "use client"
 
-import { Calendar } from "@/components/ui/calendar"
-
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -17,13 +15,18 @@ import {
   CheckCircle,
   X,
   MessageCircle,
+  Calendar,
 } from "lucide-react"
+import { EmployerJobDetailDrawer } from "@/components/employer-job-detail-drawer"
 
 export default function EmployerDashboardPage() {
   const [activeTab, setActiveTab] = useState<"jobs" | "candidates">("jobs")
   const [searchQuery, setSearchQuery] = useState("")
   const [filterOpen, setFilterOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState("all")
+  const [selectedJob, setSelectedJob] = useState<any>(null)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [drawerMode, setDrawerMode] = useState<"view" | "edit">("view")
 
   // Mock data for jobs
   const jobs = [
@@ -228,6 +231,21 @@ export default function EmployerDashboardPage() {
     const diffTime = Math.abs(today.getTime() - date.getTime())
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`
+  }
+
+  // Open job detail drawer
+  const openJobDrawer = (job: any, mode: "view" | "edit") => {
+    setSelectedJob(job)
+    setDrawerMode(mode)
+    setIsDrawerOpen(true)
+  }
+
+  // Handle job update
+  const handleJobUpdate = (updatedJob: any) => {
+    // In a real app, you would update the job in your database
+    console.log("Updated job:", updatedJob)
+    // For now, we'll just close the drawer
+    setIsDrawerOpen(false)
   }
 
   return (
@@ -518,10 +536,18 @@ export default function EmployerDashboardPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end gap-2">
-                            <button className="text-blue-600 hover:text-blue-900" title="View Job">
+                            <button
+                              onClick={() => openJobDrawer(job, "view")}
+                              className="text-blue-600 hover:text-blue-900"
+                              title="View Job"
+                            >
                               <Eye className="h-4 w-4" />
                             </button>
-                            <button className="text-gray-600 hover:text-gray-900" title="Edit Job">
+                            <button
+                              onClick={() => openJobDrawer(job, "edit")}
+                              className="text-gray-600 hover:text-gray-900"
+                              title="Edit Job"
+                            >
                               <Edit className="h-4 w-4" />
                             </button>
                             <button className="text-red-600 hover:text-red-900" title="Delete Job">
@@ -654,6 +680,17 @@ export default function EmployerDashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Job Detail Drawer */}
+      {selectedJob && (
+        <EmployerJobDetailDrawer
+          job={selectedJob}
+          isOpen={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          mode={drawerMode}
+          onSave={handleJobUpdate}
+        />
+      )}
     </div>
   )
 }
