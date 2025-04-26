@@ -9,7 +9,7 @@ import { Search, ChevronDown, Clock, ChevronUp } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { JobDetailModal } from "@/components/job-detail-modal";
 
-export default function SearchResults() {
+export default function Companies() {
   const searchParams = useSearchParams();
   const jobQuery = searchParams.get("job") || "UI/UX Designer";
   const locationQuery = searchParams.get("location") || "Indonesia";
@@ -218,13 +218,13 @@ export default function SearchResults() {
               </Link>
               <Link
                 href="/search-results"
-                className="text-sm font-medium text-white border-b-2 border-white pb-1"
+                className="text-sm font-medium text-white "
               >
                 Tìm việc
               </Link>
               <Link
                 href="/companies"
-                className="text-sm font-medium text-white"
+                className="text-sm font-medium text-white border-b-2 border-white pb-1"
               >
                 Công ty
               </Link>
@@ -312,288 +312,11 @@ export default function SearchResults() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 -mt-16">
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Filter Sidebar */}
-          <div className="md:w-64 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 h-fit">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-semibold text-gray-800 dark:text-white">
-                Bộ lọc
-              </h3>
-              <button className="text-blue-500 text-sm">Xóa tất cả</button>
-            </div>
-
-            {/* Job Type */}
-            <div className="mb-6 border-b dark:border-gray-700 pb-6">
-              <div
-                className="flex justify-between items-center mb-4 cursor-pointer"
-                onClick={() => toggleSection("jobType")}
-              >
-                <h4 className="font-medium text-gray-800 dark:text-white">
-                  Loại công việc
-                </h4>
-                {expandedSections.jobType ? (
-                  <ChevronUp className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                )}
-              </div>
-
-              {expandedSections.jobType && (
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <input
-                      id="contract"
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
-                    />
-                    <label
-                      htmlFor="contract"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      Hợp đồng
-                    </label>
-                  </div>
-                  <div className="flex items-center">
-                    <input
-                      id="full-time"
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
-                      defaultChecked
-                    />
-                    <label
-                      htmlFor="full-time"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      Toàn thời gian
-                    </label>
-                  </div>
-                  <div className="flex items-center">
-                    <input
-                      id="part-time"
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
-                    />
-                    <label
-                      htmlFor="part-time"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      Bán thời gian
-                    </label>
-                  </div>
-                  <div className="flex items-center">
-                    <input
-                      id="internship"
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
-                    />
-                    <label
-                      htmlFor="internship"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      Thực tập
-                    </label>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Open to remote */}
-            <div className="mb-6 border-b dark:border-gray-700 pb-6">
-              <div className="flex justify-between items-center">
-                <h4 className="font-medium text-gray-800 dark:text-white">
-                  Chấp nhận làm từ xa
-                </h4>
-                <button
-                  className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ${
-                    isRemoteOpen
-                      ? "bg-blue-500"
-                      : "bg-gray-300 dark:bg-gray-600"
-                  }`}
-                  onClick={() => setIsRemoteOpen(!isRemoteOpen)}
-                >
-                  <div
-                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${
-                      isRemoteOpen ? "translate-x-6" : "translate-x-0"
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-
-            {/* Range Salary */}
-            <div className="mb-6 border-b dark:border-gray-700 pb-6">
-              <div
-                className="flex justify-between items-center mb-4 cursor-pointer"
-                onClick={() => toggleSection("rangeSalary")}
-              >
-                <h4 className="font-medium text-gray-800 dark:text-white">
-                  Mức lương
-                </h4>
-                {expandedSections.rangeSalary ? (
-                  <ChevronUp className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                )}
-              </div>
-
-              {expandedSections.rangeSalary && (
-                <>
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center">
-                      <input
-                        id="less-than-1000"
-                        type="checkbox"
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
-                      />
-                      <label
-                        htmlFor="less-than-1000"
-                        className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                      >
-                        Dưới 1.000$
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        id="1000-15000"
-                        type="checkbox"
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
-                      />
-                      <label
-                        htmlFor="1000-15000"
-                        className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                      >
-                        1.000$ - 15.000$
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        id="more-than-15000"
-                        type="checkbox"
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
-                      />
-                      <label
-                        htmlFor="more-than-15000"
-                        className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                      >
-                        Trên 15.000$
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        id="custom"
-                        type="checkbox"
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
-                        defaultChecked
-                      />
-                      <label
-                        htmlFor="custom"
-                        className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                      >
-                        Tùy chỉnh
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Salary Range Slider */}
-                  <div className="mt-6">
-                    <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                      <div className="absolute h-2 bg-blue-500 rounded-full left-[10%] right-[30%]"></div>
-                      <div className="absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-full -mt-1 left-[10%]"></div>
-                      <div className="absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-full -mt-1 right-[30%]"></div>
-                    </div>
-                    <div className="flex justify-between mt-2">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        1.000$
-                      </span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        25.000$
-                      </span>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Experience */}
-            <div className="mb-6">
-              <div
-                className="flex justify-between items-center mb-4 cursor-pointer"
-                onClick={() => toggleSection("experience")}
-              >
-                <h4 className="font-medium text-gray-800 dark:text-white">
-                  Kinh nghiệm
-                </h4>
-                {expandedSections.experience ? (
-                  <ChevronUp className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                )}
-              </div>
-
-              {expandedSections.experience && (
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <input
-                      id="less-than-year"
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
-                    />
-                    <label
-                      htmlFor="less-than-year"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      Dưới 1 năm
-                    </label>
-                  </div>
-                  <div className="flex items-center">
-                    <input
-                      id="1-3-years"
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
-                      defaultChecked
-                    />
-                    <label
-                      htmlFor="1-3-years"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      1-3 năm
-                    </label>
-                  </div>
-                  <div className="flex items-center">
-                    <input
-                      id="3-5-years"
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
-                    />
-                    <label
-                      htmlFor="3-5-years"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      3-5 năm
-                    </label>
-                  </div>
-                  <div className="flex items-center">
-                    <input
-                      id="5-10-years"
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
-                    />
-                    <label
-                      htmlFor="5-10-years"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      5-10 năm
-                    </label>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row">
           {/* Job Listings */}
           <div className="flex-1">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+            <div className="bg-white dark:bg-gray-800 shadow-sm p-6 mb-6">
               <div className="flex justify-between items-center mb-6">
                 <div className="text-gray-600 dark:text-gray-300">
                   Hiển thị <span className="font-semibold">150</span> việc làm{" "}
@@ -926,6 +649,283 @@ export default function SearchResults() {
                       </div>
                     </a>
                   ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Filter Sidebar */}
+          <div className="md:w-64 bg-white dark:bg-gray-800 shadow-sm p-6 h-fit">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-semibold text-gray-800 dark:text-white">
+                Bộ lọc
+              </h3>
+              <button className="text-blue-500 text-sm">Xóa tất cả</button>
+            </div>
+
+            {/* Job Type */}
+            <div className="mb-6 border-b dark:border-gray-700 pb-6">
+              <div
+                className="flex justify-between items-center mb-4 cursor-pointer"
+                onClick={() => toggleSection("jobType")}
+              >
+                <h4 className="font-medium text-gray-800 dark:text-white">
+                  Loại công việc
+                </h4>
+                {expandedSections.jobType ? (
+                  <ChevronUp className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                )}
+              </div>
+
+              {expandedSections.jobType && (
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <input
+                      id="contract"
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                    />
+                    <label
+                      htmlFor="contract"
+                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                    >
+                      Hợp đồng
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      id="full-time"
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                      defaultChecked
+                    />
+                    <label
+                      htmlFor="full-time"
+                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                    >
+                      Toàn thời gian
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      id="part-time"
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                    />
+                    <label
+                      htmlFor="part-time"
+                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                    >
+                      Bán thời gian
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      id="internship"
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                    />
+                    <label
+                      htmlFor="internship"
+                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                    >
+                      Thực tập
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Open to remote */}
+            <div className="mb-6 border-b dark:border-gray-700 pb-6">
+              <div className="flex justify-between items-center">
+                <h4 className="font-medium text-gray-800 dark:text-white">
+                  Chấp nhận làm từ xa
+                </h4>
+                <button
+                  className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ${
+                    isRemoteOpen
+                      ? "bg-blue-500"
+                      : "bg-gray-300 dark:bg-gray-600"
+                  }`}
+                  onClick={() => setIsRemoteOpen(!isRemoteOpen)}
+                >
+                  <div
+                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${
+                      isRemoteOpen ? "translate-x-6" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* Range Salary */}
+            <div className="mb-6 border-b dark:border-gray-700 pb-6">
+              <div
+                className="flex justify-between items-center mb-4 cursor-pointer"
+                onClick={() => toggleSection("rangeSalary")}
+              >
+                <h4 className="font-medium text-gray-800 dark:text-white">
+                  Mức lương
+                </h4>
+                {expandedSections.rangeSalary ? (
+                  <ChevronUp className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                )}
+              </div>
+
+              {expandedSections.rangeSalary && (
+                <>
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center">
+                      <input
+                        id="less-than-1000"
+                        type="checkbox"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                      />
+                      <label
+                        htmlFor="less-than-1000"
+                        className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                      >
+                        Dưới 1.000$
+                      </label>
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        id="1000-15000"
+                        type="checkbox"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                      />
+                      <label
+                        htmlFor="1000-15000"
+                        className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                      >
+                        1.000$ - 15.000$
+                      </label>
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        id="more-than-15000"
+                        type="checkbox"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                      />
+                      <label
+                        htmlFor="more-than-15000"
+                        className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                      >
+                        Trên 15.000$
+                      </label>
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        id="custom"
+                        type="checkbox"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                        defaultChecked
+                      />
+                      <label
+                        htmlFor="custom"
+                        className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                      >
+                        Tùy chỉnh
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Salary Range Slider */}
+                  <div className="mt-6">
+                    <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                      <div className="absolute h-2 bg-blue-500 rounded-full left-[10%] right-[30%]"></div>
+                      <div className="absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-full -mt-1 left-[10%]"></div>
+                      <div className="absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-full -mt-1 right-[30%]"></div>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        1.000$
+                      </span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        25.000$
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Experience */}
+            <div className="mb-6">
+              <div
+                className="flex justify-between items-center mb-4 cursor-pointer"
+                onClick={() => toggleSection("experience")}
+              >
+                <h4 className="font-medium text-gray-800 dark:text-white">
+                  Kinh nghiệm
+                </h4>
+                {expandedSections.experience ? (
+                  <ChevronUp className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                )}
+              </div>
+
+              {expandedSections.experience && (
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <input
+                      id="less-than-year"
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                    />
+                    <label
+                      htmlFor="less-than-year"
+                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                    >
+                      Dưới 1 năm
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      id="1-3-years"
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                      defaultChecked
+                    />
+                    <label
+                      htmlFor="1-3-years"
+                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                    >
+                      1-3 năm
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      id="3-5-years"
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                    />
+                    <label
+                      htmlFor="3-5-years"
+                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                    >
+                      3-5 năm
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      id="5-10-years"
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                    />
+                    <label
+                      htmlFor="5-10-years"
+                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                    >
+                      5-10 năm
+                    </label>
+                  </div>
                 </div>
               )}
             </div>
