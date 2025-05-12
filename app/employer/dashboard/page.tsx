@@ -18,6 +18,7 @@ import {
   Calendar,
 } from "lucide-react"
 import { EmployerJobDetailDrawer } from "@/components/employer-job-detail-drawer"
+import { CandidateProfileDrawer } from "@/components/candidate-profile-drawer"
 
 export default function EmployerDashboardPage() {
   const [activeTab, setActiveTab] = useState<"jobs" | "candidates">("jobs")
@@ -27,6 +28,8 @@ export default function EmployerDashboardPage() {
   const [selectedJob, setSelectedJob] = useState<any>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [drawerMode, setDrawerMode] = useState<"view" | "edit">("view")
+  const [selectedCandidate, setSelectedCandidate] = useState<any>(null)
+  const [isCandidateDrawerOpen, setIsCandidateDrawerOpen] = useState(false)
 
   // Mock data for jobs
   const jobs = [
@@ -240,6 +243,12 @@ export default function EmployerDashboardPage() {
     setIsDrawerOpen(true)
   }
 
+  // Open candidate profile drawer
+  const openCandidateDrawer = (candidate: any) => {
+    setSelectedCandidate(candidate)
+    setIsCandidateDrawerOpen(true)
+  }
+
   // Handle job update
   const handleJobUpdate = (updatedJob: any) => {
     // In a real app, you would update the job in your database
@@ -249,7 +258,7 @@ export default function EmployerDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-950">
       {/* Header */}
       <header className="bg-blue-950 text-white">
         <div className="container mx-auto px-4 md:px-8 flex items-center justify-between py-4">
@@ -290,7 +299,7 @@ export default function EmployerDashboardPage() {
           </div>
 
           {/* Search and Filter */}
-          <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 mb-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -301,22 +310,22 @@ export default function EmployerDashboardPage() {
                   placeholder={`Search ${activeTab === "jobs" ? "jobs" : "candidates"}...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="pl-10 w-full rounded-md border border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div className="relative">
                 <button
                   onClick={() => setFilterOpen(!filterOpen)}
-                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
                   <ChevronDown className="h-4 w-4 ml-2" />
                 </button>
                 {filterOpen && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                  <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
                     <div className="py-1" role="menu" aria-orientation="vertical">
-                      <div className="px-4 py-2 text-sm text-gray-700 font-medium">Status</div>
+                      <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 font-medium">Status</div>
                       <div className="px-4 py-2">
                         <label className="flex items-center">
                           <input
@@ -325,9 +334,9 @@ export default function EmployerDashboardPage() {
                             value="all"
                             checked={statusFilter === "all"}
                             onChange={() => setStatusFilter("all")}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                           />
-                          <span className="ml-2 text-sm text-gray-700">All</span>
+                          <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">All</span>
                         </label>
                       </div>
                       {activeTab === "jobs" ? (
@@ -340,9 +349,9 @@ export default function EmployerDashboardPage() {
                                 value="active"
                                 checked={statusFilter === "active"}
                                 onChange={() => setStatusFilter("active")}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700">Active</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Active</span>
                             </label>
                           </div>
                           <div className="px-4 py-2">
@@ -353,9 +362,9 @@ export default function EmployerDashboardPage() {
                                 value="closed"
                                 checked={statusFilter === "closed"}
                                 onChange={() => setStatusFilter("closed")}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700">Closed</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Closed</span>
                             </label>
                           </div>
                         </>
@@ -369,9 +378,9 @@ export default function EmployerDashboardPage() {
                                 value="review"
                                 checked={statusFilter === "review"}
                                 onChange={() => setStatusFilter("review")}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700">Under Review</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Under Review</span>
                             </label>
                           </div>
                           <div className="px-4 py-2">
@@ -382,9 +391,9 @@ export default function EmployerDashboardPage() {
                                 value="shortlisted"
                                 checked={statusFilter === "shortlisted"}
                                 onChange={() => setStatusFilter("shortlisted")}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700">Shortlisted</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Shortlisted</span>
                             </label>
                           </div>
                           <div className="px-4 py-2">
@@ -395,9 +404,9 @@ export default function EmployerDashboardPage() {
                                 value="interview"
                                 checked={statusFilter === "interview"}
                                 onChange={() => setStatusFilter("interview")}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700">Interview</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Interview</span>
                             </label>
                           </div>
                           <div className="px-4 py-2">
@@ -408,9 +417,9 @@ export default function EmployerDashboardPage() {
                                 value="hired"
                                 checked={statusFilter === "hired"}
                                 onChange={() => setStatusFilter("hired")}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700">Hired</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Hired</span>
                             </label>
                           </div>
                           <div className="px-4 py-2">
@@ -421,9 +430,9 @@ export default function EmployerDashboardPage() {
                                 value="rejected"
                                 checked={statusFilter === "rejected"}
                                 onChange={() => setStatusFilter("rejected")}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700">Rejected</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Rejected</span>
                             </label>
                           </div>
                         </>
@@ -436,10 +445,12 @@ export default function EmployerDashboardPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-gray-200 mb-6">
+          <div className="flex border-b border-gray-200 dark:border-gray-800 mb-6">
             <button
               className={`py-3 px-6 font-medium text-sm ${
-                activeTab === "jobs" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"
+                activeTab === "jobs"
+                  ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
               onClick={() => setActiveTab("jobs")}
             >
@@ -448,8 +459,8 @@ export default function EmployerDashboardPage() {
             <button
               className={`py-3 px-6 font-medium text-sm ${
                 activeTab === "candidates"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
               onClick={() => setActiveTab("candidates")}
             >
@@ -459,37 +470,37 @@ export default function EmployerDashboardPage() {
 
           {/* Job Listings Tab */}
           {activeTab === "jobs" && (
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Job
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell"
                     >
                       Location
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell"
                     >
                       Posted Date
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Applicants
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Status
                     </th>
@@ -498,31 +509,33 @@ export default function EmployerDashboardPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
                   {filteredJobs.length > 0 ? (
                     filteredJobs.map((job) => (
-                      <tr key={job.id} className="hover:bg-gray-50">
+                      <tr key={job.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex flex-col">
-                            <div className="text-sm font-medium text-gray-900">{job.title}</div>
-                            <div className="text-sm text-gray-500">{job.department}</div>
-                            <div className="md:hidden text-xs text-gray-500 mt-1">{job.location}</div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{job.title}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">{job.department}</div>
+                            <div className="md:hidden text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {job.location}
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                          <div className="flex items-center text-sm text-gray-500">
+                          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                             <MapPin className="h-4 w-4 mr-1" />
                             {job.location}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                          <div className="text-sm text-gray-500">{formatDate(job.postedDate)}</div>
-                          <div className="text-xs text-gray-400">{getDaysAgo(job.postedDate)}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{formatDate(job.postedDate)}</div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500">{getDaysAgo(job.postedDate)}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <Users className="h-4 w-4 mr-1 text-gray-500" />
-                            <span className="text-sm text-gray-900">{job.applicants}</span>
+                            <Users className="h-4 w-4 mr-1 text-gray-500 dark:text-gray-400" />
+                            <span className="text-sm text-gray-900 dark:text-gray-100">{job.applicants}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -538,19 +551,22 @@ export default function EmployerDashboardPage() {
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => openJobDrawer(job, "view")}
-                              className="text-blue-600 hover:text-blue-900"
+                              className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                               title="View Job"
                             >
                               <Eye className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => openJobDrawer(job, "edit")}
-                              className="text-gray-600 hover:text-gray-900"
+                              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300"
                               title="Edit Job"
                             >
                               <Edit className="h-4 w-4" />
                             </button>
-                            <button className="text-red-600 hover:text-red-900" title="Delete Job">
+                            <button
+                              className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                              title="Delete Job"
+                            >
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
@@ -559,7 +575,7 @@ export default function EmployerDashboardPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                      <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                         No job listings found
                       </td>
                     </tr>
@@ -574,7 +590,10 @@ export default function EmployerDashboardPage() {
             <div className="space-y-4">
               {filteredCandidates.length > 0 ? (
                 filteredCandidates.map((candidate) => (
-                  <div key={candidate.id} className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                  <div
+                    key={candidate.id}
+                    className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-800"
+                  >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
@@ -587,9 +606,11 @@ export default function EmployerDashboardPage() {
                           />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900">{candidate.name}</h3>
-                          <div className="text-sm text-gray-500">Applied for: {candidate.jobTitle}</div>
-                          <div className="flex items-center text-xs text-gray-500 mt-1">
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">{candidate.name}</h3>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            Applied for: {candidate.jobTitle}
+                          </div>
+                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
                             <MapPin className="h-3 w-3 mr-1" />
                             {candidate.location} • {candidate.experience} experience
                           </div>
@@ -609,10 +630,12 @@ export default function EmployerDashboardPage() {
                             {candidate.status === "rejected" && "Rejected"}
                             {candidate.status === "hired" && "Hired"}
                           </span>
-                          <div className="text-xs text-gray-500 ml-2">Applied {getDaysAgo(candidate.appliedDate)}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                            Applied {getDaysAgo(candidate.appliedDate)}
+                          </div>
                         </div>
                         <div className="flex items-center">
-                          <div className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                          <div className="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">
                             {candidate.matchScore}% Match
                           </div>
                         </div>
@@ -620,12 +643,12 @@ export default function EmployerDashboardPage() {
                     </div>
 
                     <div className="mt-4">
-                      <div className="text-xs font-medium text-gray-500 mb-2">Skills</div>
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Skills</div>
                       <div className="flex flex-wrap gap-2">
                         {candidate.skills.map((skill, index) => (
                           <span
                             key={index}
-                            className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                            className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
                           >
                             {skill}
                           </span>
@@ -633,12 +656,15 @@ export default function EmployerDashboardPage() {
                       </div>
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
-                      <button className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-wrap gap-2">
+                      <button
+                        onClick={() => openCandidateDrawer(candidate)}
+                        className="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-700 text-sm leading-5 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:text-gray-500 dark:hover:text-gray-400 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 dark:active:text-gray-200 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150"
+                      >
                         <Eye className="h-4 w-4 mr-1" />
                         View Profile
                       </button>
-                      <button className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150">
+                      <button className="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-700 text-sm leading-5 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:text-gray-500 dark:hover:text-gray-400 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 dark:active:text-gray-200 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
                         <MessageCircle className="h-4 w-4 mr-1" />
                         Message
                       </button>
@@ -664,12 +690,12 @@ export default function EmployerDashboardPage() {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="h-8 w-8 text-gray-400" />
+                <div className="text-center py-12 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Users className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-1">No candidates found</h3>
-                  <p className="text-gray-500">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">No candidates found</h3>
+                  <p className="text-gray-500 dark:text-gray-400">
                     {searchQuery
                       ? "Try adjusting your search or filter criteria"
                       : "When candidates apply to your jobs, they will appear here"}
@@ -689,6 +715,15 @@ export default function EmployerDashboardPage() {
           onClose={() => setIsDrawerOpen(false)}
           mode={drawerMode}
           onSave={handleJobUpdate}
+        />
+      )}
+
+      {/* Candidate Profile Drawer */}
+      {selectedCandidate && (
+        <CandidateProfileDrawer
+          candidate={selectedCandidate}
+          isOpen={isCandidateDrawerOpen}
+          onClose={() => setIsCandidateDrawerOpen(false)}
         />
       )}
     </div>
