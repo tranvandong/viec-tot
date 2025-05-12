@@ -16,6 +16,7 @@ import {
   X,
   MessageCircle,
   Calendar,
+  Share2,
 } from "lucide-react";
 import { EmployerJobDetailDrawer } from "@/components/employer-job-detail-drawer";
 
@@ -293,141 +294,237 @@ export default function CompanyDetail() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="mx-auto">
-        <div className="min-h-screen">
-          {/* Hero Section */}
-          <div className="relative">
-            <img
-              src="https://images.unsplash.com/photo-..." // ảnh nền ở đây
-              alt="Office"
-              className="w-full h-64 object-cover"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-20" />
-          </div>
-          {/* Company Card */}
-          <div className="relative max-w-6xl mx-auto -mt-16 bg-white rounded-xl shadow-lg p-6 flex flex-col md:flex-col md:items-center">
-            <div className="flex flex-col md:flex-row md:items-center w-full">
-              <div className="flex items-center space-x-4">
-                <div className="bg-black text-white w-16 h-16 flex items-center justify-center rounded-lg text-2xl font-bold">
-                  P
-                </div>
+      {/* Background Image */}
+      <div className="relative h-[300px] w-full">
+        <Image
+          src="https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg"
+          alt="Office"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-black/20" />
+      </div>
+
+      {/* Company Info Card */}
+      <div className="max-w-5xl mx-auto px-4 -mt-24 relative z-10">
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="flex flex-col md:flex-row md:items-start gap-6">
+            {/* Logo */}
+            <div className="w-16 h-16 bg-black text-white flex items-center justify-center rounded-lg text-2xl font-bold flex-shrink-0">
+              P
+            </div>
+
+            {/* Company Info */}
+            <div className="flex-1">
+              <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1 className="text-2xl font-bold">Pixelz Studio</h1>
+                  <h1 className="text-2xl font-bold mb-1">Pixelz Studio</h1>
                   <p className="text-gray-600">
                     We Design Delightful Digital Experiences
                   </p>
                 </div>
-              </div>
-              <button className="mt-4 md:mt-0 md:ml-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                + Follow
-              </button>
-            </div>
-            <div className="flex justify-around text-gray-600 mt-4 w-full">
-              {/* Website */}
-              <div>
-                <div className="text-xs text-gray-400">Website</div>
-                <a
-                  href="#"
-                  className="text-blue-600 font-semibold hover:underline"
-                >
-                  pixelz.studio
-                </a>
+                <div className="flex items-center gap-2">
+                  <button className="p-2 hover:bg-gray-100 rounded-full">
+                    <Share2 className="w-5 h-5 text-gray-600" />
+                  </button>
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    + Follow
+                  </button>
+                </div>
               </div>
 
-              {/* Location */}
-              <div>
-                <div className="text-xs text-gray-400">Location</div>
-                <div className="font-semibold">Yogyakarta, Indonesia</div>
-              </div>
-
-              {/* Company Size */}
-              <div>
-                <div className="text-xs text-gray-400">Company Size</div>
-                <div className="font-semibold">10-50 Employees</div>
-              </div>
-
-              {/* Company Type */}
-              <div>
-                <div className="text-xs text-gray-400">Company Type</div>
-                <div className="font-semibold">Design Services</div>
+              {/* Company Details Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-4">
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">Website</div>
+                  <a
+                    href="https://pixelz.studio"
+                    className="text-blue-600 hover:underline"
+                  >
+                    pixelz.studio
+                  </a>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">Location</div>
+                  <div className="font-medium">Yogyakarta, Indonesia</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">Company Size</div>
+                  <div className="font-medium">10-50 Employees</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">Company Type</div>
+                  <div className="font-medium">Design Services</div>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Content Sections */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="max-w-6xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Left Section */}
-            <div className="md:col-span-2 space-y-8">
-              {/* About */}
-
-              <h2 className="text-xl font-bold mb-2">About Pixelz</h2>
+          <div className="md:col-span-2 space-y-8">
+            {/* About */}
+            <div>
+              <h2 className="text-xl font-bold mb-4">About Pixelz</h2>
               <p className="text-gray-600">
-                Pixelz is a Product and Design Studio based in Yogyakarta...
+                Pixelz is a Product and Design Studio based in Yogyakarta,
+                Indonesia. We are a one-stop solution for digital product design
+                needs that strive to innovate business solutions with high
+                quality and personalized design. We design experiences for
+                digital products that are simple and easy to use. In order to
+                meet the business needs and users needs, all of our design
+                decisions...
               </p>
+            </div>
 
-              {/* Jobs */}
-              <div className="">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-bold">Jobs From Pixelz Studio</h2>
-                  <a href="#" className="text-blue-600 text-sm">
-                    View All Jobs
-                  </a>
+            {/* Jobs */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Jobs From Pixelz Studio</h2>
+                <Link
+                  href="#"
+                  className="text-blue-600 text-sm hover:underline"
+                >
+                  View All Jobs
+                </Link>
+              </div>
+
+              <div className="space-y-4">
+                {/* Job Card */}
+                <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+                  <h3 className="font-semibold mb-1">UI/UX Designer</h3>
+                  <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    Remote • Full-time • 2-4 years
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    5 days ago • 135 applicants
+                  </div>
                 </div>
-                <div className="space-y-4">
-                  {/* Single Job */}
-                  <div className="border p-4 rounded-lg hover:shadow">
-                    <h3 className="font-bold">UI/UX Designer</h3>
-                    <p className="text-gray-500 text-sm">
-                      Remote · Full-time · 2-4 years
-                    </p>
-                    <p className="text-gray-400 text-xs">
-                      5 days ago · 135 applicants
-                    </p>
+
+                <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+                  <h3 className="font-semibold mb-1">UI Designer</h3>
+                  <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    Internship • Onsite • Fresh Graduate
                   </div>
-                  <div className="border p-4 rounded-lg hover:shadow">
-                    <h3 className="font-bold">UI Designer</h3>
-                    <p className="text-gray-500 text-sm">
-                      Internship · Onsite · Fresh Graduate
-                    </p>
-                    <p className="text-gray-400 text-xs">
-                      1 day ago · 35 applicants
-                    </p>
+                  <div className="text-sm text-gray-400">
+                    1 day ago • 35 applicants
                   </div>
-                  <div className="border p-4 rounded-lg hover:shadow">
-                    <h3 className="font-bold">Front-end Developer</h3>
-                    <p className="text-gray-500 text-sm">
-                      Remote · Full-time · 1-3 years
-                    </p>
-                    <p className="text-gray-400 text-xs">
-                      2 days ago · 50 applicants
-                    </p>
+                </div>
+
+                <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+                  <h3 className="font-semibold mb-1">Frontend Developer</h3>
+                  <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    Remote • Full-time • 1-3 years
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    2 days ago • 50 applicants
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Sidebar */}
-            <div className="space-y-8">
-              {/* People Also View */}
-              <div className="bg-white rounded-lg p-6 shadow">
-                <h2 className="text-xl font-bold mb-4">People Also View</h2>
-                <div className="space-y-2">
-                  <div
-                    key={"index"}
-                    className="flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="font-semibold">{"company.name"}</p>
-                      <p className="text-gray-400 text-sm">
-                        {"company.location"}
-                      </p>
+          {/* Sidebar */}
+          <div>
+            {/* People at Pixelz */}
+            <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
+              <h2 className="text-lg font-bold mb-4">
+                People at Pixelz Studio
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Image
+                    src="/placeholder.svg"
+                    alt="Zazuly Aziz"
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
+                  <div>
+                    <div className="font-medium">Zazuly Aziz</div>
+                    <div className="text-sm text-gray-500">
+                      Founder at Pixelz Studio
                     </div>
-                    <img
-                      src={"company.logo"}
-                      alt={"company.name"}
-                      className="w-10 h-10 rounded-lg object-cover"
-                    />
                   </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Image
+                    src="/placeholder.svg"
+                    alt="Rian Darma"
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
+                  <div>
+                    <div className="font-medium">Rian Darma</div>
+                    <div className="text-sm text-gray-500">
+                      Co-Founder at Pixelz Studio
+                    </div>
+                  </div>
+                </div>
+
+                <button className="w-full text-center text-sm text-blue-600 hover:text-blue-700 mt-2">
+                  Show All
+                </button>
+              </div>
+            </div>
+
+            {/* People Also View */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h2 className="text-lg font-bold mb-4">People Also View</h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Traveloka</div>
+                    <div className="text-sm text-gray-500">
+                      Jakarta, Indonesia
+                    </div>
+                  </div>
+                  <Image
+                    src="/placeholder.svg"
+                    alt="Traveloka"
+                    width={40}
+                    height={40}
+                    className="rounded-lg"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Gojek</div>
+                    <div className="text-sm text-gray-500">
+                      Jakarta, Indonesia
+                    </div>
+                  </div>
+                  <Image
+                    src="/placeholder.svg"
+                    alt="Gojek"
+                    width={40}
+                    height={40}
+                    className="rounded-lg"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Slack</div>
+                    <div className="text-sm text-gray-500">
+                      Yogyakarta, Indonesia
+                    </div>
+                  </div>
+                  <Image
+                    src="/placeholder.svg"
+                    alt="Slack"
+                    width={40}
+                    height={40}
+                    className="rounded-lg"
+                  />
                 </div>
               </div>
             </div>
