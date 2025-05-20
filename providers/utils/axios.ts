@@ -8,6 +8,9 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
+    // if (error.response && error.response.status === 401) {
+    //   window.location.href = "/";
+    // }
     const customError: HttpError = {
       ...error,
       message: error.response?.data?.message,

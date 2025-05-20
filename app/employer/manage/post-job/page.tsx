@@ -1,14 +1,21 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Briefcase, Building, MapPin, DollarSign, Calendar, X } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  Briefcase,
+  Building,
+  MapPin,
+  DollarSign,
+  Calendar,
+  X,
+} from "lucide-react";
 
 export default function PostJobPage() {
-  const router = useRouter()
+  const router = useRouter();
   const [formData, setFormData] = useState({
     title: "",
     company: "Acme Inc.",
@@ -27,75 +34,56 @@ export default function PostJobPage() {
     applicationDeadline: "",
     showSalary: true,
     activelyRecruiting: true,
-  })
+  });
 
-  const [skills, setSkills] = useState<string[]>([])
-  const [skillInput, setSkillInput] = useState("")
+  const [skills, setSkills] = useState<string[]>([]);
+  const [skillInput, setSkillInput] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
-  }
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target
-    setFormData({ ...formData, [name]: checked })
-  }
+    const { name, checked } = e.target;
+    setFormData({ ...formData, [name]: checked });
+  };
 
   const addSkill = () => {
     if (skillInput.trim() && !skills.includes(skillInput.trim())) {
-      setSkills([...skills, skillInput.trim()])
-      setSkillInput("")
+      setSkills([...skills, skillInput.trim()]);
+      setSkillInput("");
     }
-  }
+  };
 
   const removeSkill = (skillToRemove: string) => {
-    setSkills(skills.filter((skill) => skill !== skillToRemove))
-  }
+    setSkills(skills.filter((skill) => skill !== skillToRemove));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Here you would typically send the data to your API
-    console.log({ ...formData, skills })
+    console.log({ ...formData, skills });
 
     // Redirect to the employer dashboard
-    router.push("/employer/dashboard")
-  }
+    router.push("/employer/dashboard");
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-blue-950 text-white">
-        <div className="container mx-auto px-4 md:px-8 flex items-center justify-between py-4">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="bg-orange-500 px-2 py-1 rounded font-bold text-white">Job</span>
-              <span className="font-bold text-lg text-white">Wise</span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-6">
-              <Link href="/employer/dashboard" className="text-sm font-medium text-white">
-                Dashboard
-              </Link>
-              <Link href="/employer/post-job" className="text-sm font-medium text-white border-b-2 border-white pb-1">
-                Post a Job
-              </Link>
-              <Link href="/employer/profile" className="text-sm font-medium text-white">
-                Company Profile
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-sm font-medium text-white">Employer Portal</div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold">Post a New Job</h1>
-            <Link href="/employer/dashboard" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+            <Link
+              href="/employer/dashboard"
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
               Cancel
             </Link>
           </div>
@@ -104,10 +92,15 @@ export default function PostJobPage() {
             <form onSubmit={handleSubmit}>
               {/* Job Basics */}
               <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4 text-gray-800">Job Basics</h2>
+                <h2 className="text-lg font-semibold mb-4 text-gray-800">
+                  Job Basics
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="title"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Job Title*
                     </label>
                     <div className="relative">
@@ -128,7 +121,10 @@ export default function PostJobPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="department"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Department
                     </label>
                     <div className="relative">
@@ -148,7 +144,10 @@ export default function PostJobPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="location"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Location*
                     </label>
                     <div className="relative">
@@ -172,10 +171,15 @@ export default function PostJobPage() {
 
               {/* Job Details */}
               <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4 text-gray-800">Job Details</h2>
+                <h2 className="text-lg font-semibold mb-4 text-gray-800">
+                  Job Details
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="workType" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="workType"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Work Type*
                     </label>
                     <select
@@ -193,7 +197,10 @@ export default function PostJobPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="jobType" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="jobType"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Job Type*
                     </label>
                     <select
@@ -212,7 +219,10 @@ export default function PostJobPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="experienceLevel" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="experienceLevel"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Experience Level*
                     </label>
                     <select
@@ -231,7 +241,10 @@ export default function PostJobPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="applicationDeadline" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="applicationDeadline"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Application Deadline
                     </label>
                     <div className="relative">
@@ -254,7 +267,9 @@ export default function PostJobPage() {
               {/* Salary Information */}
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800">Salary Information</h2>
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    Salary Information
+                  </h2>
                   <div className="flex items-center">
                     <input
                       type="checkbox"
@@ -264,14 +279,20 @@ export default function PostJobPage() {
                       onChange={handleCheckboxChange}
                       className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <label htmlFor="showSalary" className="ml-2 block text-sm text-gray-700">
+                    <label
+                      htmlFor="showSalary"
+                      className="ml-2 block text-sm text-gray-700"
+                    >
                       Show salary on job post
                     </label>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label htmlFor="minSalary" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="minSalary"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Minimum Salary
                     </label>
                     <div className="relative">
@@ -291,7 +312,10 @@ export default function PostJobPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="maxSalary" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="maxSalary"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Maximum Salary
                     </label>
                     <div className="relative">
@@ -311,7 +335,10 @@ export default function PostJobPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="salaryPeriod" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="salaryPeriod"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Salary Period
                     </label>
                     <select
@@ -331,7 +358,9 @@ export default function PostJobPage() {
 
               {/* Skills */}
               <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4 text-gray-800">Required Skills</h2>
+                <h2 className="text-lg font-semibold mb-4 text-gray-800">
+                  Required Skills
+                </h2>
                 <div className="flex gap-2 mb-2">
                   <div className="relative flex-1">
                     <input
@@ -342,8 +371,8 @@ export default function PostJobPage() {
                       className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       onKeyPress={(e) => {
                         if (e.key === "Enter") {
-                          e.preventDefault()
-                          addSkill()
+                          e.preventDefault();
+                          addSkill();
                         }
                       }}
                     />
@@ -377,10 +406,15 @@ export default function PostJobPage() {
 
               {/* Job Description */}
               <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4 text-gray-800">Job Description</h2>
+                <h2 className="text-lg font-semibold mb-4 text-gray-800">
+                  Job Description
+                </h2>
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="description"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Description*
                     </label>
                     <textarea
@@ -396,7 +430,10 @@ export default function PostJobPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="responsibilities" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="responsibilities"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Responsibilities*
                     </label>
                     <textarea
@@ -410,12 +447,16 @@ export default function PostJobPage() {
                       className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
                     <p className="mt-1 text-sm text-gray-500">
-                      Tip: Use bullet points by starting each line with a dash (-)
+                      Tip: Use bullet points by starting each line with a dash
+                      (-)
                     </p>
                   </div>
 
                   <div>
-                    <label htmlFor="requirements" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="requirements"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Requirements*
                     </label>
                     <textarea
@@ -431,7 +472,10 @@ export default function PostJobPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="benefits" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="benefits"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Benefits
                     </label>
                     <textarea
@@ -449,7 +493,9 @@ export default function PostJobPage() {
 
               {/* Additional Options */}
               <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4 text-gray-800">Additional Options</h2>
+                <h2 className="text-lg font-semibold mb-4 text-gray-800">
+                  Additional Options
+                </h2>
                 <div className="flex items-center">
                   <input
                     type="checkbox"
@@ -459,7 +505,10 @@ export default function PostJobPage() {
                     onChange={handleCheckboxChange}
                     className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <label htmlFor="activelyRecruiting" className="ml-2 block text-sm text-gray-700">
+                  <label
+                    htmlFor="activelyRecruiting"
+                    className="ml-2 block text-sm text-gray-700"
+                  >
                     Show "Actively Recruiting" badge on job listing
                   </label>
                 </div>
@@ -486,5 +535,5 @@ export default function PostJobPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

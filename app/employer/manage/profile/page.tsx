@@ -1,11 +1,19 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Camera, MapPin, Globe, Mail, Briefcase, Users, Calendar } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  Camera,
+  MapPin,
+  Globe,
+  Mail,
+  Briefcase,
+  Users,
+  Calendar,
+} from "lucide-react";
 
 export default function CompanyProfilePage() {
   // Mock company data
@@ -29,15 +37,19 @@ export default function CompanyProfilePage() {
       twitter: "twitter.com/acmeinc",
       facebook: "facebook.com/acmeinc",
     },
-  })
+  });
 
-  const [isEditing, setIsEditing] = useState(false)
-  const [editedCompany, setEditedCompany] = useState(company)
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedCompany, setEditedCompany] = useState(company);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setEditedCompany({ ...editedCompany, [name]: value })
-  }
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setEditedCompany({ ...editedCompany, [name]: value });
+  };
 
   const handleSocialMediaChange = (platform: string, value: string) => {
     setEditedCompany({
@@ -46,42 +58,16 @@ export default function CompanyProfilePage() {
         ...editedCompany.socialMedia,
         [platform]: value,
       },
-    })
-  }
+    });
+  };
 
   const handleSave = () => {
-    setCompany(editedCompany)
-    setIsEditing(false)
-  }
+    setCompany(editedCompany);
+    setIsEditing(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-blue-950 text-white">
-        <div className="container mx-auto px-4 md:px-8 flex items-center justify-between py-4">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="bg-orange-500 px-2 py-1 rounded font-bold text-white">Job</span>
-              <span className="font-bold text-lg text-white">Wise</span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-6">
-              <Link href="/employer/dashboard" className="text-sm font-medium text-white">
-                Dashboard
-              </Link>
-              <Link href="/employer/post-job" className="text-sm font-medium text-white">
-                Post a Job
-              </Link>
-              <Link href="/employer/profile" className="text-sm font-medium text-white border-b-2 border-white pb-1">
-                Company Profile
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-sm font-medium text-white">Employer Portal</div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
@@ -98,14 +84,17 @@ export default function CompanyProfilePage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => {
-                    setIsEditing(false)
-                    setEditedCompany(company)
+                    setIsEditing(false);
+                    setEditedCompany(company);
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
-                <button onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                <button
+                  onClick={handleSave}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
                   Save Changes
                 </button>
               </div>
@@ -156,7 +145,10 @@ export default function CompanyProfilePage() {
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="name"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Company Name*
                       </label>
                       <input
@@ -171,7 +163,10 @@ export default function CompanyProfilePage() {
                     </div>
 
                     <div>
-                      <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="industry"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Industry*
                       </label>
                       <input
@@ -186,7 +181,10 @@ export default function CompanyProfilePage() {
                     </div>
 
                     <div>
-                      <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="website"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Website
                       </label>
                       <input
@@ -200,7 +198,10 @@ export default function CompanyProfilePage() {
                     </div>
 
                     <div>
-                      <label htmlFor="headquarters" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="headquarters"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Headquarters
                       </label>
                       <input
@@ -214,7 +215,10 @@ export default function CompanyProfilePage() {
                     </div>
 
                     <div>
-                      <label htmlFor="companySize" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="companySize"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Company Size
                       </label>
                       <select
@@ -226,15 +230,24 @@ export default function CompanyProfilePage() {
                       >
                         <option value="1-10 employees">1-10 employees</option>
                         <option value="11-50 employees">11-50 employees</option>
-                        <option value="51-200 employees">51-200 employees</option>
-                        <option value="201-500 employees">201-500 employees</option>
-                        <option value="501-1000 employees">501-1000 employees</option>
+                        <option value="51-200 employees">
+                          51-200 employees
+                        </option>
+                        <option value="201-500 employees">
+                          201-500 employees
+                        </option>
+                        <option value="501-1000 employees">
+                          501-1000 employees
+                        </option>
                         <option value="1001+ employees">1001+ employees</option>
                       </select>
                     </div>
 
                     <div>
-                      <label htmlFor="founded" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="founded"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Founded
                       </label>
                       <input
@@ -248,7 +261,10 @@ export default function CompanyProfilePage() {
                     </div>
 
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="phone"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Phone
                       </label>
                       <input
@@ -262,7 +278,10 @@ export default function CompanyProfilePage() {
                     </div>
 
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Email
                       </label>
                       <input
@@ -277,7 +296,10 @@ export default function CompanyProfilePage() {
                   </div>
 
                   <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="description"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Company Description*
                     </label>
                     <textarea
@@ -292,7 +314,10 @@ export default function CompanyProfilePage() {
                   </div>
 
                   <div>
-                    <label htmlFor="mission" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="mission"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Company Mission
                     </label>
                     <textarea
@@ -306,41 +331,58 @@ export default function CompanyProfilePage() {
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-medium text-gray-700 mb-3">Social Media</h3>
+                    <h3 className="text-sm font-medium text-gray-700 mb-3">
+                      Social Media
+                    </h3>
                     <div className="space-y-3">
                       <div>
-                        <label htmlFor="linkedin" className="block text-xs text-gray-500 mb-1">
+                        <label
+                          htmlFor="linkedin"
+                          className="block text-xs text-gray-500 mb-1"
+                        >
                           LinkedIn
                         </label>
                         <input
                           type="text"
                           id="linkedin"
                           value={editedCompany.socialMedia.linkedin}
-                          onChange={(e) => handleSocialMediaChange("linkedin", e.target.value)}
+                          onChange={(e) =>
+                            handleSocialMediaChange("linkedin", e.target.value)
+                          }
                           className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
                       </div>
                       <div>
-                        <label htmlFor="twitter" className="block text-xs text-gray-500 mb-1">
+                        <label
+                          htmlFor="twitter"
+                          className="block text-xs text-gray-500 mb-1"
+                        >
                           Twitter
                         </label>
                         <input
                           type="text"
                           id="twitter"
                           value={editedCompany.socialMedia.twitter}
-                          onChange={(e) => handleSocialMediaChange("twitter", e.target.value)}
+                          onChange={(e) =>
+                            handleSocialMediaChange("twitter", e.target.value)
+                          }
                           className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
                       </div>
                       <div>
-                        <label htmlFor="facebook" className="block text-xs text-gray-500 mb-1">
+                        <label
+                          htmlFor="facebook"
+                          className="block text-xs text-gray-500 mb-1"
+                        >
                           Facebook
                         </label>
                         <input
                           type="text"
                           id="facebook"
                           value={editedCompany.socialMedia.facebook}
-                          onChange={(e) => handleSocialMediaChange("facebook", e.target.value)}
+                          onChange={(e) =>
+                            handleSocialMediaChange("facebook", e.target.value)
+                          }
                           className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
                       </div>
@@ -350,7 +392,9 @@ export default function CompanyProfilePage() {
               ) : (
                 /* View Mode */
                 <div>
-                  <h2 className="text-2xl font-bold mt-4 mb-2">{company.name}</h2>
+                  <h2 className="text-2xl font-bold mt-4 mb-2">
+                    {company.name}
+                  </h2>
                   <div className="flex flex-wrap gap-4 mb-6">
                     <div className="flex items-center text-gray-600">
                       <Briefcase className="h-4 w-4 mr-1" />
@@ -379,7 +423,9 @@ export default function CompanyProfilePage() {
                         <Users className="h-5 w-5 text-blue-600" />
                       </div>
                       <div>
-                        <div className="text-sm text-gray-500">Company Size</div>
+                        <div className="text-sm text-gray-500">
+                          Company Size
+                        </div>
                         <div className="font-medium">{company.companySize}</div>
                       </div>
                     </div>
@@ -404,19 +450,25 @@ export default function CompanyProfilePage() {
                   </div>
 
                   <div className="mb-8">
-                    <h3 className="text-lg font-semibold mb-3">About {company.name}</h3>
+                    <h3 className="text-lg font-semibold mb-3">
+                      About {company.name}
+                    </h3>
                     <p className="text-gray-700">{company.description}</p>
                   </div>
 
                   {company.mission && (
                     <div className="mb-8">
-                      <h3 className="text-lg font-semibold mb-3">Our Mission</h3>
+                      <h3 className="text-lg font-semibold mb-3">
+                        Our Mission
+                      </h3>
                       <p className="text-gray-700">{company.mission}</p>
                     </div>
                   )}
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Connect With Us</h3>
+                    <h3 className="text-lg font-semibold mb-3">
+                      Connect With Us
+                    </h3>
                     <div className="flex gap-4">
                       {company.socialMedia.linkedin && (
                         <a
@@ -425,7 +477,11 @@ export default function CompanyProfilePage() {
                           rel="noopener noreferrer"
                           className="p-2 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200"
                         >
-                          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                          <svg
+                            className="h-5 w-5"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
                             <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                           </svg>
                         </a>
@@ -437,7 +493,11 @@ export default function CompanyProfilePage() {
                           rel="noopener noreferrer"
                           className="p-2 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200"
                         >
-                          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                          <svg
+                            className="h-5 w-5"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
                             <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
                           </svg>
                         </a>
@@ -449,7 +509,11 @@ export default function CompanyProfilePage() {
                           rel="noopener noreferrer"
                           className="p-2 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200"
                         >
-                          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                          <svg
+                            className="h-5 w-5"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
                             <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" />
                           </svg>
                         </a>
@@ -463,5 +527,5 @@ export default function CompanyProfilePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

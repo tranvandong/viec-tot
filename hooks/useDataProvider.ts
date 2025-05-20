@@ -1,10 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { dataProvider } from "../providers/dataProvider";
+import { odataCrudDataProvider } from "../providers/odataCrudDataProvider";
 import { HttpError } from "../providers/types/HttpError";
 
 // Initialize dataProvider with API URL
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
-const provider = dataProvider(apiUrl);
+const provider = odataCrudDataProvider(apiUrl);
 
 interface MetaQuery {
   join: string[];

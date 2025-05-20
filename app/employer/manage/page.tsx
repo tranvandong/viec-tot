@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import {
   MapPin,
   Users,
@@ -16,20 +16,20 @@ import {
   X,
   MessageCircle,
   Calendar,
-} from "lucide-react"
-import { EmployerJobDetailDrawer } from "@/components/employer-job-detail-drawer"
-import { CandidateProfileDrawer } from "@/components/candidate-profile-drawer"
+} from "lucide-react";
+import { EmployerJobDetailDrawer } from "@/components/employer-job-detail-drawer";
+import { CandidateProfileDrawer } from "@/components/candidate-profile-drawer";
 
 export default function EmployerDashboardPage() {
-  const [activeTab, setActiveTab] = useState<"jobs" | "candidates">("jobs")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filterOpen, setFilterOpen] = useState(false)
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [selectedJob, setSelectedJob] = useState<any>(null)
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const [drawerMode, setDrawerMode] = useState<"view" | "edit">("view")
-  const [selectedCandidate, setSelectedCandidate] = useState<any>(null)
-  const [isCandidateDrawerOpen, setIsCandidateDrawerOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState<"jobs" | "candidates">("jobs");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [drawerMode, setDrawerMode] = useState<"view" | "edit">("view");
+  const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
+  const [isCandidateDrawerOpen, setIsCandidateDrawerOpen] = useState(false);
 
   // Mock data for jobs
   const jobs = [
@@ -93,7 +93,7 @@ export default function EmployerDashboardPage() {
       applicants: 32,
       status: "active",
     },
-  ]
+  ];
 
   // Mock data for candidates
   const candidates = [
@@ -175,116 +175,94 @@ export default function EmployerDashboardPage() {
       skills: ["SQL", "Python", "Data Visualization", "Excel"],
       matchScore: 82,
     },
-  ]
+  ];
 
   // Filter jobs based on search query
   const filteredJobs = jobs.filter((job) => {
     const matchesSearch =
       job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.location.toLowerCase().includes(searchQuery.toLowerCase())
+      job.location.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (statusFilter === "all") return matchesSearch
-    return matchesSearch && job.status === statusFilter
-  })
+    if (statusFilter === "all") return matchesSearch;
+    return matchesSearch && job.status === statusFilter;
+  });
 
   // Filter candidates based on search query and status
   const filteredCandidates = candidates.filter((candidate) => {
     const matchesSearch =
       candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       candidate.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      candidate.location.toLowerCase().includes(searchQuery.toLowerCase())
+      candidate.location.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (statusFilter === "all") return matchesSearch
-    return matchesSearch && candidate.status === statusFilter
-  })
+    if (statusFilter === "all") return matchesSearch;
+    return matchesSearch && candidate.status === statusFilter;
+  });
 
   // Get status badge color
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "closed":
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
       case "review":
-        return "bg-blue-100 text-blue-800"
+        return "bg-blue-100 text-blue-800";
       case "shortlisted":
-        return "bg-purple-100 text-purple-800"
+        return "bg-purple-100 text-purple-800";
       case "interview":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "rejected":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       case "hired":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   // Format date
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
-  }
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   // Calculate days ago
   const getDaysAgo = (dateString: string) => {
-    const date = new Date(dateString)
-    const today = new Date()
-    const diffTime = Math.abs(today.getTime() - date.getTime())
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`
-  }
+    const date = new Date(dateString);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
+  };
 
   // Open job detail drawer
   const openJobDrawer = (job: any, mode: "view" | "edit") => {
-    setSelectedJob(job)
-    setDrawerMode(mode)
-    setIsDrawerOpen(true)
-  }
+    setSelectedJob(job);
+    setDrawerMode(mode);
+    setIsDrawerOpen(true);
+  };
 
   // Open candidate profile drawer
   const openCandidateDrawer = (candidate: any) => {
-    setSelectedCandidate(candidate)
-    setIsCandidateDrawerOpen(true)
-  }
+    setSelectedCandidate(candidate);
+    setIsCandidateDrawerOpen(true);
+  };
 
   // Handle job update
   const handleJobUpdate = (updatedJob: any) => {
     // In a real app, you would update the job in your database
-    console.log("Updated job:", updatedJob)
+    console.log("Updated job:", updatedJob);
     // For now, we'll just close the drawer
-    setIsDrawerOpen(false)
-  }
+    setIsDrawerOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-950">
-      {/* Header */}
-      <header className="bg-blue-950 text-white">
-        <div className="container mx-auto px-4 md:px-8 flex items-center justify-between py-4">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="bg-orange-500 px-2 py-1 rounded font-bold text-white">Job</span>
-              <span className="font-bold text-lg text-white">Wise</span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-6">
-              <Link href="/employer/dashboard" className="text-sm font-medium text-white border-b-2 border-white pb-1">
-                Dashboard
-              </Link>
-              <Link href="/employer/post-job" className="text-sm font-medium text-white">
-                Post a Job
-              </Link>
-              <Link href="/employer/profile" className="text-sm font-medium text-white">
-                Company Profile
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-sm font-medium text-white">Employer Portal</div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
@@ -307,7 +285,9 @@ export default function EmployerDashboardPage() {
                 </div>
                 <input
                   type="text"
-                  placeholder={`Search ${activeTab === "jobs" ? "jobs" : "candidates"}...`}
+                  placeholder={`Search ${
+                    activeTab === "jobs" ? "jobs" : "candidates"
+                  }...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 w-full rounded-md border border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
@@ -324,8 +304,14 @@ export default function EmployerDashboardPage() {
                 </button>
                 {filterOpen && (
                   <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
-                    <div className="py-1" role="menu" aria-orientation="vertical">
-                      <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 font-medium">Status</div>
+                    <div
+                      className="py-1"
+                      role="menu"
+                      aria-orientation="vertical"
+                    >
+                      <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
+                        Status
+                      </div>
                       <div className="px-4 py-2">
                         <label className="flex items-center">
                           <input
@@ -336,7 +322,9 @@ export default function EmployerDashboardPage() {
                             onChange={() => setStatusFilter("all")}
                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                           />
-                          <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">All</span>
+                          <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                            All
+                          </span>
                         </label>
                       </div>
                       {activeTab === "jobs" ? (
@@ -351,7 +339,9 @@ export default function EmployerDashboardPage() {
                                 onChange={() => setStatusFilter("active")}
                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Active</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                Active
+                              </span>
                             </label>
                           </div>
                           <div className="px-4 py-2">
@@ -364,7 +354,9 @@ export default function EmployerDashboardPage() {
                                 onChange={() => setStatusFilter("closed")}
                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Closed</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                Closed
+                              </span>
                             </label>
                           </div>
                         </>
@@ -380,7 +372,9 @@ export default function EmployerDashboardPage() {
                                 onChange={() => setStatusFilter("review")}
                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Under Review</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                Under Review
+                              </span>
                             </label>
                           </div>
                           <div className="px-4 py-2">
@@ -393,7 +387,9 @@ export default function EmployerDashboardPage() {
                                 onChange={() => setStatusFilter("shortlisted")}
                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Shortlisted</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                Shortlisted
+                              </span>
                             </label>
                           </div>
                           <div className="px-4 py-2">
@@ -406,7 +402,9 @@ export default function EmployerDashboardPage() {
                                 onChange={() => setStatusFilter("interview")}
                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Interview</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                Interview
+                              </span>
                             </label>
                           </div>
                           <div className="px-4 py-2">
@@ -419,7 +417,9 @@ export default function EmployerDashboardPage() {
                                 onChange={() => setStatusFilter("hired")}
                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Hired</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                Hired
+                              </span>
                             </label>
                           </div>
                           <div className="px-4 py-2">
@@ -432,7 +432,9 @@ export default function EmployerDashboardPage() {
                                 onChange={() => setStatusFilter("rejected")}
                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
                               />
-                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Rejected</span>
+                              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                Rejected
+                              </span>
                             </label>
                           </div>
                         </>
@@ -512,11 +514,18 @@ export default function EmployerDashboardPage() {
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
                   {filteredJobs.length > 0 ? (
                     filteredJobs.map((job) => (
-                      <tr key={job.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <tr
+                        key={job.id}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex flex-col">
-                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{job.title}</div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">{job.department}</div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {job.title}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                              {job.department}
+                            </div>
                             <div className="md:hidden text-xs text-gray-500 dark:text-gray-400 mt-1">
                               {job.location}
                             </div>
@@ -529,19 +538,25 @@ export default function EmployerDashboardPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                          <div className="text-sm text-gray-500 dark:text-gray-400">{formatDate(job.postedDate)}</div>
-                          <div className="text-xs text-gray-400 dark:text-gray-500">{getDaysAgo(job.postedDate)}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {formatDate(job.postedDate)}
+                          </div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500">
+                            {getDaysAgo(job.postedDate)}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <Users className="h-4 w-4 mr-1 text-gray-500 dark:text-gray-400" />
-                            <span className="text-sm text-gray-900 dark:text-gray-100">{job.applicants}</span>
+                            <span className="text-sm text-gray-900 dark:text-gray-100">
+                              {job.applicants}
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
                             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(
-                              job.status,
+                              job.status
                             )}`}
                           >
                             {job.status === "active" ? "Active" : "Closed"}
@@ -575,7 +590,10 @@ export default function EmployerDashboardPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                      <td
+                        colSpan={6}
+                        className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400"
+                      >
                         No job listings found
                       </td>
                     </tr>
@@ -606,13 +624,16 @@ export default function EmployerDashboardPage() {
                           />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">{candidate.name}</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                            {candidate.name}
+                          </h3>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
                             Applied for: {candidate.jobTitle}
                           </div>
                           <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
                             <MapPin className="h-3 w-3 mr-1" />
-                            {candidate.location} • {candidate.experience} experience
+                            {candidate.location} • {candidate.experience}{" "}
+                            experience
                           </div>
                         </div>
                       </div>
@@ -621,11 +642,12 @@ export default function EmployerDashboardPage() {
                         <div className="flex items-center mb-2">
                           <span
                             className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(
-                              candidate.status,
+                              candidate.status
                             )}`}
                           >
                             {candidate.status === "review" && "Under Review"}
-                            {candidate.status === "shortlisted" && "Shortlisted"}
+                            {candidate.status === "shortlisted" &&
+                              "Shortlisted"}
                             {candidate.status === "interview" && "Interview"}
                             {candidate.status === "rejected" && "Rejected"}
                             {candidate.status === "hired" && "Hired"}
@@ -643,7 +665,9 @@ export default function EmployerDashboardPage() {
                     </div>
 
                     <div className="mt-4">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Skills</div>
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                        Skills
+                      </div>
                       <div className="flex flex-wrap gap-2">
                         {candidate.skills.map((skill, index) => (
                           <span
@@ -694,7 +718,9 @@ export default function EmployerDashboardPage() {
                   <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Users className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">No candidates found</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">
+                    No candidates found
+                  </h3>
                   <p className="text-gray-500 dark:text-gray-400">
                     {searchQuery
                       ? "Try adjusting your search or filter criteria"
@@ -727,5 +753,5 @@ export default function EmployerDashboardPage() {
         />
       )}
     </div>
-  )
+  );
 }

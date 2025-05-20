@@ -1,46 +1,73 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { useRegister } from "@/hooks/useAuth";
 
-export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [activeSlide, setActiveSlide] = useState(0)
+export default function RegisterPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const { mutate: registerUser } = useRegister();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data: any) => {
+    registerUser(data);
+  };
 
   const slides = [
     {
       title: "Connect with every employer.",
-      description: "Everything you need in an easily customizable job search dashboard.",
+      description:
+        "Everything you need in an easily customizable job search dashboard.",
     },
     {
       title: "Track your applications.",
-      description: "Monitor your progress and never miss a follow-up opportunity.",
+      description:
+        "Monitor your progress and never miss a follow-up opportunity.",
     },
     {
       title: "Get personalized job matches.",
-      description: "Our AI matches your skills with the perfect job opportunities.",
+      description:
+        "Our AI matches your skills with the perfect job opportunities.",
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Login Form */}
+      {/* Left Side - Registration Form */}
       <div className="w-full lg:w-1/2 flex flex-col p-10 lg:p-16">
         <div className="mb-16">
           <Link href="/" className="flex items-center gap-2">
-            <span className="bg-orange-500 px-2 py-1 rounded font-bold text-white">Job</span>
-            <span className="font-bold text-lg">Wise</span>
+            <Image
+              src={"/logo.png"}
+              width={120}
+              height={60}
+              alt="logo viec tot"
+            />
           </Link>
         </div>
 
         <div className="max-w-md mx-auto w-full">
-          <h1 className="text-3xl font-bold mb-2">Log in to your Account</h1>
-          <p className="text-gray-500 mb-8">Welcome back! Select method to log in:</p>
+          <h1 className="text-3xl font-bold mb-2">Tạo tài khoản của bạn</h1>
+          <p className="text-gray-500 mb-8">
+            Tham gia Việc Tốt ngay hôm nay để tìm kiềm việc làm mơ ước của bạn!
+          </p>
 
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          {/* <div className="grid grid-cols-2 gap-4 mb-6">
             <button className="flex items-center justify-center gap-2 p-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                   fill="#4285F4"
@@ -61,7 +88,11 @@ export default function LoginPage() {
               <span className="text-sm font-medium">Google</span>
             </button>
             <button className="flex items-center justify-center gap-2 p-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path
                   d="M24 12.073c0-5.8-4.702-10.503-10.503-10.503S2.994 6.273 2.994 12.073c0 5.242 3.84 9.59 8.852 10.384v-7.344h-2.663v-3.04h2.663V9.75c0-2.63 1.566-4.085 3.968-4.085 1.15 0 2.35.205 2.35.205v2.584h-1.323c-1.304 0-1.71.81-1.71 1.64v1.97h2.91l-.465 3.04h-2.445v7.345c5.013-.795 8.853-5.142 8.853-10.384z"
                   fill="#1877F2"
@@ -73,11 +104,67 @@ export default function LoginPage() {
 
           <div className="flex items-center gap-4 mb-6">
             <div className="h-px bg-gray-200 flex-1"></div>
-            <span className="text-sm text-gray-500">or continue with email</span>
+            <span className="text-sm text-gray-500">
+              hoặc đăng ký bằng email
+            </span>
             <div className="h-px bg-gray-200 flex-1"></div>
-          </div>
+          </div> */}
 
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Tên"
+                    {...register("tenKhachHang", { required: true })}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Họ"
+                    {...register("tenCuaHang", { required: true })}
+                  />
+                </div>
+              </div>
+            </div>
             <div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -97,9 +184,10 @@ export default function LoginPage() {
                   </svg>
                 </div>
                 <input
-                  type="email"
+                  type="text"
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Email"
+                  placeholder="Tài khoản"
+                  {...register("username", { required: true })}
                 />
               </div>
             </div>
@@ -124,50 +212,67 @@ export default function LoginPage() {
                 <input
                   type={showPassword ? "text" : "password"}
                   className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Password"
+                  placeholder="Mật khẩu"
+                  {...register("password", { required: true })}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Remember me
-                </label>
-              </div>
-              <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
-                  Forgot Password?
+            <div className="flex items-center">
+              <input
+                id="terms"
+                name="terms"
+                type="checkbox"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label
+                htmlFor="terms"
+                className="ml-2 block text-sm text-gray-700"
+              >
+                Tôi đồng ý với các{" "}
+                <Link
+                  href="/terms"
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                >
+                  Điều khoản của chính sách dịch vụ
+                </Link>{" "}
+                và{" "}
+                <Link
+                  href="/privacy"
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                >
+                  Quyền riêng tư
                 </Link>
-              </div>
+              </label>
             </div>
 
             <button
               type="submit"
               className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              Log in
+              Tạo tài khoản
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
-              <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-                Create an account
+              Bạn đã có tài khoản?{" "}
+              <Link
+                href="/login"
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
+                Đăng nhập
               </Link>
             </p>
           </div>
@@ -241,15 +346,21 @@ export default function LoginPage() {
         </div>
 
         <div className="absolute inset-x-0 bottom-16 text-center text-white">
-          <h2 className="text-2xl font-bold mb-2">{slides[activeSlide].title}</h2>
-          <p className="text-blue-100 mb-6">{slides[activeSlide].description}</p>
+          <h2 className="text-2xl font-bold mb-2">
+            {slides[activeSlide].title}
+          </h2>
+          <p className="text-blue-100 mb-6">
+            {slides[activeSlide].description}
+          </p>
 
           <div className="flex justify-center gap-2">
             {slides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setActiveSlide(index)}
-                className={`w-2 h-2 rounded-full ${activeSlide === index ? "bg-white" : "bg-blue-300"}`}
+                className={`w-2 h-2 rounded-full ${
+                  activeSlide === index ? "bg-white" : "bg-blue-300"
+                }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}
@@ -257,5 +368,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

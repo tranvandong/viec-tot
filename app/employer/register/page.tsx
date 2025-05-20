@@ -1,42 +1,47 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowLeft, Eye, EyeOff } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function EmployerRegister() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [companyName, setCompanyName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [agreeTerms, setAgreeTerms] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [companyName, setCompanyName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [agreeTerms, setAgreeTerms] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Handle registration logic here
-    console.log({ companyName, email, password, agreeTerms })
-  }
+    console.log({ companyName, email, password, agreeTerms });
+  };
 
   const getPasswordStrength = () => {
-    if (!password) return 0
-    let strength = 0
-    if (password.length >= 8) strength += 1
-    if (/[A-Z]/.test(password)) strength += 1
-    if (/[0-9]/.test(password)) strength += 1
-    if (/[^A-Za-z0-9]/.test(password)) strength += 1
-    return strength
-  }
+    if (!password) return 0;
+    let strength = 0;
+    if (password.length >= 8) strength += 1;
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/[0-9]/.test(password)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+    return strength;
+  };
 
   const renderPasswordStrength = () => {
-    const strength = getPasswordStrength()
-    const strengthText = ["Weak", "Fair", "Good", "Strong"]
-    const strengthColor = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-green-500"]
+    const strength = getPasswordStrength();
+    const strengthText = ["Yếu", "Trung bình", "Khá mạnh", "Mạnh"];
+    const strengthColor = [
+      "bg-red-500",
+      "bg-orange-500",
+      "bg-yellow-500",
+      "bg-green-500",
+    ];
 
     return (
       <div className="mt-1">
@@ -44,59 +49,75 @@ export default function EmployerRegister() {
           {[1, 2, 3, 4].map((level) => (
             <div
               key={level}
-              className={`h-full flex-1 rounded-full ${strength >= level ? strengthColor[strength - 1] : "bg-gray-200"}`}
+              className={`h-full flex-1 rounded-full ${
+                strength >= level ? strengthColor[strength - 1] : "bg-gray-200"
+              }`}
             />
           ))}
         </div>
         {password && (
           <p className="text-xs text-gray-500">
-            Password strength: <span className="font-medium">{strengthText[strength - 1]}</span>
+            Độ mạnh mật khẩu:{" "}
+            <span className="font-medium">{strengthText[strength - 1]}</span>
           </p>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="flex min-h-screen bg-white">
       {/* Left side - Registration form */}
       <div className="flex w-full flex-col p-8 md:w-1/2 md:p-12 lg:p-16">
         <div className="mb-12">
-          <Link href="/" className="flex items-center">
-            <div className="mr-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-white">
-              <span className="text-xl font-bold">J</span>
-            </div>
-            <span className="text-xl font-bold text-gray-800">JobWise</span>
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src={"/logo.png"}
+              width={120}
+              height={60}
+              alt="logo viec tot"
+            />
           </Link>
         </div>
 
         <div className="flex-1">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">Create Account</h1>
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">
+            Tạo tài khoản
+          </h1>
           <p className="mb-8 text-gray-600">
-            Already have an account?{" "}
-            <Link href="/employer/login" className="text-blue-500 hover:underline">
-              Sign in
+            Đã có tài khoản?{" "}
+            <Link
+              href="/employer/login"
+              className="text-blue-500 hover:underline"
+            >
+              Đăng nhập
             </Link>
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="companyName" className="mb-1 block text-sm font-medium text-gray-700">
-                Company Name<span className="text-red-500">*</span>
+              <label
+                htmlFor="companyName"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
+                Tên công ty<span className="text-red-500">*</span>
               </label>
               <Input
                 id="companyName"
                 type="text"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                placeholder="Your company name"
+                placeholder="Tên công ty của bạn"
                 className="h-12 rounded-full border-gray-300 px-4"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
                 Email<span className="text-red-500">*</span>
               </label>
               <Input
@@ -111,8 +132,11 @@ export default function EmployerRegister() {
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
-                Password<span className="text-red-500">*</span>
+              <label
+                htmlFor="password"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
+                Mật khẩu<span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <Input
@@ -143,13 +167,13 @@ export default function EmployerRegister() {
                 required
               />
               <label htmlFor="terms" className="text-sm text-gray-600">
-                I agree to the{" "}
+                Tôi đồng ý với{" "}
                 <Link href="/terms" className="text-blue-500 hover:underline">
-                  Terms of Service
+                  Điều khoản dịch vụ
                 </Link>{" "}
-                and{" "}
+                và{" "}
                 <Link href="/privacy" className="text-blue-500 hover:underline">
-                  Privacy Policy
+                  Chính sách quyền riêng tư
                 </Link>
               </label>
             </div>
@@ -159,17 +183,23 @@ export default function EmployerRegister() {
               disabled={!agreeTerms}
               className="h-12 w-full rounded-full bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-300"
             >
-              Create Account
+              Tạo tài khoản
             </Button>
 
-            <div className="text-center">
-              <p className="mb-4 text-sm text-gray-500">Sign Up with</p>
+            {/* <div className="text-center">
+              <p className="mb-4 text-sm text-gray-500">Đăng ký với</p>
               <div className="flex justify-center space-x-4">
                 <button
                   type="button"
                   className="flex h-10 items-center justify-center rounded-full border border-gray-300 px-4 hover:bg-gray-50"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#1877F2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                    fill="#1877F2"
+                  >
                     <path d="M12.001 2.002c-5.522 0-9.999 4.477-9.999 9.999 0 4.99 3.656 9.126 8.437 9.879v-6.988h-2.54v-2.891h2.54V9.798c0-2.508 1.493-3.891 3.776-3.891 1.094 0 2.24.195 2.24.195v2.459h-1.264c-1.24 0-1.628.772-1.628 1.563v1.875h2.771l-.443 2.891h-2.328v6.988C18.344 21.129 22 16.992 22 12.001c0-5.522-4.477-9.999-9.999-9.999z" />
                   </svg>
                   <span className="ml-2">Facebook</span>
@@ -178,7 +208,12 @@ export default function EmployerRegister() {
                   type="button"
                   className="flex h-10 items-center justify-center rounded-full border border-gray-300 px-4 hover:bg-gray-50"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                  >
                     <path
                       fill="#4285F4"
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -202,28 +237,37 @@ export default function EmployerRegister() {
                   type="button"
                   className="flex h-10 items-center justify-center rounded-full border border-gray-300 px-4 hover:bg-gray-50"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#000000">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                    fill="#000000"
+                  >
                     <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z" />
                   </svg>
                   <span className="ml-2">Apple</span>
                 </button>
               </div>
-            </div>
+            </div> */}
           </form>
         </div>
 
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Copyright © 2024 JobWise | Powered by JobWise Inc.</p>
+          <p>Copyright © 2025 Viec Tot | Phát hành bởi Viec Tot.</p>
         </div>
       </div>
 
       {/* Right side - Image and tagline */}
       <div className="hidden bg-gray-50 md:block md:w-1/2">
         <div className="flex h-full flex-col items-center justify-between p-8 md:p-12 lg:p-16">
-          <Link href="/" className="self-start text-sm text-gray-600 hover:text-gray-900">
+          <Link
+            href="/"
+            className="self-start text-sm text-gray-600 hover:text-gray-900"
+          >
             <div className="flex items-center">
               <ArrowLeft size={16} className="mr-2" />
-              Back to Website
+              Quay lại website
             </div>
           </Link>
 
@@ -306,5 +350,5 @@ export default function EmployerRegister() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,3 +1,5 @@
+import { AxiosResponse } from "axios";
+
 export type BaseKey = string | number;
 export type BaseRecord = {
   id?: BaseKey;
@@ -100,7 +102,7 @@ export type CrudSort = {
 export type CrudFilters = CrudFilter[];
 export type CrudSorting = CrudSort[];
 
-export interface CustomResponse<TData = BaseRecord> {
+export interface CustomResponse<TData = BaseRecord> extends AxiosResponse {
   data: TData;
 }
 export interface GetListResponse<TData = BaseRecord> {
