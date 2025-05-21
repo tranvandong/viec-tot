@@ -28,7 +28,7 @@ export default function EmployerLogin() {
   } = useForm();
 
   const onSubmit = (data: any) => {
-    router.push("/employer/manage");
+    router.push("/employer/manage/jobs");
   };
 
   return (

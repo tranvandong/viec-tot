@@ -14,11 +14,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Briefcase, FileText } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function Nav() {
   // Header scroll hide/show logic
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const lastScrollY = useRef(0);
+  const router = useRouter();
 
   // Mock data for the candidate profile
   const profile = {
@@ -118,6 +120,10 @@ export function Nav() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const onNavigate = (path: string) => {
+    router.push(path);
+  };
   return (
     <header
       className={`bg-blue-950 text-white top-0 left-0 right-0 z-10 transition-transform duration-300 ${
@@ -194,19 +200,21 @@ export function Nav() {
                 </div>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Briefcase className="mr-2 h-4 w-4" />
-                <span>Quản lý việc làm</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="bg-muted">
+              <DropdownMenuItem
+                onClick={() => onNavigate("/candidate/profile")}
+              >
                 <FileText className="mr-2 h-4 w-4" />
                 <span>Quản lý CV</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onNavigate("/candidate/my-jobs")}
+              >
                 <FileText className="mr-2 h-4 w-4" />
                 <span>Việc đã ứng tuyển</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onNavigate("/candidate/my-jobs")}
+              >
                 <Briefcase className="mr-2 h-4 w-4" />
                 <span>Việc đang theo dõi</span>
               </DropdownMenuItem>

@@ -1,39 +1,39 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Bookmark, CheckCircle, Building, MapPin } from "lucide-react"
-import { JobDetailModal } from "@/components/job-detail-modal"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Bookmark, CheckCircle, Building, MapPin } from "lucide-react";
+import { JobDetailModal } from "@/components/job-detail-modal";
 
 export default function MyJobsPage() {
-  const [activeTab, setActiveTab] = useState<"applied" | "saved">("applied")
-  const [selectedJob, setSelectedJob] = useState<any>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [savedJobIds, setSavedJobIds] = useState<string[]>(["1", "3", "5"])
+  const [activeTab, setActiveTab] = useState<"applied" | "saved">("applied");
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [savedJobIds, setSavedJobIds] = useState<string[]>(["1", "3", "5"]);
 
   const openJobModal = (job: any) => {
-    setSelectedJob(job)
-    setIsModalOpen(true)
-    document.body.style.overflow = "hidden"
-  }
+    setSelectedJob(job);
+    setIsModalOpen(true);
+    document.body.style.overflow = "hidden";
+  };
 
   const closeJobModal = () => {
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
 
   const toggleSaveJob = (id: string, e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
 
     if (savedJobIds.includes(id)) {
-      setSavedJobIds(savedJobIds.filter((jobId) => jobId !== id))
+      setSavedJobIds(savedJobIds.filter((jobId) => jobId !== id));
     } else {
-      setSavedJobIds([...savedJobIds, id])
+      setSavedJobIds([...savedJobIds, id]);
     }
-  }
+  };
 
   // Mock data for applied jobs
   const appliedJobs = [
@@ -73,7 +73,7 @@ export default function MyJobsPage() {
       salary: "$110,000 - $140,000",
       activelyRecruiting: false,
     },
-  ]
+  ];
 
   // Mock data for saved jobs
   const savedJobs = [
@@ -113,65 +113,30 @@ export default function MyJobsPage() {
       salary: "$130,000 - $160,000",
       activelyRecruiting: false,
     },
-  ].filter((job) => savedJobIds.includes(job.id))
+  ].filter((job) => savedJobIds.includes(job.id));
 
   // Get jobs based on active tab
-  const displayedJobs = activeTab === "applied" ? appliedJobs : savedJobs
+  const displayedJobs = activeTab === "applied" ? appliedJobs : savedJobs;
 
   // Find similar jobs based on job title and tags
   const getSimilarJobs = (job: any) => {
-    const allJobs = [...appliedJobs, ...savedJobs]
+    const allJobs = [...appliedJobs, ...savedJobs];
     return allJobs.filter(
       (j) =>
-        j.id !== job.id && (j.title.includes(job.title.split(" ")[0]) || j.tags.some((tag) => job.tags.includes(tag))),
-    )
-  }
+        j.id !== job.id &&
+        (j.title.includes(job.title.split(" ")[0]) ||
+          j.tags.some((tag) => job.tags.includes(tag)))
+    );
+  };
 
   // Find other jobs from the same company
   const getOtherJobsFromCompany = (job: any) => {
-    const allJobs = [...appliedJobs, ...savedJobs]
-    return allJobs.filter((j) => j.id !== job.id && j.company === job.company)
-  }
+    const allJobs = [...appliedJobs, ...savedJobs];
+    return allJobs.filter((j) => j.id !== job.id && j.company === job.company);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-blue-950 text-white">
-        <div className="container mx-auto px-4 md:px-8 flex items-center justify-between py-4">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="bg-orange-500 px-2 py-1 rounded font-bold text-white">Job</span>
-              <span className="font-bold text-lg text-white">Wise</span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-6">
-              <Link href="/" className="text-sm font-medium text-white">
-                Home
-              </Link>
-              <Link href="/search-results" className="text-sm font-medium text-white">
-                Find jobs
-              </Link>
-              <Link href="/my-jobs" className="text-sm font-medium text-white border-b-2 border-white pb-1">
-                My Jobs
-              </Link>
-              <Link href="/companies" className="text-sm font-medium text-white">
-                Companies
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-white">
-              Log In
-            </Link>
-            <Link
-              href="/register"
-              className="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
-            >
-              Register
-            </Link>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
@@ -191,7 +156,9 @@ export default function MyJobsPage() {
             </button>
             <button
               className={`py-3 px-6 font-medium text-sm ${
-                activeTab === "saved" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"
+                activeTab === "saved"
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("saved")}
             >
@@ -220,7 +187,9 @@ export default function MyJobsPage() {
                         />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{job.title}</h3>
+                        <h3 className="font-semibold text-gray-900">
+                          {job.title}
+                        </h3>
                         <p className="text-sm text-gray-500">{job.company}</p>
                       </div>
                     </div>
@@ -228,12 +197,18 @@ export default function MyJobsPage() {
                       <button
                         onClick={(e) => toggleSaveJob(job.id, e)}
                         className={`text-sm font-medium flex items-center gap-1 ${
-                          savedJobIds.includes(job.id) ? "text-blue-600" : "text-gray-500 hover:text-blue-600"
+                          savedJobIds.includes(job.id)
+                            ? "text-blue-600"
+                            : "text-gray-500 hover:text-blue-600"
                         }`}
                       >
                         Save job
                         <Bookmark
-                          className={`h-4 w-4 ml-1 ${savedJobIds.includes(job.id) ? "fill-blue-600 text-blue-600" : ""}`}
+                          className={`h-4 w-4 ml-1 ${
+                            savedJobIds.includes(job.id)
+                              ? "fill-blue-600 text-blue-600"
+                              : ""
+                          }`}
                         />
                       </button>
                     </div>
@@ -256,25 +231,30 @@ export default function MyJobsPage() {
                         Actively recruiting
                       </div>
                     )}
-                    <div className="ml-auto text-xs text-gray-500">{job.postedTime}</div>
+                    <div className="ml-auto text-xs text-gray-500">
+                      {job.postedTime}
+                    </div>
                   </div>
 
                   <div className="mt-3 flex flex-wrap gap-2">
                     {job.tags.map((tag, index) => {
-                      let bgColor = "bg-yellow-100 text-yellow-800"
+                      let bgColor = "bg-yellow-100 text-yellow-800";
                       if (tag.includes("Remote")) {
-                        bgColor = "bg-blue-100 text-blue-800"
+                        bgColor = "bg-blue-100 text-blue-800";
                       } else if (tag.includes("Senior")) {
-                        bgColor = "bg-green-100 text-green-800"
+                        bgColor = "bg-green-100 text-green-800";
                       } else if (tag.includes("Junior")) {
-                        bgColor = "bg-purple-100 text-purple-800"
+                        bgColor = "bg-purple-100 text-purple-800";
                       }
 
                       return (
-                        <span key={index} className={`px-3 py-1 rounded-full text-xs font-medium ${bgColor}`}>
+                        <span
+                          key={index}
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${bgColor}`}
+                        >
                           {tag}
                         </span>
-                      )
+                      );
                     })}
                   </div>
 
@@ -283,7 +263,9 @@ export default function MyJobsPage() {
                       <MapPin className="h-3 w-3 mr-1" />
                       {job.location}
                     </div>
-                    <div className="font-medium text-blue-600">{job.salary}</div>
+                    <div className="font-medium text-blue-600">
+                      {job.salary}
+                    </div>
                   </div>
                 </div>
               ))
@@ -339,5 +321,5 @@ export default function MyJobsPage() {
         />
       )}
     </div>
-  )
+  );
 }
