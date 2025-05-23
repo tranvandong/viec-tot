@@ -52,6 +52,7 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import { SearchBox } from "@/components/search-box";
 
 export default function Home() {
   const router = useRouter();
@@ -59,6 +60,87 @@ export default function Home() {
   const [location, setLocation] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const [province, setProvince] = useState("");
+  const [district, setDistrict] = useState("");
+
+  // Add these new state variables after the existing state declarations
+  const [activeSlide, setActiveSlide] = useState<"province" | "district">(
+    "province"
+  );
+  const [provinceSearch, setProvinceSearch] = useState("");
+  const [districtSearch, setDistrictSearch] = useState("");
+
+  const provinces = [
+    {
+      name: "Hà Nội",
+      districts: [
+        "Ba Đình",
+        "Hoàn Kiếm",
+        "Hai Bà Trưng",
+        "Đống Đa",
+        "Tây Hồ",
+        "Cầu Giấy",
+        "Thanh Xuân",
+        "Hoàng Mai",
+      ],
+    },
+    {
+      name: "Hồ Chí Minh",
+      districts: [
+        "Quận 1",
+        "Quận 2",
+        "Quận 3",
+        "Quận 4",
+        "Quận 5",
+        "Quận 6",
+        "Quận 7",
+        "Quận 8",
+        "Phú Nhuận",
+        "Bình Thạnh",
+      ],
+    },
+    {
+      name: "Đà Nẵng",
+      districts: [
+        "Hải Châu",
+        "Thanh Khê",
+        "Sơn Trà",
+        "Ngũ Hành Sơn",
+        "Liên Chiểu",
+        "Cẩm Lệ",
+      ],
+    },
+    {
+      name: "Hải Phòng",
+      districts: [
+        "Hồng Bàng",
+        "Ngô Quyền",
+        "Lê Chân",
+        "Kiến An",
+        "Hải An",
+        "Đồ Sơn",
+      ],
+    },
+    {
+      name: "Cần Thơ",
+      districts: ["Ninh Kiều", "Bình Thủy", "Cái Răng", "Ô Môn", "Thốt Nốt"],
+    },
+    {
+      name: "Bình Dương",
+      districts: ["Thủ Dầu Một", "Bến Cát", "Tân Uyên", "Dĩ An", "Thuận An"],
+    },
+    {
+      name: "Đồng Nai",
+      districts: [
+        "Biên Hòa",
+        "Long Khánh",
+        "Nhơn Trạch",
+        "Long Thành",
+        "Trảng Bom",
+      ],
+    },
+  ];
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
@@ -128,127 +210,7 @@ export default function Home() {
               Hơn 5 triệu việc làm để bạn khám phá. Hãy tìm kiếm ngay để tìm
               công việc tiếp theo của bạn
             </p>
-
-            <form
-              onSubmit={handleSearch}
-              className="bg-white dark:bg-gray-800 rounded-full p-2 flex items-center gap-2 mb-4 max-w-3xl mx-auto text-gray-800 dark:text-gray-200"
-            >
-              <div className="flex items-center flex-1 pl-2">
-                <Search className="h-5 w-5 text-gray-400 mr-2" />
-                <input
-                  type="text"
-                  className="py-2 px-3 block w-full border-0 bg-transparent dark:text-white focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-500"
-                  placeholder="Chức danh, từ khóa hoặc công ty"
-                  value={jobTitle}
-                  onChange={(e) => setJobTitle(e.target.value)}
-                />
-              </div>
-              <div className="h-6 w-px bg-gray-200 dark:bg-gray-800"></div>
-              <div className="flex items-center flex-1 pl-2">
-                <svg
-                  className="h-5 w-5 text-gray-400 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      className="py-2 px-3 flex items-center justify-between w-full border-0 bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-0 cursor-pointer"
-                      aria-expanded="false"
-                    >
-                      {location ? location : "Tất cả địa điểm"}
-                      <ChevronDown className="h-4 w-4 text-gray-400 ml-2 flex-shrink-0" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="p-0 w-[200px]">
-                    <Command>
-                      <CommandInput
-                        placeholder="Tìm địa điểm..."
-                        className="h-9"
-                      />
-                      <CommandEmpty>Không tìm thấy địa điểm</CommandEmpty>
-                      <CommandGroup>
-                        <CommandItem
-                          value="all"
-                          onSelect={() => setLocation("")}
-                        >
-                          Tất cả địa điểm
-                        </CommandItem>
-                        <CommandItem
-                          value="hanoi"
-                          onSelect={() => setLocation("Hà Nội")}
-                        >
-                          Hà Nội
-                        </CommandItem>
-                        <CommandItem
-                          value="hochiminh"
-                          onSelect={() => setLocation("Hồ Chí Minh")}
-                        >
-                          Hồ Chí Minh
-                        </CommandItem>
-                        <CommandItem
-                          value="danang"
-                          onSelect={() => setLocation("Đà Nẵng")}
-                        >
-                          Đà Nẵng
-                        </CommandItem>
-                        <CommandItem
-                          value="haiphong"
-                          onSelect={() => setLocation("Hải Phòng")}
-                        >
-                          Hải Phòng
-                        </CommandItem>
-                        <CommandItem
-                          value="cantho"
-                          onSelect={() => setLocation("Cần Thơ")}
-                        >
-                          Cần Thơ
-                        </CommandItem>
-                        <CommandItem
-                          value="binhduong"
-                          onSelect={() => setLocation("Bình Dương")}
-                        >
-                          Bình Dương
-                        </CommandItem>
-                        <CommandItem
-                          value="dongnai"
-                          onSelect={() => setLocation("Đồng Nai")}
-                        >
-                          Đồng Nai
-                        </CommandItem>
-                        <CommandItem
-                          value="remote"
-                          onSelect={() => setLocation("Từ xa")}
-                        >
-                          Từ xa
-                        </CommandItem>
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <button
-                type="submit"
-                className="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
-              >
-                Tìm kiếm
-              </button>
-            </form>
-
+            <SearchBox />
             <div className="text-sm text-blue-200 mb-12">
               <span>Tải lên hoặc </span>
               <Link href="#" className="underline">

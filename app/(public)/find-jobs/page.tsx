@@ -2,17 +2,19 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, ChevronDown, Clock, ChevronUp } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { JobDetailModal } from "@/components/job-detail-modal";
+import { SearchBox } from "@/components/search-box";
 
 export default function SearchResults() {
   const searchParams = useSearchParams();
   const jobQuery = searchParams.get("job") || "UI/UX Designer";
   const locationQuery = searchParams.get("location") || "Indonesia";
+  const [location, setLocation] = useState("");
 
   const [savedJobs, setSavedJobs] = useState<string[]>([]);
   const [isRemoteOpen, setIsRemoteOpen] = useState(false);
@@ -70,6 +72,70 @@ export default function SearchResults() {
   const getOtherJobsFromCompany = (job: any) => {
     return jobs.filter((j) => j.id !== job.id && j.company === job.company);
   };
+
+  const provinces_1 = [
+    { code: "HN", name: "Hà Nội" },
+    { code: "HC", name: "Hồ Chí Minh" },
+    { code: "ĐN", name: "Đà Nẵng" },
+    { code: "HP", name: "Hải Phòng" },
+    { code: "CT", name: "Cần Thơ" },
+    { code: "BD", name: "Bình Dương" },
+    { code: "ĐN", name: "Đồng Nai" },
+  ];
+
+  const districts = [
+    { code: "HN-84926", name: "Ba Đình" },
+    { code: "HN-91840", name: "Hoàn Kiếm" },
+    { code: "HN-49038", name: "Hai Bà Trưng" },
+    { code: "HN-10395", name: "Đống Đa" },
+    { code: "HN-72648", name: "Tây Hồ" },
+    { code: "HN-26538", name: "Cầu Giấy" },
+    { code: "HN-59302", name: "Thanh Xuân" },
+    { code: "HN-81427", name: "Hoàng Mai" },
+
+    { code: "HC-18572", name: "Quận 1" },
+    { code: "HC-70924", name: "Quận 2" },
+    { code: "HC-94710", name: "Quận 3" },
+    { code: "HC-83912", name: "Quận 4" },
+    { code: "HC-67193", name: "Quận 5" },
+    { code: "HC-38426", name: "Quận 6" },
+    { code: "HC-52978", name: "Quận 7" },
+    { code: "HC-67091", name: "Quận 8" },
+    { code: "HC-30856", name: "Phú Nhuận" },
+    { code: "HC-94783", name: "Bình Thạnh" },
+
+    { code: "ĐN-78129", name: "Hải Châu" },
+    { code: "ĐN-94501", name: "Thanh Khê" },
+    { code: "ĐN-47829", name: "Sơn Trà" },
+    { code: "ĐN-14238", name: "Ngũ Hành Sơn" },
+    { code: "ĐN-32019", name: "Liên Chiểu" },
+    { code: "ĐN-10284", name: "Cẩm Lệ" },
+
+    { code: "HP-98431", name: "Hồng Bàng" },
+    { code: "HP-23984", name: "Ngô Quyền" },
+    { code: "HP-37104", name: "Lê Chân" },
+    { code: "HP-10458", name: "Kiến An" },
+    { code: "HP-57230", name: "Hải An" },
+    { code: "HP-67218", name: "Đồ Sơn" },
+
+    { code: "CT-78524", name: "Ninh Kiều" },
+    { code: "CT-93471", name: "Bình Thủy" },
+    { code: "CT-43029", name: "Cái Răng" },
+    { code: "CT-82401", name: "Ô Môn" },
+    { code: "CT-34091", name: "Thốt Nốt" },
+
+    { code: "BD-32984", name: "Thủ Dầu Một" },
+    { code: "BD-98412", name: "Bến Cát" },
+    { code: "BD-87593", name: "Tân Uyên" },
+    { code: "BD-13904", name: "Dĩ An" },
+    { code: "BD-29401", name: "Thuận An" },
+
+    { code: "ĐN-50392", name: "Biên Hòa" },
+    { code: "ĐN-73920", name: "Long Khánh" },
+    { code: "ĐN-19482", name: "Nhơn Trạch" },
+    { code: "ĐN-72038", name: "Long Thành" },
+    { code: "ĐN-94710", name: "Trảng Bom" },
+  ];
 
   const jobs = [
     {
@@ -200,6 +266,31 @@ export default function SearchResults() {
     },
   ];
 
+  useEffect(() => {
+    const locationParam = searchParams.get("location") || "";
+    if (locationParam.includes(",")) {
+      const [districtCode, provinceCode] = locationParam.split(",");
+
+      const provinceObj = provinces_1.find((p) => p.code === provinceCode);
+      const districtObj = districts.find(
+        (d) =>
+          d.code === `${provinceCode}-${districtCode}` ||
+          d.code === districtCode
+      );
+
+      if (provinceObj && districtObj) {
+        setLocation(`${districtObj.name}, ${provinceObj.name}`);
+      } else if (provinceObj) {
+        setLocation(provinceObj.name);
+      }
+    } else {
+      // chỉ có province code
+
+      const provinceObj = provinces_1.find((p) => p.code === locationParam);
+      if (provinceObj) setLocation(provinceObj.name);
+    }
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Hero Search */}
@@ -218,51 +309,7 @@ export default function SearchResults() {
             việc tiếp theo của bạn
           </p>
 
-          <div className="bg-white rounded-full p-2 flex items-center gap-2 mb-4 max-w-3xl mx-auto">
-            <div className="flex items-center flex-1 pl-2">
-              <Search className="h-5 w-5 text-gray-400 mr-2" />
-              <input
-                type="text"
-                className="py-2 px-3 block w-full border-0 focus:outline-none focus:ring-0 placeholder-gray-400 bg-transparent dark:text-gray-800"
-                placeholder="Chức danh, từ khóa hoặc công ty"
-                defaultValue={jobQuery}
-              />
-            </div>
-            <div className="h-6 w-px bg-gray-200"></div>
-            <div className="flex items-center flex-1 pl-2">
-              <svg
-                className="h-5 w-5 text-gray-400 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              <input
-                type="text"
-                className="py-2 px-3 block w-full border-0 focus:outline-none focus:ring-0 placeholder-gray-400 bg-transparent dark:text-gray-800"
-                placeholder="Thành phố, tỉnh hoặc từ xa"
-                defaultValue={locationQuery}
-              />
-            </div>
-            <button
-              type="button"
-              className="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
-            >
-              Tìm kiếm
-            </button>
-          </div>
+          <SearchBox />
         </div>
       </div>
 
@@ -553,7 +600,7 @@ export default function SearchResults() {
                 <div className="text-gray-600 dark:text-gray-300">
                   Hiển thị <span className="font-semibold">150</span> việc làm{" "}
                   <span className="font-semibold">{jobQuery}</span> tại{" "}
-                  <span className="font-semibold">{locationQuery}</span>
+                  <span className="font-semibold">{location}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-600 dark:text-gray-300">
@@ -915,7 +962,7 @@ export default function SearchResults() {
             applicants: selectedJob.applicants,
             salary: selectedJob.salary,
             description: selectedJob.description,
-            benefits: selectedJob.benefits.map((benefit) => {
+            benefits: selectedJob.benefits.map((benefit: any) => {
               if (benefit === "Competitive salary and benefits package")
                 return "Mức lương và phúc lợi cạnh tranh";
               if (benefit === "Flexible working hours")
