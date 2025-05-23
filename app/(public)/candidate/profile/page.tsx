@@ -709,7 +709,7 @@ export default function CandidateProfile() {
                               {experience.company} • {experience.location}
                             </p>
                           </div>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-muted-foreground pr-10">
                             {new Date(experience.from).toLocaleDateString(
                               "vi-VN",
                               { year: "numeric", month: "short" }
@@ -966,7 +966,7 @@ export default function CandidateProfile() {
                               {edu.institution} • {edu.location}
                             </p>
                           </div>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-muted-foreground pr-10">
                             {edu.from} - {edu.to}
                           </p>
                         </div>
@@ -1173,7 +1173,7 @@ export default function CandidateProfile() {
                               {cert.issuer}
                             </p>
                           </div>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-muted-foreground pr-10">
                             Cấp:{" "}
                             {new Date(cert.date).toLocaleDateString("vi-VN", {
                               year: "numeric",

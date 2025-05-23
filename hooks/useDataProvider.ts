@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { odataCrudDataProvider } from "../providers/odataCrudDataProvider";
 import { HttpError } from "../providers/types/HttpError";
+import { useState } from "react";
 
 // Initialize dataProvider with API URL
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
@@ -22,16 +23,39 @@ interface UseListParams {
 }
 
 export const useList = <T = any>(params: UseListParams) => {
-  return useQuery({
-    queryKey: ["list", params.resource, params],
+  const [pageSize, setPageSize] = useState(params.pagination?.pageSize || 10);
+
+  const query = useQuery({
+    queryKey: [
+      "list",
+      params.resource,
+      { ...params, pagination: { ...params.pagination, pageSize } },
+    ],
     queryFn: async () => {
-      const result = await provider.getList(params);
+      const result = await provider.getList({
+        ...params,
+        pagination: {
+          ...params.pagination,
+          pageSize,
+        },
+      });
       return {
         data: result.data as T[],
         total: result.total,
       };
     },
   });
+
+  const pageCount = query.data?.total
+    ? Math.ceil(query.data.total / pageSize)
+    : 0;
+
+  return {
+    ...query,
+    pageSize,
+    pageCount,
+    setPageSize,
+  };
 };
 
 interface UseManyParams {

@@ -139,163 +139,183 @@ export default function MyJobsPage() {
     <div className="min-h-screen bg-gray-100">
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6">My Jobs</h1>
+        <h1 className="text-2xl font-bold mb-6">My Jobs</h1>
 
-          {/* Tabs */}
-          <div className="flex border-b border-gray-200 mb-6">
-            <button
-              className={`py-3 px-6 font-medium text-sm ${
-                activeTab === "applied"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-              onClick={() => setActiveTab("applied")}
-            >
-              Applied Jobs ({appliedJobs.length})
-            </button>
-            <button
-              className={`py-3 px-6 font-medium text-sm ${
-                activeTab === "saved"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-              onClick={() => setActiveTab("saved")}
-            >
-              Saved Jobs ({savedJobs.length})
-            </button>
-          </div>
+        {/* Tabs */}
+        <div className="flex border-b border-gray-200 mb-6">
+          <button
+            className={`py-3 px-6 font-medium text-sm ${
+              activeTab === "applied"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setActiveTab("applied")}
+          >
+            Applied Jobs ({appliedJobs.length})
+          </button>
+          <button
+            className={`py-3 px-6 font-medium text-sm ${
+              activeTab === "saved"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setActiveTab("saved")}
+          >
+            Saved Jobs ({savedJobs.length})
+          </button>
+        </div>
 
-          {/* Job List */}
-          <div className="space-y-4">
-            {displayedJobs.length > 0 ? (
-              displayedJobs.map((job) => (
-                <div
-                  key={job.id}
-                  onClick={() => openJobModal(job)}
-                  className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
-                >
-                  <div className="flex justify-between">
-                    <div className="flex gap-3">
-                      <div className="w-10 h-10 rounded-md overflow-hidden flex-shrink-0">
-                        <Image
-                          src={job.logo || "/placeholder.svg"}
-                          alt={job.company}
-                          width={40}
-                          height={40}
-                          className="object-cover"
-                        />
+        {/* Job List Table */}
+        {displayedJobs.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full bg-white border border-gray-200 rounded-lg">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Job
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Location
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Salary
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Posted
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {displayedJobs.map((job) => (
+                  <tr
+                    key={job.id}
+                    onClick={() => openJobModal(job)}
+                    className="hover:bg-gray-50 cursor-pointer"
+                  >
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          <Image
+                            src={job.logo || "/placeholder.svg"}
+                            alt={job.company}
+                            width={40}
+                            height={40}
+                            className="rounded-md object-cover"
+                          />
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {job.title}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {job.company}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {job.title}
-                        </h3>
-                        <p className="text-sm text-gray-500">{job.company}</p>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex flex-col space-y-1">
+                        {job.matchesProfile && (
+                          <div className="flex items-center text-xs text-gray-600">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Profile match
+                          </div>
+                        )}
+                        {job.activelyRecruiting && (
+                          <div className="flex items-center text-xs text-green-600">
+                            <Building className="h-3 w-3 mr-1" />
+                            Recruiting
+                          </div>
+                        )}
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {job.tags.map((tag, index) => {
+                            let bgColor = "bg-yellow-100 text-yellow-800";
+                            if (tag.includes("Remote")) {
+                              bgColor = "bg-blue-100 text-blue-800";
+                            } else if (tag.includes("Senior")) {
+                              bgColor = "bg-green-100 text-green-800";
+                            } else if (tag.includes("Junior")) {
+                              bgColor = "bg-purple-100 text-purple-800";
+                            }
+
+                            return (
+                              <span
+                                key={index}
+                                className={`px-2 py-0.5 rounded-full text-xs font-medium ${bgColor}`}
+                              >
+                                {tag}
+                              </span>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center">
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex items-center text-sm text-gray-500">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {job.location}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                      {job.salary}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {job.postedTime}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={(e) => toggleSaveJob(job.id, e)}
-                        className={`text-sm font-medium flex items-center gap-1 ${
+                        className={`text-sm font-medium flex items-center gap-1 ml-auto ${
                           savedJobIds.includes(job.id)
                             ? "text-blue-600"
                             : "text-gray-500 hover:text-blue-600"
                         }`}
                       >
-                        Save job
                         <Bookmark
-                          className={`h-4 w-4 ml-1 ${
+                          className={`h-4 w-4 ${
                             savedJobIds.includes(job.id)
                               ? "fill-blue-600 text-blue-600"
                               : ""
                           }`}
                         />
                       </button>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex items-center gap-2">
-                    {job.matchesProfile && (
-                      <div className="flex items-center text-xs text-gray-600">
-                        <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center mr-1">
-                          <CheckCircle className="h-3 w-3" />
-                        </div>
-                        Your profile matches this job
-                      </div>
-                    )}
-                    {job.activelyRecruiting && (
-                      <div className="flex items-center text-xs text-green-600">
-                        <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center mr-1">
-                          <Building className="h-3 w-3" />
-                        </div>
-                        Actively recruiting
-                      </div>
-                    )}
-                    <div className="ml-auto text-xs text-gray-500">
-                      {job.postedTime}
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {job.tags.map((tag, index) => {
-                      let bgColor = "bg-yellow-100 text-yellow-800";
-                      if (tag.includes("Remote")) {
-                        bgColor = "bg-blue-100 text-blue-800";
-                      } else if (tag.includes("Senior")) {
-                        bgColor = "bg-green-100 text-green-800";
-                      } else if (tag.includes("Junior")) {
-                        bgColor = "bg-purple-100 text-purple-800";
-                      }
-
-                      return (
-                        <span
-                          key={index}
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${bgColor}`}
-                        >
-                          {tag}
-                        </span>
-                      );
-                    })}
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-                    <div className="flex items-center">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      {job.location}
-                    </div>
-                    <div className="font-medium text-blue-600">
-                      {job.salary}
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  {activeTab === "applied" ? (
-                    <CheckCircle className="h-8 w-8 text-gray-400" />
-                  ) : (
-                    <Bookmark className="h-8 w-8 text-gray-400" />
-                  )}
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-1">
-                  No {activeTab === "applied" ? "applied" : "saved"} jobs yet
-                </h3>
-                <p className="text-gray-500 mb-4">
-                  {activeTab === "applied"
-                    ? "When you apply for jobs, they will appear here."
-                    : "Save jobs you're interested in to view them later."}
-                </p>
-                <Link
-                  href="/search-results"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  Find Jobs
-                </Link>
-              </div>
-            )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              {activeTab === "applied" ? (
+                <CheckCircle className="h-8 w-8 text-gray-400" />
+              ) : (
+                <Bookmark className="h-8 w-8 text-gray-400" />
+              )}
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">
+              No {activeTab === "applied" ? "applied" : "saved"} jobs yet
+            </h3>
+            <p className="text-gray-500 mb-4">
+              {activeTab === "applied"
+                ? "When you apply for jobs, they will appear here."
+                : "Save jobs you're interested in to view them later."}
+            </p>
+            <Link
+              href="/find-jobs"
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+            >
+              Find Jobs
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Job Detail Modal */}

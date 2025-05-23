@@ -1,19 +1,20 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useEffect, useState } from "react"
-import Image from "next/image"
-import { MapPin, X, Bookmark, Share2 } from "lucide-react"
+import type React from "react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { MapPin, X, Bookmark, Share2 } from "lucide-react";
+import BookmarkToggle from "./ui/bookmark-toggle";
 
 type JobDetailModalProps = {
-  job: any
-  isOpen: boolean
-  onClose: () => void
-  similarJobs: any[]
-  otherJobsFromCompany: any[]
-  savedJobs: string[]
-  onToggleSave: (id: string, e: React.MouseEvent) => void
-}
+  job: any;
+  isOpen: boolean;
+  onClose: () => void;
+  similarJobs: any[];
+  otherJobsFromCompany: any[];
+  savedJobs: string[];
+  onToggleSave: (id: string, e: React.MouseEvent) => void;
+};
 
 export function JobDetailModal({
   job,
@@ -24,20 +25,20 @@ export function JobDetailModal({
   savedJobs,
   onToggleSave,
 }: JobDetailModalProps) {
-  const [isAnimating, setIsAnimating] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setIsAnimating(true)
+      setIsAnimating(true);
     } else {
       const timer = setTimeout(() => {
-        setIsAnimating(false)
-      }, 300) // Match this with the CSS transition duration
-      return () => clearTimeout(timer)
+        setIsAnimating(false);
+      }, 300); // Match this with the CSS transition duration
+      return () => clearTimeout(timer);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
-  if (!isAnimating && !isOpen) return null
+  if (!isAnimating && !isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -114,9 +115,13 @@ export function JobDetailModal({
                     className="p-2.5 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
                   >
                     <Bookmark
-                      className={`h-5 w-5 ${savedJobs.includes(job.id) ? "fill-blue-500 text-blue-500" : ""}`}
+                      className={`h-5 w-5 ${
+                        savedJobs.includes(job.id)
+                          ? "fill-blue-500 text-blue-500"
+                          : ""
+                      }`}
                     />
-                  </button>
+                  </button>{" "}
                   <button className="p-2.5 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50">
                     <Share2 className="h-5 w-5" />
                   </button>
@@ -124,35 +129,57 @@ export function JobDetailModal({
 
                 <div className="space-y-8">
                   <section>
-                    <h3 className="font-semibold text-lg mb-3">About this role</h3>
-                    <p className="text-gray-700 whitespace-pre-line">{job.description}</p>
+                    <h3 className="font-semibold text-lg mb-3">
+                      About this role
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-line">
+                      {job.description}
+                    </p>
                   </section>
 
                   <section>
-                    <h3 className="font-semibold text-lg mb-3">Qualification</h3>
+                    <h3 className="font-semibold text-lg mb-3">
+                      Qualification
+                    </h3>
                     <ul className="list-disc pl-5 space-y-2 text-gray-700">
-                      <li>At least {job.experience} of relevant experience in product design or related roles.</li>
-                      <li>Knowledge of design validation, either through quantitative or qualitative research.</li>
+                      <li>
+                        At least {job.experience} of relevant experience in
+                        product design or related roles.
+                      </li>
+                      <li>
+                        Knowledge of design validation, either through
+                        quantitative or qualitative research.
+                      </li>
                       <li>Have good knowledge using Figma and design tools.</li>
-                      <li>Experience with analytics tools to gather data from users.</li>
+                      <li>
+                        Experience with analytics tools to gather data from
+                        users.
+                      </li>
                     </ul>
                   </section>
 
                   <section>
-                    <h3 className="font-semibold text-lg mb-3">Responsibility</h3>
+                    <h3 className="font-semibold text-lg mb-3">
+                      Responsibility
+                    </h3>
                     <ul className="list-disc pl-5 space-y-2 text-gray-700">
                       <li>
-                        Create design and user journey on every features and product/business units across multiple
-                        devices.
-                      </li>
-                      <li>Identifying design problems through user journey and devising elegant solutions.</li>
-                      <li>
-                        Develop low and hi fidelity designs, user experience flow, & prototype, translate it into
-                        highly-polished visual composites following style and brand guidelines.
+                        Create design and user journey on every features and
+                        product/business units across multiple devices.
                       </li>
                       <li>
-                        Brainstorm and works together with Design Lead, UX Engineers, and PMs to execute a design sprint
-                        on specific story or task.
+                        Identifying design problems through user journey and
+                        devising elegant solutions.
+                      </li>
+                      <li>
+                        Develop low and hi fidelity designs, user experience
+                        flow, & prototype, translate it into highly-polished
+                        visual composites following style and brand guidelines.
+                      </li>
+                      <li>
+                        Brainstorm and works together with Design Lead, UX
+                        Engineers, and PMs to execute a design sprint on
+                        specific story or task.
                       </li>
                     </ul>
                   </section>
@@ -174,10 +201,15 @@ export function JobDetailModal({
             {/* Right sidebar - Similar jobs */}
             <div className="w-full md:w-80 p-6 border-t md:border-t-0 md:border-l border-gray-200">
               <div className="mb-8">
-                <h3 className="font-semibold text-gray-800 mb-4">Similar Jobs</h3>
+                <h3 className="font-semibold text-gray-800 mb-4">
+                  Similar Jobs
+                </h3>
                 <div className="space-y-4">
                   {similarJobs.slice(0, 3).map((similarJob) => (
-                    <div key={similarJob.id} className="bg-white rounded-lg border border-gray-200 p-4">
+                    <div
+                      key={similarJob.id}
+                      className="bg-white rounded-lg border border-gray-200 p-4"
+                    >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
@@ -190,8 +222,12 @@ export function JobDetailModal({
                             />
                           </div>
                           <div>
-                            <h4 className="font-medium text-sm">{similarJob.title}</h4>
-                            <p className="text-xs text-gray-500">{similarJob.company}</p>
+                            <h4 className="font-medium text-sm">
+                              {similarJob.title}
+                            </h4>
+                            <p className="text-xs text-gray-500">
+                              {similarJob.company}
+                            </p>
                           </div>
                         </div>
                         <button
@@ -199,7 +235,11 @@ export function JobDetailModal({
                           className="text-gray-400 hover:text-blue-500"
                         >
                           <Bookmark
-                            className={`h-4 w-4 ${savedJobs.includes(similarJob.id) ? "fill-blue-500 text-blue-500" : ""}`}
+                            className={`h-4 w-4 ${
+                              savedJobs.includes(similarJob.id)
+                                ? "fill-blue-500 text-blue-500"
+                                : ""
+                            }`}
                           />
                         </button>
                       </div>
@@ -216,8 +256,12 @@ export function JobDetailModal({
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-500">{similarJob.postedTime}</span>
-                        <span className="font-medium text-blue-600">{similarJob.salary}</span>
+                        <span className="text-gray-500">
+                          {similarJob.postedTime}
+                        </span>
+                        <span className="font-medium text-blue-600">
+                          {similarJob.salary}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -226,13 +270,20 @@ export function JobDetailModal({
 
               {otherJobsFromCompany.length > 0 && (
                 <div>
-                  <h3 className="font-semibold text-gray-800 mb-4">Other Jobs From {job.company}</h3>
+                  <h3 className="font-semibold text-gray-800 mb-4">
+                    Other Jobs From {job.company}
+                  </h3>
                   <div className="space-y-4">
                     {otherJobsFromCompany.slice(0, 2).map((otherJob) => (
-                      <div key={otherJob.id} className="bg-white rounded-lg border border-gray-200 p-4">
+                      <div
+                        key={otherJob.id}
+                        className="bg-white rounded-lg border border-gray-200 p-4"
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <div>
-                            <h4 className="font-medium text-sm">{otherJob.title}</h4>
+                            <h4 className="font-medium text-sm">
+                              {otherJob.title}
+                            </h4>
                             <div className="flex items-center text-xs text-gray-500">
                               <MapPin className="h-3 w-3 mr-1" />
                               <span>{otherJob.location}</span>
@@ -243,7 +294,11 @@ export function JobDetailModal({
                             className="text-gray-400 hover:text-blue-500"
                           >
                             <Bookmark
-                              className={`h-4 w-4 ${savedJobs.includes(otherJob.id) ? "fill-blue-500 text-blue-500" : ""}`}
+                              className={`h-4 w-4 ${
+                                savedJobs.includes(otherJob.id)
+                                  ? "fill-blue-500 text-blue-500"
+                                  : ""
+                              }`}
                             />
                           </button>
                         </div>
@@ -265,5 +320,5 @@ export function JobDetailModal({
         )}
       </div>
     </div>
-  )
+  );
 }

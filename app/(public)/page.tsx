@@ -21,7 +21,37 @@ import {
   Menu,
   X,
   ChevronDown,
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  SelectIcon,
+  SelectPortal,
+  SelectViewport,
+} from "@radix-ui/react-select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
 
 export default function Home() {
   const router = useRouter();
@@ -33,7 +63,7 @@ export default function Home() {
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     router.push(
-      `/search-results?job=${encodeURIComponent(
+      `/find-jobs?job=${encodeURIComponent(
         jobTitle
       )}&location=${encodeURIComponent(location)}`
     );
@@ -101,7 +131,7 @@ export default function Home() {
 
             <form
               onSubmit={handleSearch}
-              className="bg-white dark:bg-gray-800 rounded-full p-2 flex items-center gap-2 mb-4 max-w-3xl mx-auto"
+              className="bg-white dark:bg-gray-800 rounded-full p-2 flex items-center gap-2 mb-4 max-w-3xl mx-auto text-gray-800 dark:text-gray-200"
             >
               <div className="flex items-center flex-1 pl-2">
                 <Search className="h-5 w-5 text-gray-400 mr-2" />
@@ -113,7 +143,7 @@ export default function Home() {
                   onChange={(e) => setJobTitle(e.target.value)}
                 />
               </div>
-              <div className="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
+              <div className="h-6 w-px bg-gray-200 dark:bg-gray-800"></div>
               <div className="flex items-center flex-1 pl-2">
                 <svg
                   className="h-5 w-5 text-gray-400 mr-2"
@@ -134,22 +164,82 @@ export default function Home() {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <select
-                  className="py-2 px-3 block w-full border-0 bg-transparent focus:outline-none focus:ring-0 appearance-none cursor-pointer"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                >
-                  <option value="">Tất cả địa điểm</option>
-                  <option value="Hà Nội">Hà Nội</option>
-                  <option value="Hồ Chí Minh">Hồ Chí Minh</option>
-                  <option value="Đà Nẵng">Đà Nẵng</option>
-                  <option value="Hải Phòng">Hải Phòng</option>
-                  <option value="Cần Thơ">Cần Thơ</option>
-                  <option value="Bình Dương">Bình Dương</option>
-                  <option value="Đồng Nai">Đồng Nai</option>
-                  <option value="Từ xa">Từ xa</option>
-                </select>
-                <ChevronDown className="h-4 w-4 text-gray-400 ml-2 flex-shrink-0" />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      className="py-2 px-3 flex items-center justify-between w-full border-0 bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-0 cursor-pointer"
+                      aria-expanded="false"
+                    >
+                      {location ? location : "Tất cả địa điểm"}
+                      <ChevronDown className="h-4 w-4 text-gray-400 ml-2 flex-shrink-0" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="p-0 w-[200px]">
+                    <Command>
+                      <CommandInput
+                        placeholder="Tìm địa điểm..."
+                        className="h-9"
+                      />
+                      <CommandEmpty>Không tìm thấy địa điểm</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="all"
+                          onSelect={() => setLocation("")}
+                        >
+                          Tất cả địa điểm
+                        </CommandItem>
+                        <CommandItem
+                          value="hanoi"
+                          onSelect={() => setLocation("Hà Nội")}
+                        >
+                          Hà Nội
+                        </CommandItem>
+                        <CommandItem
+                          value="hochiminh"
+                          onSelect={() => setLocation("Hồ Chí Minh")}
+                        >
+                          Hồ Chí Minh
+                        </CommandItem>
+                        <CommandItem
+                          value="danang"
+                          onSelect={() => setLocation("Đà Nẵng")}
+                        >
+                          Đà Nẵng
+                        </CommandItem>
+                        <CommandItem
+                          value="haiphong"
+                          onSelect={() => setLocation("Hải Phòng")}
+                        >
+                          Hải Phòng
+                        </CommandItem>
+                        <CommandItem
+                          value="cantho"
+                          onSelect={() => setLocation("Cần Thơ")}
+                        >
+                          Cần Thơ
+                        </CommandItem>
+                        <CommandItem
+                          value="binhduong"
+                          onSelect={() => setLocation("Bình Dương")}
+                        >
+                          Bình Dương
+                        </CommandItem>
+                        <CommandItem
+                          value="dongnai"
+                          onSelect={() => setLocation("Đồng Nai")}
+                        >
+                          Đồng Nai
+                        </CommandItem>
+                        <CommandItem
+                          value="remote"
+                          onSelect={() => setLocation("Từ xa")}
+                        >
+                          Từ xa
+                        </CommandItem>
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
               <button
                 type="submit"

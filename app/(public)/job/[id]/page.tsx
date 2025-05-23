@@ -1,18 +1,19 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { useParams, useRouter } from "next/navigation"
-import { MapPin, Heart, MoreVertical, ArrowLeft } from "lucide-react"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import { MapPin, Heart, MoreVertical, ArrowLeft } from "lucide-react";
 
 // Mock data for jobs
 const mockJobs = [
   {
     id: "1",
-    title: "Dedicated CDLA Truck Driver - Home Time Options - Hiring Immediately",
+    title:
+      "Dedicated CDLA Truck Driver - Home Time Options - Hiring Immediately",
     company: "Amazon",
     website: "www.amazon.co.uk",
     location: "Oxford Junction",
@@ -78,7 +79,12 @@ The ideal candidate will have a strong portfolio demonstrating their ability to 
     description: `Tokopedia is looking for a UX Designer to join our growing team. You will be responsible for creating user-centered designs that meet business requirements and enhance customer experience.
 
 As a UX Designer, you will work closely with product managers, developers, and other designers to deliver high-quality designs.`,
-    benefits: ["Flexible working hours", "Remote work options", "Health insurance", "Professional development budget"],
+    benefits: [
+      "Flexible working hours",
+      "Remote work options",
+      "Health insurance",
+      "Professional development budget",
+    ],
   },
   {
     id: "4",
@@ -123,7 +129,12 @@ The ideal candidate will have experience in designing for mobile applications an
     description: `Gojek is seeking a talented UI Designer to join our growing design team. You will be responsible for creating visually appealing and user-friendly interfaces for our super app.
 
 The ideal candidate will have a strong portfolio showcasing their UI design skills and a passion for creating beautiful, functional designs.`,
-    benefits: ["Competitive salary", "Health insurance", "Professional development budget", "Flexible working hours"],
+    benefits: [
+      "Competitive salary",
+      "Health insurance",
+      "Professional development budget",
+      "Flexible working hours",
+    ],
   },
   {
     id: "6",
@@ -150,40 +161,40 @@ The ideal candidate will have extensive experience in UI/UX design, a strong por
       "Flexible working arrangements",
     ],
   },
-]
+];
 
 export default function JobDetail() {
-  const params = useParams()
-  const router = useRouter()
-  const jobId = params.id as string
-  const [isSaved, setIsSaved] = useState(false)
-  const [job, setJob] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [savedJobs, setSavedJobs] = useState<string[]>([])
+  const params = useParams();
+  const router = useRouter();
+  const jobId = params.id as string;
+  const [isSaved, setIsSaved] = useState(false);
+  const [job, setJob] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [savedJobs, setSavedJobs] = useState<string[]>([]);
 
   useEffect(() => {
     // Simulate loading
-    setLoading(true)
+    setLoading(true);
 
     setTimeout(() => {
-      const foundJob = mockJobs.find((j) => j.id === jobId)
-      setJob(foundJob || mockJobs[0])
-      setLoading(false)
-    }, 500)
-  }, [jobId])
+      const foundJob = mockJobs.find((j) => j.id === jobId);
+      setJob(foundJob || mockJobs[0]);
+      setLoading(false);
+    }, 500);
+  }, [jobId]);
 
   const toggleSaveJob = (id: string, e?: React.MouseEvent) => {
     if (e) {
-      e.preventDefault()
-      e.stopPropagation()
+      e.preventDefault();
+      e.stopPropagation();
     }
 
     if (savedJobs.includes(id)) {
-      setSavedJobs(savedJobs.filter((jobId) => jobId !== id))
+      setSavedJobs(savedJobs.filter((jobId) => jobId !== id));
     } else {
-      setSavedJobs([...savedJobs, id])
+      setSavedJobs([...savedJobs, id]);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -193,24 +204,28 @@ export default function JobDetail() {
           <p className="mt-4 text-gray-600">Loading job details...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!job) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Job not found</h2>
-          <p className="text-gray-600 mb-6">The job you're looking for doesn't exist or has been removed.</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Job not found
+          </h2>
+          <p className="text-gray-600 mb-6">
+            The job you're looking for doesn't exist or has been removed.
+          </p>
           <Link
-            href="/search-results"
+            href="/find-jobs"
             className="py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
           >
             Back to search results
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -220,17 +235,25 @@ export default function JobDetail() {
         <div className="container mx-auto px-4 md:px-8 flex items-center justify-between py-4">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
-              <span className="bg-orange-500 px-2 py-1 rounded font-bold text-white">Job</span>
+              <span className="bg-orange-500 px-2 py-1 rounded font-bold text-white">
+                Job
+              </span>
               <span className="font-bold text-lg text-white">Wise</span>
             </Link>
             <nav className="hidden md:flex items-center gap-6">
               <Link href="/" className="text-sm font-medium text-white">
                 Home
               </Link>
-              <Link href="/search-results" className="text-sm font-medium text-white border-b-2 border-white pb-1">
+              <Link
+                href="/find-jobs"
+                className="text-sm font-medium text-white border-b-2 border-white pb-1"
+              >
                 Find jobs
               </Link>
-              <Link href="/companies" className="text-sm font-medium text-white">
+              <Link
+                href="/companies"
+                className="text-sm font-medium text-white"
+              >
                 Companies
               </Link>
               <Link href="/service" className="text-sm font-medium text-white">
@@ -254,7 +277,10 @@ export default function JobDetail() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <button onClick={() => router.back()} className="flex items-center text-gray-600 mb-6 hover:text-blue-600">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center text-gray-600 mb-6 hover:text-blue-600"
+        >
           <ArrowLeft className="h-4 w-4 mr-1" />
           <span>Back to search results</span>
         </button>
@@ -263,7 +289,9 @@ export default function JobDetail() {
           {/* Left Sidebar - Scrollable Job Cards */}
           <div className="md:w-72">
             <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-              <h3 className="font-semibold text-gray-800 mb-4">Search Results</h3>
+              <h3 className="font-semibold text-gray-800 mb-4">
+                Search Results
+              </h3>
 
               {/* Scrollable job cards */}
               <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
@@ -288,17 +316,31 @@ export default function JobDetail() {
                             className="object-cover"
                           />
                         </div>
-                        <span className="font-medium text-sm">{listJob.company}</span>
+                        <span className="font-medium text-sm">
+                          {listJob.company}
+                        </span>
                       </div>
                       <button
                         onClick={(e) => toggleSaveJob(listJob.id, e)}
-                        className={`text-sm ${savedJobs.includes(listJob.id) ? "text-blue-500" : "text-gray-400"}`}
+                        className={`text-sm ${
+                          savedJobs.includes(listJob.id)
+                            ? "text-blue-500"
+                            : "text-gray-400"
+                        }`}
                       >
-                        <Heart className={`h-4 w-4 ${savedJobs.includes(listJob.id) ? "fill-blue-500" : ""}`} />
+                        <Heart
+                          className={`h-4 w-4 ${
+                            savedJobs.includes(listJob.id)
+                              ? "fill-blue-500"
+                              : ""
+                          }`}
+                        />
                       </button>
                     </div>
 
-                    <h4 className="font-medium text-sm line-clamp-2 mb-1">{listJob.title}</h4>
+                    <h4 className="font-medium text-sm line-clamp-2 mb-1">
+                      {listJob.title}
+                    </h4>
 
                     <div className="flex items-center text-xs text-gray-500 mb-2">
                       <MapPin className="h-3 w-3 mr-1" />
@@ -306,8 +348,12 @@ export default function JobDetail() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-blue-600">{listJob.salary}</span>
-                      <span className="text-xs text-gray-500">{listJob.postedTime}</span>
+                      <span className="text-xs font-medium text-blue-600">
+                        {listJob.salary}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {listJob.postedTime}
+                      </span>
                     </div>
                   </Link>
                 ))}
@@ -349,14 +395,17 @@ export default function JobDetail() {
                     tag === "New"
                       ? "bg-green-100 text-green-800"
                       : tag === "Urgent"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-blue-100 text-blue-800"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-blue-100 text-blue-800";
 
                   return (
-                    <span key={index} className={`text-xs px-3 py-1 rounded-full ${bgColor}`}>
+                    <span
+                      key={index}
+                      className={`text-xs px-3 py-1 rounded-full ${bgColor}`}
+                    >
                       {tag}
                     </span>
-                  )
+                  );
                 })}
               </div>
 
@@ -383,18 +432,27 @@ export default function JobDetail() {
                   onClick={() => toggleSaveJob(job.id)}
                   className="p-3 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
                 >
-                  <Heart className={`h-5 w-5 ${savedJobs.includes(job.id) ? "fill-red-500 text-red-500" : ""}`} />
+                  <Heart
+                    className={`h-5 w-5 ${
+                      savedJobs.includes(job.id)
+                        ? "fill-red-500 text-red-500"
+                        : ""
+                    }`}
+                  />
                 </button>
               </div>
 
               <div className="mb-8">
                 <h3 className="font-semibold text-lg mb-4">Descriptions</h3>
-                <p className="text-gray-700 whitespace-pre-line mb-4">{job.description}</p>
+                <p className="text-gray-700 whitespace-pre-line mb-4">
+                  {job.description}
+                </p>
               </div>
 
               <div>
                 <h3 className="font-semibold text-lg mb-4">
-                  Why You'll Love Working for an {job.company} Delivery Service Partner
+                  Why You'll Love Working for an {job.company} Delivery Service
+                  Partner
                 </h3>
                 <ul className="list-disc pl-5 space-y-2">
                   {job.benefits.map((benefit: string, index: number) => (
@@ -409,5 +467,5 @@ export default function JobDetail() {
         </div>
       </div>
     </div>
-  )
+  );
 }
