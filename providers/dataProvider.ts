@@ -1,6 +1,7 @@
 import { odataCrudDataProvider } from "./odataCrudDataProvider";
 
 // Initialize dataProvider with API URL
-export const apiUrl = "http://localhost:3000/api";
+export const apiUrl =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 const dataProvider = odataCrudDataProvider(apiUrl);
 export { dataProvider };

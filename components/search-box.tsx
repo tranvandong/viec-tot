@@ -26,78 +26,6 @@ export function SearchBox() {
   const [provinceSearch, setProvinceSearch] = useState("");
   const [districtSearch, setDistrictSearch] = useState("");
 
-  const provinces = [
-    {
-      code: "HN",
-      name: "Hà Nội",
-      districts: [
-        "Ba Đình",
-        "Hoàn Kiếm",
-        "Hai Bà Trưng",
-        "Đống Đa",
-        "Tây Hồ",
-        "Cầu Giấy",
-        "Thanh Xuân",
-        "Hoàng Mai",
-      ],
-    },
-    {
-      name: "Hồ Chí Minh",
-      districts: [
-        "Quận 1",
-        "Quận 2",
-        "Quận 3",
-        "Quận 4",
-        "Quận 5",
-        "Quận 6",
-        "Quận 7",
-        "Quận 8",
-        "Phú Nhuận",
-        "Bình Thạnh",
-      ],
-    },
-    {
-      name: "Đà Nẵng",
-      districts: [
-        "Hải Châu",
-        "Thanh Khê",
-        "Sơn Trà",
-        "Ngũ Hành Sơn",
-        "Liên Chiểu",
-        "Cẩm Lệ",
-      ],
-    },
-    {
-      name: "Hải Phòng",
-      districts: [
-        "Hồng Bàng",
-        "Ngô Quyền",
-        "Lê Chân",
-        "Kiến An",
-        "Hải An",
-        "Đồ Sơn",
-      ],
-    },
-    {
-      name: "Cần Thơ",
-      districts: ["Ninh Kiều", "Bình Thủy", "Cái Răng", "Ô Môn", "Thốt Nốt"],
-    },
-    {
-      name: "Bình Dương",
-      districts: ["Thủ Dầu Một", "Bến Cát", "Tân Uyên", "Dĩ An", "Thuận An"],
-    },
-    {
-      name: "Đồng Nai",
-      districts: [
-        "Biên Hòa",
-        "Long Khánh",
-        "Nhơn Trạch",
-        "Long Thành",
-        "Trảng Bom",
-      ],
-    },
-  ];
-
   const provinces_1 = [
     { code: "HN", name: "Hà Nội" },
     { code: "HC", name: "Hồ Chí Minh" },
@@ -105,7 +33,7 @@ export function SearchBox() {
     { code: "HP", name: "Hải Phòng" },
     { code: "CT", name: "Cần Thơ" },
     { code: "BD", name: "Bình Dương" },
-    { code: "ĐN", name: "Đồng Nai" },
+    { code: "ĐN1", name: "Đồng Nai" },
   ];
 
   const districts = [

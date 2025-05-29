@@ -28,7 +28,7 @@ export default function EmployerLogin() {
   } = useForm();
 
   const onSubmit = (data: any) => {
-    router.push("/employer/manage/jobs");
+    login(data);
   };
 
   return (
@@ -61,19 +61,19 @@ export default function EmployerLogin() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <label
-                htmlFor="email"
+                htmlFor="username"
                 className="mb-1 block text-sm font-medium text-gray-700"
               >
-                Email<span className="text-red-500">*</span>
+                Tài khoản<span className="text-red-500">*</span>
               </label>
               <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
                 placeholder="info@company.com"
                 className="h-12 rounded-full border-gray-300 px-4"
                 required
+                {...register("username", {
+                  required: "Tài khoản là bắt buộc",
+                })}
               />
             </div>
 
@@ -88,11 +88,11 @@ export default function EmployerLogin() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="Nhập mật khẩu"
                   className="h-12 rounded-full border-gray-300 px-4 pr-10"
-                  required
+                  {...register("password", {
+                    required: "Mật khẩu là bắt buộc",
+                  })}
                 />
                 <button
                   type="button"

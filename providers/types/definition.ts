@@ -1,0 +1,22 @@
+export type JobPost = {
+  createdDate: string;
+  createdName: string | null;
+  description: string;
+  dmHuyenCode: string;
+  dmTinhCode: string;
+  dmXaCode: string;
+  effectiveDate: string;
+  expiredDate: string;
+  fileId: string | null;
+  fromSalary: number;
+  id: string;
+  industry: string | null;
+  isPublished: boolean;
+  location: string;
+  organizationId: string;
+  shift: string | null;
+  status: string;
+  title: string;
+  toSalary: number | null;
+  views: number;
+};

@@ -2,10 +2,11 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { odataCrudDataProvider } from "../providers/odataCrudDataProvider";
 import { HttpError } from "../providers/types/HttpError";
 import { useState } from "react";
+import { dataProvider as provider } from "@/providers/dataProvider";
 
 // Initialize dataProvider with API URL
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
-const provider = odataCrudDataProvider(apiUrl);
+// const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+// const provider = odataCrudDataProvider(apiUrl);
 
 interface MetaQuery {
   join: string[];
@@ -24,19 +25,20 @@ interface UseListParams {
 
 export const useList = <T = any>(params: UseListParams) => {
   const [pageSize, setPageSize] = useState(params.pagination?.pageSize || 10);
+  const [page, setPage] = useState(params.pagination?.current || 1);
 
   const query = useQuery({
     queryKey: [
       "list",
       params.resource,
-      { ...params, pagination: { ...params.pagination, pageSize } },
+      { ...params, pagination: { pageSize, page } },
     ],
     queryFn: async () => {
       const result = await provider.getList({
         ...params,
         pagination: {
-          ...params.pagination,
           pageSize,
+          current: page,
         },
       });
       return {
@@ -52,9 +54,13 @@ export const useList = <T = any>(params: UseListParams) => {
 
   return {
     ...query,
-    pageSize,
     pageCount,
     setPageSize,
+    setPage,
+    pagination: {
+      current: page,
+      pageSize,
+    },
   };
 };
 
@@ -98,17 +104,19 @@ export const useOne = <T = any>(params: UseOneParams) => {
 
 interface UseCreateParams<T = any> {
   resource: string;
-  variables: T;
 }
 
 export const useCreate = <T = any>(params: UseCreateParams<T>) => {
   return useMutation({
-    mutationFn: async (variables?: T) => {
+    mutationFn: async (variables: T) => {
       const result = await provider.create({
         resource: params.resource,
-        variables: variables || params.variables,
+        variables: variables,
       });
       return result.data as T;
+    },
+    onSuccess(data, variables, context) {
+      
     },
   });
 };

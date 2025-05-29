@@ -64,6 +64,7 @@ const buildODataQuery = (params: {
     const { current, pageSize } = params.pagination;
     queryParams.push(`$skip=${(current - 1) * pageSize}`);
     queryParams.push(`$top=${pageSize}`);
+    queryParams.push(`$count=true`);
   }
 
   // Handle expand (join)

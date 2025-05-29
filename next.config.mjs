@@ -9,6 +9,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-}
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "https://viectot.nextform.vn/api/:path*",
+      },
+    ];
+  },
+};
 
-export default nextConfig
+export default nextConfig;

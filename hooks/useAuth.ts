@@ -1,9 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { authProvider } from "../providers/authProvider";
 import { useToast } from "./use-toast";
+import { useRouter } from "next/navigation";
 // Đăng nhập
 export function useLogin() {
   const { toast } = useToast();
+  const router = useRouter();
   return useMutation({
     mutationFn: (params: {
       username?: string;
@@ -12,12 +14,7 @@ export function useLogin() {
     }) => authProvider.login(params),
     onSuccess(data) {
       if (data?.success) {
-        toast({
-          description: "Đăng nhập thành công",
-          title: "Thành công",
-          type: "foreground",
-          variant: "success",
-        });
+        router.push(data.redirectTo || "/");
       } else {
         toast({
           description:

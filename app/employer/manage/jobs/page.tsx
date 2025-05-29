@@ -16,6 +16,9 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { EmployerJobDetailDrawer } from "@/components/employer-job-detail-drawer";
+import { useList } from "@/hooks/useDataProvider";
+import { JobPost } from "@/providers/types/definition";
+import { Pagination } from "@/components/pagination";
 
 export default function EmployerJobsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,6 +31,12 @@ export default function EmployerJobsPage() {
   const [drawerMode, setDrawerMode] = useState<"view" | "edit">("view");
   const [showHeader, setShowHeader] = useState(true);
   const lastScrollY = useRef(0);
+
+  const { data, pageCount, pagination, setPage } = useList<JobPost>({
+    resource: "buss/public/Jobs",
+  });
+  const jobs = data?.data || [];
+  console.log("Jobs data:", data);
 
   // Scroll event handler for hiding/showing header
   useEffect(() => {
@@ -48,146 +57,131 @@ export default function EmployerJobsPage() {
   }, []);
 
   // Mock data for jobs
-  const jobs = [
-    {
-      id: "1",
-      title: "Senior Product Designer",
-      department: "Design",
-      location: "San Francisco, CA",
-      type: "Full-time",
-      workType: "Remote",
-      experience: "Senior Level",
-      postedDate: "2023-04-15",
-      applicants: 24,
-      status: "active",
-    },
-    {
-      id: "2",
-      title: "Frontend Developer",
-      department: "Engineering",
-      location: "New York, NY",
-      type: "Full-time",
-      workType: "Hybrid",
-      experience: "Mid Level",
-      postedDate: "2023-04-10",
-      applicants: 18,
-      status: "active",
-    },
-    {
-      id: "3",
-      title: "Marketing Manager",
-      department: "Marketing",
-      location: "Chicago, IL",
-      type: "Full-time",
-      workType: "On-site",
-      experience: "Senior Level",
-      postedDate: "2023-04-05",
-      applicants: 12,
-      status: "closed",
-    },
-    {
-      id: "4",
-      title: "UX Researcher",
-      department: "Design",
-      location: "Remote",
-      type: "Contract",
-      workType: "Remote",
-      experience: "Mid Level",
-      postedDate: "2023-04-01",
-      applicants: 9,
-      status: "active",
-    },
-    {
-      id: "5",
-      title: "Data Analyst",
-      department: "Analytics",
-      location: "Boston, MA",
-      type: "Full-time",
-      workType: "On-site",
-      experience: "Entry Level",
-      postedDate: "2023-03-28",
-      applicants: 32,
-      status: "active",
-    },
-    {
-      id: "6",
-      title: "Backend Developer",
-      department: "Engineering",
-      location: "Seattle, WA",
-      type: "Full-time",
-      workType: "Hybrid",
-      experience: "Senior Level",
-      postedDate: "2023-03-25",
-      applicants: 15,
-      status: "active",
-    },
-    {
-      id: "7",
-      title: "Content Writer",
-      department: "Marketing",
-      location: "Austin, TX",
-      type: "Part-time",
-      workType: "Remote",
-      experience: "Entry Level",
-      postedDate: "2023-03-22",
-      applicants: 28,
-      status: "active",
-    },
-    {
-      id: "8",
-      title: "HR Specialist",
-      department: "Human Resources",
-      location: "Denver, CO",
-      type: "Full-time",
-      workType: "On-site",
-      experience: "Mid Level",
-      postedDate: "2023-03-20",
-      applicants: 7,
-      status: "closed",
-    },
-    {
-      id: "9",
-      title: "Project Manager",
-      department: "Operations",
-      location: "Portland, OR",
-      type: "Contract",
-      workType: "Hybrid",
-      experience: "Senior Level",
-      postedDate: "2023-03-18",
-      applicants: 11,
-      status: "active",
-    },
-    {
-      id: "10",
-      title: "Sales Representative",
-      department: "Sales",
-      location: "Miami, FL",
-      type: "Full-time",
-      workType: "On-site",
-      experience: "Entry Level",
-      postedDate: "2023-03-15",
-      applicants: 19,
-      status: "active",
-    },
-  ];
+  // const jobs = [
+  //   {
+  //     id: "1",
+  //     title: "Senior Product Designer",
+  //     department: "Design",
+  //     location: "San Francisco, CA",
+  //     type: "Full-time",
+  //     workType: "Remote",
+  //     experience: "Senior Level",
+  //     postedDate: "2023-04-15",
+  //     applicants: 24,
+  //     status: "active",
+  //   },
+  //   {
+  //     id: "2",
+  //     title: "Frontend Developer",
+  //     department: "Engineering",
+  //     location: "New York, NY",
+  //     type: "Full-time",
+  //     workType: "Hybrid",
+  //     experience: "Mid Level",
+  //     postedDate: "2023-04-10",
+  //     applicants: 18,
+  //     status: "active",
+  //   },
+  //   {
+  //     id: "3",
+  //     title: "Marketing Manager",
+  //     department: "Marketing",
+  //     location: "Chicago, IL",
+  //     type: "Full-time",
+  //     workType: "On-site",
+  //     experience: "Senior Level",
+  //     postedDate: "2023-04-05",
+  //     applicants: 12,
+  //     status: "closed",
+  //   },
+  //   {
+  //     id: "4",
+  //     title: "UX Researcher",
+  //     department: "Design",
+  //     location: "Remote",
+  //     type: "Contract",
+  //     workType: "Remote",
+  //     experience: "Mid Level",
+  //     postedDate: "2023-04-01",
+  //     applicants: 9,
+  //     status: "active",
+  //   },
+  //   {
+  //     id: "5",
+  //     title: "Data Analyst",
+  //     department: "Analytics",
+  //     location: "Boston, MA",
+  //     type: "Full-time",
+  //     workType: "On-site",
+  //     experience: "Entry Level",
+  //     postedDate: "2023-03-28",
+  //     applicants: 32,
+  //     status: "active",
+  //   },
+  //   {
+  //     id: "6",
+  //     title: "Backend Developer",
+  //     department: "Engineering",
+  //     location: "Seattle, WA",
+  //     type: "Full-time",
+  //     workType: "Hybrid",
+  //     experience: "Senior Level",
+  //     postedDate: "2023-03-25",
+  //     applicants: 15,
+  //     status: "active",
+  //   },
+  //   {
+  //     id: "7",
+  //     title: "Content Writer",
+  //     department: "Marketing",
+  //     location: "Austin, TX",
+  //     type: "Part-time",
+  //     workType: "Remote",
+  //     experience: "Entry Level",
+  //     postedDate: "2023-03-22",
+  //     applicants: 28,
+  //     status: "active",
+  //   },
+  //   {
+  //     id: "8",
+  //     title: "HR Specialist",
+  //     department: "Human Resources",
+  //     location: "Denver, CO",
+  //     type: "Full-time",
+  //     workType: "On-site",
+  //     experience: "Mid Level",
+  //     postedDate: "2023-03-20",
+  //     applicants: 7,
+  //     status: "closed",
+  //   },
+  //   {
+  //     id: "9",
+  //     title: "Project Manager",
+  //     department: "Operations",
+  //     location: "Portland, OR",
+  //     type: "Contract",
+  //     workType: "Hybrid",
+  //     experience: "Senior Level",
+  //     postedDate: "2023-03-18",
+  //     applicants: 11,
+  //     status: "active",
+  //   },
+  //   {
+  //     id: "10",
+  //     title: "Sales Representative",
+  //     department: "Sales",
+  //     location: "Miami, FL",
+  //     type: "Full-time",
+  //     workType: "On-site",
+  //     experience: "Entry Level",
+  //     postedDate: "2023-03-15",
+  //     applicants: 19,
+  //     status: "active",
+  //   },
+  // ];
 
   // Get unique departments for filter
-  const departments = Array.from(new Set(jobs.map((job) => job.department)));
-
-  // Filter jobs based on search query and filters
-  const filteredJobs = jobs.filter((job) => {
-    const matchesSearch =
-      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.location.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesStatus = statusFilter === "all" || job.status === statusFilter;
-    const matchesType = typeFilter === "all" || job.type === typeFilter;
-    const matchesDepartment =
-      departmentFilter === "all" || job.department === departmentFilter;
-
-    return matchesSearch && matchesStatus && matchesType && matchesDepartment;
-  });
+  // const departments = Array.from(new Set(jobs.map((job) => job.department)));
 
   // Get status badge color
   const getStatusBadgeColor = (status: string) => {
@@ -241,13 +235,13 @@ export default function EmployerJobsPage() {
       <div className="container mx-auto px-4 py-8 mt-16">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-            <h1 className="text-2xl font-bold">Job Listings</h1>
+            <h1 className="text-2xl font-bold">Danh sách việc làm</h1>
             <Link
-              href="/employer/post-job"
+              href="/employer/manage/post-job"
               className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Post a New Job
+              Đăng việc làm mới
             </Link>
           </div>
 
@@ -262,7 +256,7 @@ export default function EmployerJobsPage() {
                   </div>
                   <input
                     type="text"
-                    placeholder="Search jobs by title, department, or location..."
+                    placeholder="Tìm kiếm tên việc làm"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 w-full rounded-md border border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
@@ -273,7 +267,7 @@ export default function EmployerJobsPage() {
                   className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <Filter className="h-4 w-4 mr-2" />
-                  Filters
+                  Lọc
                   <ChevronDown
                     className={`h-4 w-4 ml-2 transition-transform ${
                       filterOpen ? "rotate-180" : ""
@@ -282,7 +276,7 @@ export default function EmployerJobsPage() {
                 </button>
                 <button className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
                   <Download className="h-4 w-4 mr-2" />
-                  Export
+                  Xuất danh sách
                 </button>
               </div>
 
@@ -327,7 +321,7 @@ export default function EmployerJobsPage() {
                       <option value="Internship">Internship</option>
                     </select>
                   </div>
-                  <div>
+                  {/* <div>
                     <label
                       htmlFor="department-filter"
                       className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
@@ -347,7 +341,7 @@ export default function EmployerJobsPage() {
                         </option>
                       ))}
                     </select>
-                  </div>
+                  </div> */}
                 </div>
               )}
             </div>
@@ -357,34 +351,33 @@ export default function EmployerJobsPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                Total Jobs
+                Tổng việc làm
               </div>
               <div className="text-2xl font-bold mt-1">{jobs.length}</div>
             </div>
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                Active Jobs
+                Việc làm đang hoạt động
               </div>
               <div className="text-2xl font-bold mt-1">
-                {jobs.filter((job) => job.status === "active").length}
+                {jobs.filter((job) => job.isPublished).length}
               </div>
             </div>
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                Total Applicants
+                Tổng số ứng viên
               </div>
               <div className="text-2xl font-bold mt-1">
-                {jobs.reduce((sum, job) => sum + job.applicants, 0)}
+                {jobs.reduce((sum, job) => sum + 10, 0)}
               </div>
             </div>
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                Average Applicants
+                Số ứng viên trung bình
               </div>
               <div className="text-2xl font-bold mt-1">
                 {Math.round(
-                  jobs.reduce((sum, job) => sum + job.applicants, 0) /
-                    jobs.length
+                  jobs.reduce((sum, job) => sum + 10, 0) / jobs.length
                 )}
               </div>
             </div>
@@ -395,7 +388,7 @@ export default function EmployerJobsPage() {
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
               <h2 className="text-lg font-medium">Job Listings</h2>
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                Showing {filteredJobs.length} of {jobs.length} jobs
+                Showing {jobs.length} of {jobs.length} jobs
               </div>
             </div>
             <div className="overflow-x-auto">
@@ -453,8 +446,8 @@ export default function EmployerJobsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-                  {filteredJobs.length > 0 ? (
-                    filteredJobs.map((job) => (
+                  {jobs.length > 0 ? (
+                    jobs.map((job) => (
                       <tr
                         key={job.id}
                         className="hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -465,7 +458,7 @@ export default function EmployerJobsPage() {
                               {job.title}
                             </div>
                             <div className="text-sm text-gray-500 dark:text-gray-400">
-                              {job.department}
+                              {job.dmHuyenCode} - {job.dmTinhCode}
                             </div>
                             <div className="md:hidden text-xs text-gray-500 dark:text-gray-400 mt-1">
                               {job.location}
@@ -480,17 +473,17 @@ export default function EmployerJobsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                           <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {formatDate(job.postedDate)}
+                            {formatDate(job.createdDate)}
                           </div>
                           <div className="text-xs text-gray-400 dark:text-gray-500">
-                            {getDaysAgo(job.postedDate)}
+                            {getDaysAgo(job.createdDate)}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <Users className="h-4 w-4 mr-1 text-gray-500 dark:text-gray-400" />
                             <span className="text-sm text-gray-900 dark:text-gray-100">
-                              {job.applicants}
+                              10
                             </span>
                           </div>
                         </td>
@@ -500,7 +493,7 @@ export default function EmployerJobsPage() {
                               job.status
                             )}`}
                           >
-                            {job.status === "active" ? "Active" : "Closed"}
+                            {job.isPublished ? "Đang hoạt động" : "Đã đóng"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -542,14 +535,20 @@ export default function EmployerJobsPage() {
                 </tbody>
               </table>
             </div>
-
             {/* Pagination */}
-            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
+            <Pagination
+              currentPage={pagination.current}
+              totalItems={data?.total || 0}
+              itemsPerPage={pagination.pageSize}
+              onPageChange={setPage}
+              className="px-6 py-4 border-t border-gray-200 dark:border-gray-800"
+            />
+            {/* Pagination */}
+            {/* <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                Showing <span className="font-medium">1</span> to{" "}
-                <span className="font-medium">{filteredJobs.length}</span> of{" "}
-                <span className="font-medium">{filteredJobs.length}</span>{" "}
-                results
+                Hiển thị <span className="font-medium">1</span> đến{" "}
+                <span className="font-medium">{jobs.length}</span> của{" "}
+                <span className="font-medium">{jobs.length}</span> kết quả
               </div>
               <div className="flex items-center space-x-2">
                 <button
@@ -565,7 +564,7 @@ export default function EmployerJobsPage() {
                   Next
                 </button>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

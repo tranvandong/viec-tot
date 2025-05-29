@@ -12,28 +12,36 @@ import {
   DollarSign,
   Calendar,
   X,
+  Banknote,
 } from "lucide-react";
+import { useCreate } from "@/hooks/useDataProvider";
+import { JobPost } from "@/providers/types/definition";
 
 export default function PostJobPage() {
   const router = useRouter();
+  const { mutate } = useCreate<Partial<JobPost>>({
+    resource: "buss/auth/Jobs",
+  });
   const [formData, setFormData] = useState({
-    title: "",
-    company: "Acme Inc.",
-    department: "",
-    location: "",
-    workType: "onsite", // onsite, remote, hybrid
-    jobType: "full-time", // full-time, part-time, contract, internship
-    experienceLevel: "mid-level", // entry-level, mid-level, senior, executive
-    minSalary: "",
-    maxSalary: "",
-    salaryPeriod: "yearly", // yearly, monthly, hourly
-    description: "",
-    responsibilities: "",
-    requirements: "",
-    benefits: "",
-    applicationDeadline: "",
-    showSalary: true,
-    activelyRecruiting: true,
+    title: "Bài đăng tuyển dụng số 1",
+    description: "abc",
+    location: "abc",
+    shift: null,
+    industry: null,
+    fromSalary: 1000000,
+    toSalary: 2000000,
+    effectiveDate: "2025-05-11T17:00:00Z",
+    expiredDate: "2025-05-12T17:00:00Z",
+    status: "Approved",
+    views: 0,
+    isPublished: false,
+    fileId: null,
+    createdName: null,
+    organizationId: "43d3275d-9742-45e1-8ebe-3e704366abda",
+    dmXaCode: "00007",
+    dmHuyenCode: "001",
+    dmTinhCode: "01",
+    createdDate: "2025-05-13T07:38:05.414579Z",
   });
 
   const [skills, setSkills] = useState<string[]>([]);
@@ -45,7 +53,10 @@ export default function PostJobPage() {
     >
   ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({
+      ...formData,
+      [name]: e.target.type === "number" ? Number(value) : value,
+    });
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,9 +79,15 @@ export default function PostJobPage() {
     e.preventDefault();
     // Here you would typically send the data to your API
     console.log({ ...formData, skills });
-
-    // Redirect to the employer dashboard
-    router.push("/employer/dashboard");
+    mutate(
+      { ...formData },
+      {
+        onSuccess(data, variables, context) {
+          // Redirect to the employer dashboard
+          router.push("/employer/manage/jobs");
+        },
+      }
+    );
   };
 
   return (
@@ -79,7 +96,7 @@ export default function PostJobPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold">Post a New Job</h1>
+            <h1 className="text-2xl font-bold">Đăng việc làm mới</h1>
             <Link
               href="/employer/dashboard"
               className="text-sm text-blue-600 hover:text-blue-800 font-medium"
@@ -93,7 +110,7 @@ export default function PostJobPage() {
               {/* Job Basics */}
               <div className="mb-8">
                 <h2 className="text-lg font-semibold mb-4 text-gray-800">
-                  Job Basics
+                  Cơ bản về công việc
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="col-span-2">
@@ -101,7 +118,7 @@ export default function PostJobPage() {
                       htmlFor="title"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Job Title*
+                      Tên công việc*
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -114,7 +131,7 @@ export default function PostJobPage() {
                         value={formData.title}
                         onChange={handleChange}
                         required
-                        placeholder="e.g. Senior Product Designer"
+                        placeholder="ví dụ: Kỹ sư phần mềm, Nhà thiết kế UX"
                         className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       />
                     </div>
@@ -125,7 +142,7 @@ export default function PostJobPage() {
                       htmlFor="department"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Department
+                      Bộ phận
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -134,8 +151,8 @@ export default function PostJobPage() {
                       <input
                         type="text"
                         id="department"
-                        name="department"
-                        value={formData.department}
+                        name="industry"
+                        value={formData.industry || ""}
                         onChange={handleChange}
                         placeholder="e.g. Design"
                         className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -148,7 +165,7 @@ export default function PostJobPage() {
                       htmlFor="location"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Location*
+                      Địa điểm*
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -172,20 +189,20 @@ export default function PostJobPage() {
               {/* Job Details */}
               <div className="mb-8">
                 <h2 className="text-lg font-semibold mb-4 text-gray-800">
-                  Job Details
+                  Chi tiết công việc
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                  {/* <div>
                     <label
                       htmlFor="workType"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Work Type*
+                      Loại hình làm việc
                     </label>
                     <select
                       id="workType"
                       name="workType"
-                      value={formData.workType}
+                      value={formData.shift || ""}
                       onChange={handleChange}
                       required
                       className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -194,19 +211,19 @@ export default function PostJobPage() {
                       <option value="remote">Remote</option>
                       <option value="hybrid">Hybrid</option>
                     </select>
-                  </div>
+                  </div> */}
 
                   <div>
                     <label
                       htmlFor="jobType"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Job Type*
+                      Loại công việc*
                     </label>
                     <select
                       id="jobType"
                       name="jobType"
-                      value={formData.jobType}
+                      value={formData.industry || ""}
                       onChange={handleChange}
                       required
                       className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -218,7 +235,7 @@ export default function PostJobPage() {
                     </select>
                   </div>
 
-                  <div>
+                  {/* <div>
                     <label
                       htmlFor="experienceLevel"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -228,7 +245,7 @@ export default function PostJobPage() {
                     <select
                       id="experienceLevel"
                       name="experienceLevel"
-                      value={formData.experienceLevel}
+                      value={formData.}
                       onChange={handleChange}
                       required
                       className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -238,8 +255,28 @@ export default function PostJobPage() {
                       <option value="senior">Senior Level</option>
                       <option value="executive">Executive Level</option>
                     </select>
+                  </div> */}
+                  <div>
+                    <label
+                      htmlFor="expiredDate"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Application Deadline
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Calendar className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="date"
+                        id="expiredDate"
+                        name="expiredDate"
+                        value={formData.expiredDate}
+                        onChange={handleChange}
+                        className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
                   </div>
-
                   <div>
                     <label
                       htmlFor="applicationDeadline"
@@ -254,8 +291,8 @@ export default function PostJobPage() {
                       <input
                         type="date"
                         id="applicationDeadline"
-                        name="applicationDeadline"
-                        value={formData.applicationDeadline}
+                        name="expiredDate"
+                        value={formData.expiredDate}
                         onChange={handleChange}
                         className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       />
@@ -270,7 +307,7 @@ export default function PostJobPage() {
                   <h2 className="text-lg font-semibold text-gray-800">
                     Salary Information
                   </h2>
-                  <div className="flex items-center">
+                  {/* <div className="flex items-center">
                     <input
                       type="checkbox"
                       id="showSalary"
@@ -285,25 +322,48 @@ export default function PostJobPage() {
                     >
                       Show salary on job post
                     </label>
-                  </div>
+                  </div> */}
                 </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label
-                      htmlFor="minSalary"
+                      htmlFor="toSalary"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Minimum Salary
+                      Lương tối thiểu
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <DollarSign className="h-5 w-5 text-gray-400" />
+                        <Banknote className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
                         type="number"
-                        id="minSalary"
-                        name="minSalary"
-                        value={formData.minSalary}
+                        id="toSalary"
+                        name="toSalary"
+                        value={formData.toSalary || 0}
+                        onChange={handleChange}
+                        placeholder="e.g. 70000"
+                        className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="fromSalary"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Lương tối đa
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Banknote className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="number"
+                        id="fromSalary"
+                        name="fromSalary"
+                        value={formData.fromSalary || ""}
                         onChange={handleChange}
                         placeholder="e.g. 50000"
                         className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -311,30 +371,7 @@ export default function PostJobPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <label
-                      htmlFor="maxSalary"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Maximum Salary
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <DollarSign className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        type="number"
-                        id="maxSalary"
-                        name="maxSalary"
-                        value={formData.maxSalary}
-                        onChange={handleChange}
-                        placeholder="e.g. 70000"
-                        className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
+                  {/*<div>
                     <label
                       htmlFor="salaryPeriod"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -352,7 +389,7 @@ export default function PostJobPage() {
                       <option value="monthly">Per Month</option>
                       <option value="hourly">Per Hour</option>
                     </select>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -431,15 +468,15 @@ export default function PostJobPage() {
 
                   <div>
                     <label
-                      htmlFor="responsibilities"
+                      htmlFor="description"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
                       Responsibilities*
                     </label>
                     <textarea
-                      id="responsibilities"
-                      name="responsibilities"
-                      value={formData.responsibilities}
+                      id="description"
+                      name="description"
+                      value={formData.description}
                       onChange={handleChange}
                       required
                       rows={4}
@@ -452,7 +489,7 @@ export default function PostJobPage() {
                     </p>
                   </div>
 
-                  <div>
+                  {/* <div>
                     <label
                       htmlFor="requirements"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -487,12 +524,12 @@ export default function PostJobPage() {
                       placeholder="List the benefits and perks offered with this position..."
                       className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
               {/* Additional Options */}
-              <div className="mb-8">
+              {/* <div className="mb-8">
                 <h2 className="text-lg font-semibold mb-4 text-gray-800">
                   Additional Options
                 </h2>
@@ -512,22 +549,22 @@ export default function PostJobPage() {
                     Show "Actively Recruiting" badge on job listing
                   </label>
                 </div>
-              </div>
+              </div> */}
 
               {/* Submit Buttons */}
               <div className="flex justify-end gap-4">
                 <button
                   type="button"
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  onClick={() => router.push("/employer/dashboard")}
+                  onClick={() => router.push("/employer/manage/jobs")}
                 >
-                  Cancel
+                  Hủy bỏ
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
-                  Post Job
+                  Đăng công việc
                 </button>
               </div>
             </form>

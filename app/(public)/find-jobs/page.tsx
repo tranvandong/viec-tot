@@ -2,13 +2,21 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, ChevronDown, Clock, ChevronUp } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { JobDetailModal } from "@/components/job-detail-modal";
 import { SearchBox } from "@/components/search-box";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectGroup,
+//   SelectItem,
+//   SelectTrigger,
+// } from "@/components/ui/select";
+import * as Select from "@radix-ui/react-select";
 
 export default function SearchResults() {
   const searchParams = useSearchParams();
@@ -26,6 +34,13 @@ export default function SearchResults() {
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const fixedSalaryRange = [100000, 100000000];
+  const [salaryRange, setSalaryRange] = useState({
+    min: fixedSalaryRange[0],
+    max: fixedSalaryRange[1],
+  });
+  const [isDragging, setIsDragging] = useState<"min" | "max" | null>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections({
@@ -266,6 +281,91 @@ export default function SearchResults() {
     },
   ];
 
+  const handleMouseDown = (thumb: "min" | "max") => (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(thumb);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(null);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !sliderRef.current) return;
+
+    const slider = sliderRef.current;
+    const rect = slider.getBoundingClientRect();
+    const width = rect.width;
+    const offsetX = e.clientX - rect.left;
+
+    // Calculate percentage (clamped between 0 and 100)
+    let percentage = Math.max(0, Math.min(100, (offsetX / width) * 100));
+
+    // Convert percentage to salary value (between 1000 and 25000)
+    const value = Math.round(
+      1000000 + (percentage / 100) * (fixedSalaryRange[1] - 1000000)
+    );
+
+    // Update the appropriate thumb
+    if (isDragging === "min") {
+      // Ensure min doesn't exceed max
+      setSalaryRange((prev) => ({
+        ...prev,
+        min: Math.min(value, prev.max - 10000000),
+      }));
+    } else {
+      // Ensure max doesn't go below min
+      setSalaryRange((prev) => ({
+        ...prev,
+        max: Math.max(value, prev.min + 1000000),
+      }));
+    }
+  };
+
+  // Add effect to handle mouse events outside the component
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleGlobalMouseUp = () => setIsDragging(null);
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !sliderRef.current) return;
+
+      const slider = sliderRef.current;
+      const rect = slider.getBoundingClientRect();
+      const width = rect.width;
+      const offsetX = e.clientX - rect.left;
+
+      // Calculate percentage (clamped between 0 and 100)
+      let percentage = Math.max(0, Math.min(100, (offsetX / width) * 100));
+
+      // Convert percentage to salary value
+      const value = Math.round(
+        1000000 + (percentage / 100) * (fixedSalaryRange[1] - 1000000)
+      );
+
+      // Update the appropriate thumb
+      if (isDragging === "min") {
+        setSalaryRange((prev) => ({
+          ...prev,
+          min: Math.min(value, prev.max - 1000000),
+        }));
+      } else {
+        setSalaryRange((prev) => ({
+          ...prev,
+          max: Math.max(value, prev.min + 1000000),
+        }));
+      }
+    };
+
+    document.addEventListener("mouseup", handleGlobalMouseUp);
+    document.addEventListener("mousemove", handleGlobalMouseMove);
+
+    return () => {
+      document.removeEventListener("mouseup", handleGlobalMouseUp);
+      document.removeEventListener("mousemove", handleGlobalMouseMove);
+    };
+  }, [isDragging]);
+
   useEffect(() => {
     const locationParam = searchParams.get("location") || "";
     if (locationParam.includes(",")) {
@@ -422,7 +522,25 @@ export default function SearchResults() {
                 </button>
               </div>
             </div>
-
+            <Select.Root defaultValue="apple">
+              <Select.Trigger className="w-full h-4" />
+              <Select.Content className="w-full h-4">
+                <Select.Group>
+                  <Select.Label>Fruits</Select.Label>
+                  <Select.Item value="orange">Orange</Select.Item>
+                  <Select.Item value="apple">Apple</Select.Item>
+                  <Select.Item value="grape" disabled>
+                    Grape
+                  </Select.Item>
+                </Select.Group>
+                <Select.Separator />
+                <Select.Group>
+                  <Select.Label>Vegetables</Select.Label>
+                  <Select.Item value="carrot">Carrot</Select.Item>
+                  <Select.Item value="potato">Potato</Select.Item>
+                </Select.Group>
+              </Select.Content>
+            </Select.Root>
             {/* Range Salary */}
             <div className="mb-6 border-b dark:border-gray-700 pb-6">
               <div
@@ -452,7 +570,7 @@ export default function SearchResults() {
                         htmlFor="less-than-1000"
                         className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
                       >
-                        Dưới 1.000$
+                        Dưới 5.000.000đ
                       </label>
                     </div>
                     <div className="flex items-center">
@@ -465,7 +583,7 @@ export default function SearchResults() {
                         htmlFor="1000-15000"
                         className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
                       >
-                        1.000$ - 15.000$
+                        5.000.000đ - 10.000.000đ
                       </label>
                     </div>
                     <div className="flex items-center">
@@ -478,7 +596,7 @@ export default function SearchResults() {
                         htmlFor="more-than-15000"
                         className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
                       >
-                        Trên 15.000$
+                        Trên 10.000.000đ
                       </label>
                     </div>
                     <div className="flex items-center">
@@ -499,17 +617,71 @@ export default function SearchResults() {
 
                   {/* Salary Range Slider */}
                   <div className="mt-6">
-                    <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                      <div className="absolute h-2 bg-blue-500 rounded-full left-[10%] right-[30%]"></div>
-                      <div className="absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-full -mt-1 left-[10%]"></div>
-                      <div className="absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-full -mt-1 right-[30%]"></div>
+                    <div
+                      ref={sliderRef}
+                      className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer"
+                      onMouseMove={handleMouseMove}
+                      onMouseUp={handleMouseUp}
+                    >
+                      <div
+                        className="absolute h-2 bg-blue-500 rounded-full"
+                        style={{
+                          left: `${
+                            ((salaryRange.min - fixedSalaryRange[0]) /
+                              (fixedSalaryRange[1] - 1000000)) *
+                            100
+                          }%`,
+                          right: `${
+                            100 -
+                            ((salaryRange.max - fixedSalaryRange[0]) /
+                              (fixedSalaryRange[1] - 1000000)) *
+                              100
+                          }%`,
+                        }}
+                      ></div>
+                      <div
+                        className={`absolute w-5 h-5 bg-white border-2 border-blue-500 rounded-full -mt-1.5 -ml-2.5 cursor-grab ${
+                          isDragging === "min" ? "cursor-grabbing z-10" : ""
+                        }`}
+                        style={{
+                          left: `${
+                            ((salaryRange.min - fixedSalaryRange[0]) /
+                              (fixedSalaryRange[1] - 1000000)) *
+                            100
+                          }%`,
+                        }}
+                        onMouseDown={handleMouseDown("min")}
+                        role="slider"
+                        aria-valuemin={fixedSalaryRange[0]}
+                        aria-valuemax={fixedSalaryRange[1]}
+                        aria-valuenow={salaryRange.min}
+                        tabIndex={0}
+                      ></div>
+                      <div
+                        className={`absolute w-5 h-5 bg-white border-2 border-blue-500 rounded-full -mt-1.5 -ml-2.5 cursor-grab ${
+                          isDragging === "max" ? "cursor-grabbing z-10" : ""
+                        }`}
+                        style={{
+                          left: `${
+                            ((salaryRange.max - fixedSalaryRange[0]) /
+                              (fixedSalaryRange[1] - 1000000)) *
+                            100
+                          }%`,
+                        }}
+                        onMouseDown={handleMouseDown("max")}
+                        role="slider"
+                        aria-valuemin={fixedSalaryRange[0]}
+                        aria-valuemax={fixedSalaryRange[1]}
+                        aria-valuenow={salaryRange.max}
+                        tabIndex={0}
+                      ></div>
                     </div>
                     <div className="flex justify-between mt-2">
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        1.000$
+                        {salaryRange.min.toLocaleString()}đ
                       </span>
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        25.000$
+                        {salaryRange.max.toLocaleString()}đ
                       </span>
                     </div>
                   </div>
@@ -606,10 +778,14 @@ export default function SearchResults() {
                   <span className="text-sm text-gray-600 dark:text-gray-300">
                     Sắp xếp theo
                   </span>
-                  <button className="flex items-center gap-1 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1.5 text-sm dark:text-gray-300">
-                    Liên quan
-                    <ChevronDown className="h-4 w-4" />
-                  </button>
+                  {/* <Select defaultValue="newest">
+                    <SelectTrigger />
+                    <SelectContent className="w-48">
+                      <SelectItem value="relative">Liên quan</SelectItem>
+                      <SelectItem value="newest">Mới nhất</SelectItem>
+                    </SelectContent>
+                  </Select> */}
+
                   <div className="flex border border-gray-300 dark:border-gray-600 rounded-md">
                     <button
                       className={`px-2 py-1.5 ${
@@ -666,6 +842,7 @@ export default function SearchResults() {
                         />
                       </svg>
                     </button>
+
                     <button
                       className={`px-2 py-1.5 ${
                         viewMode === "list"

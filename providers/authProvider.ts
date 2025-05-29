@@ -6,23 +6,23 @@ import { apiUrl } from "./dataProvider";
 export const TOKEN_KEY = "invest-auth";
 export const USER_KEY = "user";
 
-const redirectTo = "/";
+const redirectTo = "/employer";
 
 export const authProvider: AuthBindings = {
   login: async ({ username, email, password }) => {
     try {
+      console.log("apiUrl", apiUrl);
       if ((username || email) && password) {
         const { data, ...rest } = await dataProvider.custom<{
-          user: any;
-          accessToken: string;
-          expiresAt: string;
+          isSuccessed: boolean;
+          message: string;
         }>({
-          url: `${apiUrl}/auth/login`,
+          url: `${apiUrl}/admin/public/Authenticate/LoginAccountOrganization`,
           payload: { username: username || email, password },
           method: "post",
         });
 
-        if (rest.status === 401) {
+        if (!data.isSuccessed) {
           return {
             success: false,
             error: {
@@ -34,7 +34,7 @@ export const authProvider: AuthBindings = {
 
         return {
           success: true,
-          redirectTo,
+          redirectTo: "/employer/manage",
           data,
         };
       }
