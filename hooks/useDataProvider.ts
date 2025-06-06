@@ -1,8 +1,14 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { odataCrudDataProvider } from "../providers/odataCrudDataProvider";
 import { HttpError } from "../providers/types/HttpError";
 import { useState } from "react";
 import { dataProvider as provider } from "@/providers/dataProvider";
+import {
+  BaseRecord,
+  GetListResponse,
+  GetManyResponse,
+  GetOneResponse,
+} from "@/providers/types/IDataContext";
 
 // Initialize dataProvider with API URL
 // const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
@@ -10,9 +16,13 @@ import { dataProvider as provider } from "@/providers/dataProvider";
 
 interface MetaQuery {
   join: string[];
+  config?: {
+    subSystem?: "admin" | "buss" | "default";
+    auth?: boolean;
+  };
 }
 
-interface UseListParams {
+interface UseListParams<TQueryFnData> {
   resource: string;
   pagination?: {
     current?: number;
@@ -21,28 +31,46 @@ interface UseListParams {
   filters?: any[];
   sorters?: any[];
   meta?: MetaQuery;
+  queryOptions?: Omit<
+    UseQueryOptions<GetListResponse<TQueryFnData>>,
+    "queryKey"
+  >;
 }
 
-export const useList = <T = any>(params: UseListParams) => {
+export const useList = <TQueryFnData extends BaseRecord = BaseRecord>(
+  params: UseListParams<TQueryFnData>
+) => {
   const [pageSize, setPageSize] = useState(params.pagination?.pageSize || 10);
   const [page, setPage] = useState(params.pagination?.current || 1);
+  const [filters, setFilters] = useState(params.filters || []);
+  const [sorters, setSorters] = useState(params.sorters || []);
 
+  const queryKey = [
+    "list",
+    params.resource,
+    {
+      ...params,
+      pagination: { pageSize, page },
+      filters,
+      sorters,
+    },
+  ];
+  console.log(filters);
   const query = useQuery({
-    queryKey: [
-      "list",
-      params.resource,
-      { ...params, pagination: { pageSize, page } },
-    ],
+    ...params.queryOptions,
+    queryKey,
     queryFn: async () => {
       const result = await provider.getList({
         ...params,
+        filters,
+        sorters,
         pagination: {
           pageSize,
           current: page,
         },
       });
       return {
-        data: result.data as T[],
+        data: result.data as TQueryFnData[],
         total: result.total,
       };
     },
@@ -57,6 +85,10 @@ export const useList = <T = any>(params: UseListParams) => {
     pageCount,
     setPageSize,
     setPage,
+    setFilters,
+    setSorters,
+    filters,
+    sorters,
     pagination: {
       current: page,
       pageSize,
@@ -64,38 +96,56 @@ export const useList = <T = any>(params: UseListParams) => {
   };
 };
 
-interface UseManyParams {
+interface UseManyParams<TQueryFnData> {
   resource: string;
   ids: (string | number)[];
   meta?: MetaQuery;
+  queryOptions?: Omit<
+    UseQueryOptions<GetManyResponse<TQueryFnData>>,
+    "queryKey"
+  >;
 }
 
-export const useMany = <T = any>(params: UseManyParams) => {
+export const useMany = <TQueryFnData extends BaseRecord = BaseRecord>(
+  params: UseManyParams<TQueryFnData>
+) => {
+  const queryKey = ["many", params.resource, params.ids, params.meta];
+
   return useQuery({
-    queryKey: ["many", params.resource, params.ids, params.meta],
+    ...params.queryOptions,
+    queryKey,
     queryFn: async () => {
       const result = await provider.getMany(params);
       return {
-        data: result.data as T[],
+        data: result.data as TQueryFnData[],
       };
     },
     enabled: params.ids.length > 0,
   });
 };
 
-interface UseOneParams {
+interface UseOneParams<TQueryFnData> {
   resource: string;
   id: string | number;
   meta?: MetaQuery;
+  queryOptions?: Omit<
+    UseQueryOptions<GetOneResponse<TQueryFnData>>,
+    "queryKey"
+  >;
 }
 
-export const useOne = <T = any>(params: UseOneParams) => {
+export const useOne = <TQueryFnData extends BaseRecord = BaseRecord>(
+  params: UseOneParams<TQueryFnData>
+) => {
+  const queryKey = ["one", params.resource, params.id, params.meta];
+
   return useQuery({
-    queryKey: ["one", params.resource, params.id, params.meta],
+    ...params.queryOptions,
+    queryKey,
     queryFn: async () => {
       const result = await provider.getOne(params);
       return {
-        data: result.data as T,
+        data: result.data as TQueryFnData,
       };
     },
     enabled: !!params.id,
@@ -115,9 +165,7 @@ export const useCreate = <T = any>(params: UseCreateParams<T>) => {
       });
       return result.data as T;
     },
-    onSuccess(data, variables, context) {
-      
-    },
+    onSuccess(data, variables, context) {},
   });
 };
 

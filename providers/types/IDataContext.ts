@@ -9,8 +9,15 @@ export type BaseRecord = {
 
 export type MetaQuery = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  join: any;
+  join?: any;
+  config?: {
+    subSystem?: "admin" | "buss" | "default";
+    auth?: boolean;
+    mode?: MetaQueryMode;
+  };
 };
+
+export type MetaQueryMode = "server" | "client";
 
 export interface Pagination {
   /**
@@ -219,6 +226,17 @@ export interface CustomParams<TQuery = unknown, TPayload = unknown> {
   meta?: MetaQuery;
 }
 
+export type AttachmentType =
+  | "Organization"
+  | "Applicant"
+  | "Job"
+  | "DMCategory";
+
+export interface DownLoadParams {
+  key: string;
+  type: AttachmentType;
+}
+
 export interface IDataContextProvider {
   getList: <TData extends BaseRecord = BaseRecord>(
     params: GetListParams
@@ -283,6 +301,9 @@ export interface IDataContextProvider {
   >(
     params: CustomParams<TQuery, TPayload>
   ) => Promise<CustomResponse<TData>>;
+
+  getAttachment?: (params: DownLoadParams) => Promise<any>;
+  getSource?: (path: string) => string;
 }
 
 export type IDataContext = IDataContextProvider;

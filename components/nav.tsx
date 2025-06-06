@@ -125,11 +125,7 @@ export function Nav() {
     router.push(path);
   };
   return (
-    <header
-      className={`bg-blue-950 text-white top-0 left-0 right-0 z-10 transition-transform duration-300 ${
-        isHeaderVisible ? "transform-none" : "-translate-y-full"
-      }`}
-    >
+    <header className={`bg-blue-950 text-white top-0 left-0 right-0 z-10`}>
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between py-4">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
@@ -156,9 +152,9 @@ export function Nav() {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <div className="hidden md:block">
+          {/* <div className="hidden md:block">
             <ThemeToggle />
-          </div>
+          </div> */}
           <Link href="/register" className="text-sm font-medium text-white">
             Đăng ký
           </Link>

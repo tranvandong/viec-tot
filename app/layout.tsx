@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
+import { ThemeProviders } from "./providers";
 
 export const metadata: Metadata = {
   title: "JobWise - Find Your Dream Job",
@@ -24,10 +25,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 transition-colors">
         <QueryProvider>
-          <ThemeProvider defaultTheme="system" storageKey="jobwise-theme">
+          <ThemeProviders>
             {children}
             <Toaster />
-          </ThemeProvider>
+          </ThemeProviders>
         </QueryProvider>
       </body>
     </html>
