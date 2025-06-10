@@ -2,59 +2,24 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ChevronRight, Twitter, Instagram, Linkedin } from "lucide-react";
+import { useList } from "@/hooks/useDataProvider";
+import { Organization } from "@/providers/types/definition";
+import IImage from "@/components/ui/image";
 
 export default function CompaniesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
 
+  const { data, isLoading } = useList<Organization>({
+    resource: "Organizations",
+    filters: [],
+    sorters: [],
+    // queryOptions: { enabled: false },
+  });
+
   // Company data
-  const companies = [
-    {
-      id: "1",
-      name: "Techvify Company Limited",
-      logo: "/placeholder.svg?height=40&width=40&text=TC&bg=yellow",
-      coverImage:
-        "/placeholder.svg?height=200&width=300&text=Techvify+Team&bg=lightblue",
-      description: "Conquer the Everest, Together with Techvify",
-      location: "Quận Bình Thạnh, Hồ Chí Minh",
-      category: "IT Consultant, Outsourcing, Development",
-      jobCount: "8 Jobs",
-    },
-    {
-      id: "2",
-      name: "Tổng Công ty Bưu điện Việt Nam",
-      logo: "/placeholder.svg?height=40&width=40&text=VNP&bg=orange",
-      coverImage:
-        "/placeholder.svg?height=200&width=300&text=Vietnam+Post&bg=orange",
-      description: "Bưu điện Việt Nam - Đối tác toàn trình",
-      location: "Quận Nam Từ Liêm, Hà Nội",
-      category: "Logistics",
-      jobCount: "14 Jobs",
-    },
-    {
-      id: "3",
-      name: "NEC Vietnam",
-      logo: "/placeholder.svg?height=40&width=40&text=NEC&bg=blue",
-      coverImage: "/placeholder.svg?height=200&width=300&text=NEC+Team&bg=blue",
-      description: "ONE OF THE TOP ICT JAPANESE COMPANIES IN VIETNAM",
-      location: "Quận Tân Bình, Hồ Chí Minh",
-      category: "Software",
-      jobCount: "Chi tiết",
-    },
-    {
-      id: "4",
-      name: "Ngân hàng TMCP Sài Gòn Thương tín",
-      logo: "/placeholder.svg?height=40&width=40&text=SCB&bg=blue",
-      coverImage:
-        "/placeholder.svg?height=200&width=300&text=Sacombank&bg=lightblue",
-      description: "Đồng hành cùng phát triển",
-      location: "Quận 3, Hồ Chí Minh",
-      category: "Product, Fintech, Ngân hàng",
-      jobCount: "1 Job",
-    },
-  ];
+  const companies = data?.data || [];
 
   return (
     <div className="min-h-screen bg-white">
@@ -90,13 +55,14 @@ export default function CompaniesPage() {
         {/* Companies Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {companies.map((company) => (
-            <div
+            <Link
               key={company.id}
               className="border border-gray-200 rounded-md overflow-hidden"
+              href={`companies/${company.id}`}
             >
               <div className="relative">
-                <Image
-                  src={company.coverImage || "/placeholder.svg"}
+                <IImage
+                  filePath={company.filePaths[0]}
                   alt={company.name}
                   width={300}
                   height={200}
@@ -104,80 +70,37 @@ export default function CompaniesPage() {
                 />
               </div>
               <div className="p-4 pt-0 relative">
-                <div className="absolute -top-6 left-4 w-12 h-12 bg-white border border-gray-200 rounded-md flex items-center justify-center overflow-hidden">
-                  <Image
-                    src={company.logo || "/placeholder.svg"}
+                <div className="absolute -top-12 left-4 w-24 h-24 bg-white border border-gray-200 rounded-md flex items-center justify-center overflow-hidden">
+                  <IImage
+                    filePath={company.filePaths[0]}
                     alt={company.name}
-                    width={40}
-                    height={40}
+                    width={80}
+                    height={80}
                     className="object-cover"
-                  />
+                  />{" "}
+                </div>
+                <div className="pl-[110px] pt-2">
+                  <h3 className="font-medium text-sm mb-1 ">{company.name}</h3>
                 </div>
                 <div className="mt-8">
-                  <h3 className="font-medium text-sm mb-1">{company.name}</h3>
-                  <p className="text-xs text-gray-600 mb-2">
+                  {/* <p className="text-xs text-gray-600 mb-2">
                     {company.description}
-                  </p>
+                  </p> */}
                   <p className="text-xs text-gray-500 mb-2">
-                    {company.location}
+                    {company.address}
                   </p>
                   <div className="text-xs text-gray-500">
-                    {company.category}
+                    {company.telephone}
                   </div>
                   <div className="mt-2 text-xs text-right">
                     <span className="text-red-500 flex items-center justify-end gap-1">
-                      {company.jobCount}
+                      10 công việc
                       <ChevronRight className="h-4 w-4" />
                     </span>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-          {companies.map((company) => (
-            <div
-              key={`second-${company.id}`}
-              className="border border-gray-200 rounded-md overflow-hidden"
-            >
-              <div className="relative">
-                <Image
-                  src={company.coverImage || "/placeholder.svg"}
-                  alt={company.name}
-                  width={300}
-                  height={200}
-                  className="w-full h-40 object-cover"
-                />
-              </div>
-              <div className="p-4 pt-0 relative">
-                <div className="absolute -top-6 left-4 w-12 h-12 bg-white border border-gray-200 rounded-md flex items-center justify-center overflow-hidden">
-                  <Image
-                    src={company.logo || "/placeholder.svg"}
-                    alt={company.name}
-                    width={40}
-                    height={40}
-                    className="object-cover"
-                  />
-                </div>
-                <div className="mt-8">
-                  <h3 className="font-medium text-sm mb-1">{company.name}</h3>
-                  <p className="text-xs text-gray-600 mb-2">
-                    {company.description}
-                  </p>
-                  <p className="text-xs text-gray-500 mb-2">
-                    {company.location}
-                  </p>
-                  <div className="text-xs text-gray-500">
-                    {company.category}
-                  </div>
-                  <div className="mt-2 text-xs text-right">
-                    <span className="text-red-500 flex items-center justify-end gap-1">
-                      {company.jobCount}
-                      <ChevronRight className="h-4 w-4" />
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

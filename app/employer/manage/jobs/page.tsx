@@ -33,7 +33,7 @@ export default function EmployerJobsPage() {
   const lastScrollY = useRef(0);
 
   const { data, pageCount, pagination, setPage } = useList<JobPost>({
-    resource: "buss/public/Jobs",
+    resource: "Jobs",
   });
   const jobs = data?.data || [];
   console.log("Jobs data:", data);

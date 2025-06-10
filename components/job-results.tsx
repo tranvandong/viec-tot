@@ -31,7 +31,7 @@ export default function JobResult() {
   const [experience, setExperience] = useState("");
   const district = searchParams.get("district");
   const province = searchParams.get("province");
-  const jobTitle = searchParams.get("job");
+  const jobTitle = searchParams.get("job") || searchParams.get("categoryName");
   const jobFilters = [];
   if (district) {
     jobFilters.push({
@@ -327,6 +327,7 @@ export default function JobResult() {
       "salary_to",
       "experience_from",
       "experience_to",
+      "categoryName",
     ]);
     router.push(`${pathName}?${queryString}`);
   };
@@ -747,7 +748,7 @@ export default function JobResult() {
             <div className="space-y-4">
               {jobData?.data.map((job) => (
                 <Link
-                  href="/job/"
+                  href={`/job/${job.id}`}
                   key={job.id}
                   className="block bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
                   // onClick={(e) => openJobModal(job, e)}

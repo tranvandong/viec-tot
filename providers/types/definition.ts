@@ -44,4 +44,5 @@ export type Organization = {
   dmTinhCode: string;
   id: string;
   createdDate: string; // hoặc `Date` nếu bạn parse sang Date object
+  jobs?: JobPost[];
 };

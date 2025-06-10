@@ -90,7 +90,7 @@ export const authProvider: AuthBindings = {
     }
   },
   logout: async () => {
-    await dataProvider.custom({ url: `/auth/logout`, method: "post" });
+    await dataProvider.custom({ url: `${apiUrl}/auth/logout`, method: "post" });
     return {
       success: true,
       redirectTo: "/login",
@@ -108,7 +108,7 @@ export const authProvider: AuthBindings = {
   updatePassword: async (params: any) => {
     try {
       await dataProvider.custom({
-        url: `/auth/change-password`,
+        url: `${apiUrl}/auth/change-password`,
         payload: params,
         method: "post",
       });

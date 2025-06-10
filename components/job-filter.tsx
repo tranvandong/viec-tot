@@ -72,6 +72,7 @@ export default function JobFilter({
           sParams.set(name, value);
         }
       });
+      console.log("sParams", sParams);
 
       return sParams.toString();
     },
@@ -139,9 +140,9 @@ export default function JobFilter({
   };
 
   useEffect(() => {
-    if (searchParams.get("category")) {
-      console.log("lv", extractJobTitle(pathName));
-      setLinhVuc(extractJobTitle(pathName));
+    const category = searchParams.get("category");
+    if (category) {
+      setLinhVuc(category);
     } else {
       setLinhVuc("");
     }
@@ -164,7 +165,10 @@ export default function JobFilter({
       "salary",
       "experience",
       "salaryRange",
+      "categoryName",
+      "locationName",
     ]);
+
     router.push(`${pathName}?${queryString}`);
   };
 
@@ -200,6 +204,7 @@ export default function JobFilter({
             placeholder="Chọn lĩnh vực"
             // className="min-w-full"
             style={{ width: "100%" }}
+            value={linhVuc}
           />
           <RadixSelect.Content className="w-full">
             {dmViecLams.map((dmViecLam: any) => (

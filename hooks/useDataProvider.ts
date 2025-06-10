@@ -14,6 +14,18 @@ import {
 // const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 // const provider = odataCrudDataProvider(apiUrl);
 
+type Resource =
+  | "Organizations"
+  | "Jobs"
+  | "Applicants"
+  | "Favorites"
+  | "DMTinhs"
+  | "DMXas"
+  | "DMHuyens"
+  | "Applications"
+  | "Resumes"
+  | "DMCategories";
+
 interface MetaQuery {
   join: string[];
   config?: {
@@ -23,7 +35,7 @@ interface MetaQuery {
 }
 
 interface UseListParams<TQueryFnData> {
-  resource: string;
+  resource: Resource;
   pagination?: {
     current?: number;
     pageSize?: number;
@@ -55,7 +67,7 @@ export const useList = <TQueryFnData extends BaseRecord = BaseRecord>(
       sorters,
     },
   ];
-  console.log(filters);
+
   const query = useQuery({
     ...params.queryOptions,
     queryKey,

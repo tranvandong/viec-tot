@@ -146,9 +146,6 @@ export function Nav() {
             <Link href="/companies" className="text-sm font-medium text-white">
               Công ty
             </Link>
-            <Link href="/service" className="text-sm font-medium text-white">
-              Dịch vụ
-            </Link>
           </nav>
         </div>
         <div className="flex items-center gap-4">
