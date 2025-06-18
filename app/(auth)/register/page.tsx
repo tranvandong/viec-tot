@@ -2,14 +2,31 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import {
+  Code,
+  Edit,
+  Eye,
+  EyeOff,
+  LockIcon,
+  Pencil,
+  PhoneIcon,
+} from "lucide-react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { useRegister } from "@/hooks/useAuth";
+import { Button, Flex, IconButton, Text, TextField } from "@radix-ui/themes";
+import { set } from "date-fns";
+
+enum Steps {
+  Step1,
+  Step2,
+}
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [activeSlide, setActiveSlide] = useState(0);
+  const [activeSlide, setActiveSlide] = useState<Steps>(Steps.Step1);
+  const [step, setStep] = useState(0);
+  const [phone, setPhone] = useState("");
   const { mutate: registerUser } = useRegister();
   const {
     register,
@@ -109,8 +126,107 @@ export default function RegisterPage() {
             </span>
             <div className="h-px bg-gray-200 flex-1"></div>
           </div> */}
+          {step === Steps.Step1 && (
+            <>
+              <Flex width={{ lg: "100%" }} direction="column" gap="3">
+                <TextField.Root
+                  size={"3"}
+                  placeholder="Nhập số điện thoại của bạn"
+                  className="w-full"
+                  value={phone}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                  }}
+                >
+                  <TextField.Slot>
+                    <PhoneIcon height="16" width="16" />
+                  </TextField.Slot>
+                </TextField.Root>
+                <Button size={"3"} onClick={() => setStep(Steps.Step2)}>
+                  Gửi OTP
+                </Button>
+              </Flex>
+            </>
+          )}
+          {step === Steps.Step2 && (
+            <>
+              <div className="mb-1">
+                Đã gửi mã OTP tới: <strong>{phone}</strong>
+              </div>
+              <br />
+              <Flex width={{ lg: "100%" }} direction="column" gap="4">
+                <TextField.Root
+                  size={"3"}
+                  placeholder="Nhập số điện thoại của bạn"
+                  className="w-full"
+                  disabled
+                  defaultValue={phone}
+                >
+                  <TextField.Slot>
+                    <PhoneIcon height="16" width="16" />
+                  </TextField.Slot>
+                  <TextField.Slot>
+                    <IconButton
+                      variant="ghost"
+                      onClick={() => setStep(Steps.Step1)}
+                    >
+                      <Pencil height="16" width="16" className="mr-2" />
+                      <Text className="text-sm">Sửa</Text>
+                    </IconButton>
+                  </TextField.Slot>
+                </TextField.Root>
+                <TextField.Root
+                  size={"3"}
+                  placeholder="Nhập mã OTP"
+                  className="w-full"
+                >
+                  <TextField.Slot>
+                    <Code height="16" width="16" />
+                  </TextField.Slot>
+                </TextField.Root>
+                <TextField.Root
+                  size={"3"}
+                  placeholder="Nhập mật khẩu"
+                  className="w-full"
+                  type="password"
+                >
+                  <TextField.Slot>
+                    <LockIcon height="16" width="16" />
+                  </TextField.Slot>
+                  <TextField.Slot>
+                    <IconButton
+                      variant="ghost"
+                      onClick={() => setStep(Steps.Step1)}
+                    >
+                      <Eye height="16" width="16" />
+                    </IconButton>
+                  </TextField.Slot>
+                </TextField.Root>
+                <TextField.Root
+                  size={"3"}
+                  placeholder="Nhập lại mật khẩu"
+                  className="w-full"
+                >
+                  <TextField.Slot>
+                    <LockIcon height="16" width="16" />
+                  </TextField.Slot>
+                  <TextField.Slot>
+                    <IconButton
+                      variant="ghost"
+                      onClick={() => setStep(Steps.Step1)}
+                    >
+                      <Eye height="16" width="16" />
+                    </IconButton>
+                  </TextField.Slot>
+                </TextField.Root>
 
-          <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+                <Button size={"3"} onClick={() => setStep(Steps.Step2)}>
+                  Đăng ký
+                </Button>
+              </Flex>
+            </>
+          )}
+          {/* <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="relative">
@@ -263,7 +379,7 @@ export default function RegisterPage() {
             >
               Tạo tài khoản
             </button>
-          </form>
+          </form> */}
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">

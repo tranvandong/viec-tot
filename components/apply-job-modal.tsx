@@ -1,6 +1,13 @@
 "use client";
 import { FC } from "react";
-import { Button, Dialog, Flex, Text, TextField } from "@radix-ui/themes";
+import {
+  Button,
+  Dialog,
+  Flex,
+  Text,
+  TextArea,
+  TextField,
+} from "@radix-ui/themes";
 import { JobPost } from "@/providers/types/definition";
 import { useParams } from "next/navigation";
 import { useOne } from "@/hooks/useDataProvider";
@@ -12,7 +19,8 @@ interface ApplyJobModalProps {
 }
 
 const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
-  const { slug } = useParams();
+  const params = useParams();
+  const slug = params?.slug as string | undefined;
   const { data } = useOne({
     resource: "Jobs",
     id: slug as string,
@@ -44,54 +52,53 @@ const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
             </Text>
           </>
         </Dialog.Title>
-        <Flex gapX={"8"}>
-          <Text as="div" size="2" mb="1" weight="bold" color="gray">
-            Thông tin cơ bản
-          </Text>
-          <Flex gap="3" width={"100%"}>
+
+        <div className="w-full">
+          <Flex gap="3" width={"100%"} mb={"4"}>
             <label className="flex-1">
               <Text as="div" size="3" mb="1" weight="bold">
                 Học vấn
               </Text>
-              <TextField.Root placeholder="Enter your full name" size="3" />
+              <TextArea placeholder="Nhập học vấn của bạn" size="3" />
             </label>
             <label className="flex-1">
               <Text as="div" size="3" mb="1" weight="bold">
                 Kinh nghiệm
               </Text>
-              <TextField.Root placeholder="Enter your email" size="3" />
+              <TextArea placeholder="Nhập kinh nghiệm của bạn" size="3" />
             </label>
           </Flex>
-          <Flex gap="3" width={"100%"}>
+          <Flex gap="3" width={"100%"} mb={"4"}>
+            {" "}
             <label className="flex-1">
               <Text as="div" size="3" mb="1" weight="bold">
-                Học vấn
+                Kỹ năng
               </Text>
-              <TextField.Root placeholder="Enter your full name" size="3" />
+              <TextArea placeholder="Nhập kỹ năng của bạn" size="3" />
             </label>
             <label className="flex-1">
               <Text as="div" size="3" mb="1" weight="bold">
-                Kinh nghiệm
+                Chứng chỉ
               </Text>
-              <TextField.Root placeholder="Enter your email" size="3" />
-            </label>
-            <label className="flex-1">
-              <Text as="div" size="3" mb="1" weight="bold">
-                Kinh nghiệm
-              </Text>
-              <TextField.Root placeholder="Enter your email" size="3" />
+              <TextArea placeholder="Nhập chứng chỉ của bạn" size="3" />
             </label>
           </Flex>
-        </Flex>
+          <label className="flex-1">
+            <Text as="div" size="3" mb="1" weight="bold">
+              Giới thiệu chung
+            </Text>
+            <TextArea placeholder="Giới thiệu chung" size="3" />
+          </label>
+        </div>
 
         <Flex gap="3" mt="4" justify="end">
           <Dialog.Close>
             <Button variant="soft" color="gray" onClick={() => onClose()}>
-              Cancel
+              Hủy
             </Button>
           </Dialog.Close>
           <Dialog.Close>
-            <Button>Save</Button>
+            <Button>Ứng tuyển</Button>
           </Dialog.Close>
         </Flex>
       </Dialog.Content>

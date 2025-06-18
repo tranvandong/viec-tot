@@ -29,9 +29,8 @@ import dayjs from "@/lib/dayjs";
 import ApplyJobModal from "@/components/apply-job-modal";
 
 export default function JobDetail() {
-  const params = useParams();
   const router = useRouter();
-  const jobId = params.slug as string;
+
   const [isSaved, setIsSaved] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [savedJobs, setSavedJobs] = useState<string[]>([]);
@@ -39,7 +38,8 @@ export default function JobDetail() {
     console.log("fsf");
   };
 
-  const { slug } = useParams();
+  const params = useParams();
+  const slug = params?.slug as string;
   console.log(slug);
 
   const { data, isLoading } = useOne<JobPost>({
@@ -62,6 +62,21 @@ export default function JobDetail() {
       setSavedJobs(savedJobs.filter((jobId) => jobId !== id));
     } else {
       setSavedJobs([...savedJobs, id]);
+    }
+  };
+
+  const onShare = () => {
+    if (navigator.share) {
+      navigator
+        .share({
+          title: "Tiêu đề trang",
+          text: "Một mô tả ngắn",
+          url: window.location.href,
+        })
+        .then(() => console.log("Chia sẻ thành công"))
+        .catch((error) => console.error("Chia sẻ thất bại", error));
+    } else {
+      alert("Trình duyệt không hỗ trợ chia sẻ");
     }
   };
 
@@ -185,7 +200,10 @@ export default function JobDetail() {
                     }`}
                   />
                 </button>{" "}
-                <button className="p-2.5 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50">
+                <button
+                  onClick={onShare}
+                  className="p-2.5 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
+                >
                   <Share2 className="h-5 w-5" />
                 </button>
               </div>

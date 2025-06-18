@@ -7,14 +7,16 @@ export type BaseRecord = {
   [key: string]: any;
 };
 
+export type ODataConfig = {
+  subSystem?: "admin" | "buss" | "default";
+  auth?: "allow" | "public" | "auth";
+  mode?: MetaQueryMode;
+};
+
 export type MetaQuery = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   join?: any;
-  config?: {
-    subSystem?: "admin" | "buss" | "default";
-    auth?: boolean;
-    mode?: MetaQueryMode;
-  };
+  config?: ODataConfig;
 };
 
 export type MetaQueryMode = "server" | "client";

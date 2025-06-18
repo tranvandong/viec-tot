@@ -9,14 +9,22 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: "/api/:path*",
-  //       destination: "https://viectot.nextform.vn/api/:path*",
-  //     },
-  //   ];
-  // },
+  async rewrites() {
+    return [
+      {
+        source: "/api/default/:path*",
+        destination: "https://viectot.nextform.vn/api/default/:path*",
+      },
+      {
+        source: "/api/buss/:path*",
+        destination: "https://viectot.nextform.vn/api/buss/:path*",
+      },
+      {
+        source: "/api/admin/:path*",
+        destination: "https://viectot.nextform.vn/api/admin/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

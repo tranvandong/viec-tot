@@ -4,14 +4,9 @@ import {
   CrudFilters,
   IDataContextProvider,
   MetaQueryMode,
+  ODataConfig,
 } from "./types/IDataContext";
 import { HttpError } from "./types/HttpError";
-
-type ODataConfig = {
-  subSystem?: "admin" | "buss" | "default";
-  auth?: boolean;
-  mode?: MetaQueryMode;
-};
 
 const buildODataQuery = (params: {
   filters?: CrudFilters;
@@ -97,12 +92,12 @@ export const odataCrudDataProvider = (
 ): Required<IDataContextProvider> => {
   const buildUrl = (
     resource: string,
-    config: ODataConfig = { subSystem: "buss", auth: false, mode: "client" }
+    config: ODataConfig = { subSystem: "buss", auth: "public", mode: "client" }
   ) => {
-    const { subSystem = "buss", auth = false, mode = "client" } = config;
-    return `${mode === "client" ? apiUrl : serverSideApiUrl}/${subSystem}/${
-      auth ? "auth" : "public"
-    }/${resource}`;
+    const { subSystem, auth, mode } = config;
+    return `${
+      mode === "client" ? apiUrl : serverSideApiUrl
+    }/${subSystem}/${auth}/${resource}`;
   };
 
   return {
@@ -321,7 +316,6 @@ export const odataCrudDataProvider = (
       const resource = "Storage/GetAttachments";
       const config: ODataConfig = {
         subSystem: "default",
-        auth: false,
       };
       const queryUrl = buildUrl(resource, config);
       const data = await httpClient.get(queryUrl);

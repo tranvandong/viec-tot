@@ -34,7 +34,7 @@ export const authProvider: AuthBindings = {
 
         return {
           success: true,
-          redirectTo: "/employer/manage",
+          redirectTo: "/employer/manage/jobs",
           data,
         };
       }

@@ -20,7 +20,7 @@ import { JobPost } from "@/providers/types/definition";
 export default function PostJobPage() {
   const router = useRouter();
   const { mutate } = useCreate<Partial<JobPost>>({
-    resource: "buss/auth/Jobs",
+    resource: "Jobs",
   });
   const [formData, setFormData] = useState({
     title: "Bài đăng tuyển dụng số 1",
@@ -328,7 +328,7 @@ export default function PostJobPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label
-                      htmlFor="toSalary"
+                      htmlFor="fromSalary"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
                       Lương tối thiểu
@@ -339,9 +339,9 @@ export default function PostJobPage() {
                       </div>
                       <input
                         type="number"
-                        id="toSalary"
-                        name="toSalary"
-                        value={formData.toSalary || 0}
+                        id="fromSalary"
+                        name="fromSalary"
+                        value={formData.fromSalary || 0}
                         onChange={handleChange}
                         placeholder="e.g. 70000"
                         className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -350,7 +350,7 @@ export default function PostJobPage() {
                   </div>
                   <div>
                     <label
-                      htmlFor="fromSalary"
+                      htmlFor="toSalary"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
                       Lương tối đa
@@ -361,9 +361,9 @@ export default function PostJobPage() {
                       </div>
                       <input
                         type="number"
-                        id="fromSalary"
-                        name="fromSalary"
-                        value={formData.fromSalary || ""}
+                        id="toSalary"
+                        name="toSalary"
+                        value={formData.toSalary || ""}
                         onChange={handleChange}
                         placeholder="e.g. 50000"
                         className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
