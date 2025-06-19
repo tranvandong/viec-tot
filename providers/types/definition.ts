@@ -46,3 +46,25 @@ export type Organization = {
   createdDate: string; // hoặc `Date` nếu bạn parse sang Date object
   jobs?: JobPost[];
 };
+
+export interface Applicant {
+  status: "On" | "Off"; // hoặc string nếu có nhiều giá trị khác
+  userId: string;
+  dienThoai: string;
+  email: string;
+  fileId: string | null;
+  id: string;
+  createdDate: string;
+  resume: Resume | null;
+}
+
+export interface Resume {
+  applicantId: string;
+  title: string;
+  education: string;
+  experience: string;
+  skills: string;
+  certifications: string;
+  summary: string;
+  hrViewCount: number;
+}
