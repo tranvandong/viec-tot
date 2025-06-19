@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Image from "next/image"
+import { useState } from "react";
+import Image from "next/image";
 import {
   Search,
   Filter,
@@ -15,12 +15,13 @@ import {
   Grid,
   List,
   Eye,
-} from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { CandidateBottomDrawer } from "@/components/candidate-bottom-drawer"
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { CandidateBottomDrawer } from "@/components/candidate-bottom-drawer";
+import { useList } from "@/hooks/useDataProvider";
 
 // Sample candidate data
 const candidatesData = [
@@ -39,7 +40,14 @@ const candidatesData = [
     appliedDate: "2 ngày trước",
     applicants: 140,
     salary: "1000$/tháng",
-    skills: ["Figma", "Adobe XD", "Sketch", "UI Design", "UX Research", "Prototyping"],
+    skills: [
+      "Figma",
+      "Adobe XD",
+      "Sketch",
+      "UI Design",
+      "UX Research",
+      "Prototyping",
+    ],
     languages: [
       { language: "Tiếng Việt", level: "Bản ngữ" },
       { language: "Tiếng Anh", level: "Thành thạo" },
@@ -108,7 +116,14 @@ const candidatesData = [
     appliedDate: "1 giờ trước",
     applicants: 140,
     salary: "1500$/tháng",
-    skills: ["Product Design", "UI Design", "UX Research", "Design Systems", "Figma", "Adobe Creative Suite"],
+    skills: [
+      "Product Design",
+      "UI Design",
+      "UX Research",
+      "Design Systems",
+      "Figma",
+      "Adobe Creative Suite",
+    ],
     languages: [
       { language: "Tiếng Việt", level: "Bản ngữ" },
       { language: "Tiếng Anh", level: "Thành thạo" },
@@ -146,7 +161,8 @@ const candidatesData = [
         institution: "Đại học RMIT",
         location: "Hồ Chí Minh",
         period: "2016 - 2018",
-        description: "Chuyên ngành Thiết kế Tương tác với luận văn về Trải nghiệm người dùng trong ứng dụng di động",
+        description:
+          "Chuyên ngành Thiết kế Tương tác với luận văn về Trải nghiệm người dùng trong ứng dụng di động",
       },
       {
         degree: "Cử nhân Thiết kế Đồ họa",
@@ -179,7 +195,14 @@ const candidatesData = [
     appliedDate: "2 ngày trước",
     applicants: 140,
     salary: "1000$/tháng",
-    skills: ["UX Research", "Wireframing", "Prototyping", "User Testing", "Figma", "Adobe XD"],
+    skills: [
+      "UX Research",
+      "Wireframing",
+      "Prototyping",
+      "User Testing",
+      "Figma",
+      "Adobe XD",
+    ],
     languages: [
       { language: "Tiếng Việt", level: "Bản ngữ" },
       { language: "Tiếng Anh", level: "Khá" },
@@ -217,7 +240,8 @@ const candidatesData = [
         institution: "Đại học Đà Nẵng",
         location: "Đà Nẵng",
         period: "2014 - 2018",
-        description: "Chuyên ngành Phát triển phần mềm với các khóa học về Thiết kế giao diện người dùng",
+        description:
+          "Chuyên ngành Phát triển phần mềm với các khóa học về Thiết kế giao diện người dùng",
       },
     ],
     certifications: [
@@ -248,7 +272,14 @@ const candidatesData = [
     appliedDate: "2 ngày trước",
     applicants: 521,
     salary: "",
-    skills: ["UI Design", "Visual Design", "Figma", "Adobe Photoshop", "Adobe Illustrator", "Design Systems"],
+    skills: [
+      "UI Design",
+      "Visual Design",
+      "Figma",
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Design Systems",
+    ],
     languages: [
       { language: "Tiếng Việt", level: "Bản ngữ" },
       { language: "Tiếng Anh", level: "Trung cấp" },
@@ -276,7 +307,8 @@ const candidatesData = [
         company: "VNG Corporation",
         location: "Hồ Chí Minh",
         period: "03/2022 - 08/2022",
-        description: "Hỗ trợ nhóm thiết kế trong việc tạo ra các tài liệu marketing và thiết kế giao diện người dùng.",
+        description:
+          "Hỗ trợ nhóm thiết kế trong việc tạo ra các tài liệu marketing và thiết kế giao diện người dùng.",
       },
     ],
     education: [
@@ -285,7 +317,8 @@ const candidatesData = [
         institution: "Đại học FPT",
         location: "Hà Nội",
         period: "2018 - 2022",
-        description: "Chuyên ngành Thiết kế Đồ họa với các dự án về thiết kế giao diện người dùng",
+        description:
+          "Chuyên ngành Thiết kế Đồ họa với các dự án về thiết kế giao diện người dùng",
       },
     ],
     certifications: [
@@ -366,7 +399,8 @@ const candidatesData = [
         institution: "Đại học Công nghệ Nanyang",
         location: "Singapore",
         period: "2014 - 2016",
-        description: "Chuyên ngành Thiết kế Tương tác với luận văn về Trải nghiệm người dùng trong ứng dụng di động",
+        description:
+          "Chuyên ngành Thiết kế Tương tác với luận văn về Trải nghiệm người dùng trong ứng dụng di động",
       },
       {
         degree: "Cử nhân Thiết kế Đồ họa",
@@ -450,7 +484,8 @@ const candidatesData = [
         institution: "Đại học FPT",
         location: "Hà Nội",
         period: "2015 - 2019",
-        description: "Chuyên ngành Thiết kế Đa phương tiện với các dự án về thiết kế tương tác và animation",
+        description:
+          "Chuyên ngành Thiết kế Đa phương tiện với các dự án về thiết kế tương tác và animation",
       },
     ],
     certifications: [
@@ -466,17 +501,22 @@ const candidatesData = [
       },
     ],
   },
-]
+];
 
 export default function CandidatesPage() {
-  const [selectedCandidate, setSelectedCandidate] = useState<any>(null)
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const handleViewProfile = (candidate: any) => {
-    setSelectedCandidate(candidate)
-    setIsDrawerOpen(true)
-  }
+    setSelectedCandidate(candidate);
+    setIsDrawerOpen(true);
+  };
+  const { data } = useList({
+    resource: "Applicants",
+    meta: { config: { subSystem: "buss", auth: "allow" } },
+  });
+  console.log(data);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -485,13 +525,21 @@ export default function CandidatesPage() {
           <h1 className="text-2xl font-bold">Ứng viên</h1>
           <div className="flex items-center gap-2">
             <button
-              className={`p-2 rounded-md ${viewMode === "grid" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-gray-100 dark:bg-gray-800"}`}
+              className={`p-2 rounded-md ${
+                viewMode === "grid"
+                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                  : "bg-gray-100 dark:bg-gray-800"
+              }`}
               onClick={() => setViewMode("grid")}
             >
               <Grid className="h-5 w-5" />
             </button>
             <button
-              className={`p-2 rounded-md ${viewMode === "list" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-gray-100 dark:bg-gray-800"}`}
+              className={`p-2 rounded-md ${
+                viewMode === "list"
+                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                  : "bg-gray-100 dark:bg-gray-800"
+              }`}
               onClick={() => setViewMode("list")}
             >
               <List className="h-5 w-5" />
@@ -506,7 +554,10 @@ export default function CandidatesPage() {
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={18}
+                  />
                   <Input placeholder="Tìm kiếm ứng viên..." className="pl-10" />
                 </div>
                 <div className="flex gap-2">
@@ -523,11 +574,17 @@ export default function CandidatesPage() {
             {/* Results info */}
             <div className="flex justify-between items-center mb-4">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Hiển thị <span className="font-medium">150</span> ứng viên UI/UX Designer
+                Hiển thị <span className="font-medium">150</span> ứng viên UI/UX
+                Designer
               </p>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Sắp xếp theo:</span>
-                <Button variant="ghost" className="text-sm flex items-center gap-1">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  Sắp xếp theo:
+                </span>
+                <Button
+                  variant="ghost"
+                  className="text-sm flex items-center gap-1"
+                >
                   Liên quan <ChevronDown size={16} />
                 </Button>
               </div>
@@ -535,7 +592,11 @@ export default function CandidatesPage() {
 
             {/* Candidates grid */}
             <div
-              className={`grid ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"} gap-4`}
+              className={`grid ${
+                viewMode === "grid"
+                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                  : "grid-cols-1"
+              } gap-4`}
             >
               {candidatesData.map((candidate) => (
                 <div
@@ -574,7 +635,9 @@ export default function CandidatesPage() {
                         )}
                         <div>
                           <h3 className="font-medium">{candidate.name}</h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{candidate.jobTitle}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {candidate.jobTitle}
+                          </p>
                         </div>
                       </div>
                       <div className="bg-blue-50 dark:bg-blue-900/30 rounded px-2 py-1">
@@ -590,15 +653,26 @@ export default function CandidatesPage() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 mb-3">
-                      <Badge variant="outline" className="flex items-center gap-1">
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
                         <Briefcase className="h-3 w-3" />
                         {candidate.experience}
                       </Badge>
-                      <Badge variant="outline" className="flex items-center gap-1">
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
                         <GraduationCap className="h-3 w-3" />
-                        {typeof candidate.education === "string" ? candidate.education : "Đại học"}
+                        {typeof candidate.education === "string"
+                          ? candidate.education
+                          : "Đại học"}
                       </Badge>
-                      <Badge variant="outline" className="flex items-center gap-1">
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
                         <Clock className="h-3 w-3" />
                         {candidate.jobType}
                       </Badge>
@@ -619,7 +693,11 @@ export default function CandidatesPage() {
                         <Eye className="h-4 w-4" />
                         Xem hồ sơ
                       </Button>
-                      <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-1"
+                      >
                         <BookmarkPlus className="h-4 w-4" />
                         Lưu
                       </Button>
@@ -635,7 +713,11 @@ export default function CandidatesPage() {
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sticky top-4">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="font-medium">Bộ lọc</h2>
-                <Button variant="ghost" size="sm" className="text-blue-600 dark:text-blue-400 h-auto py-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-blue-600 dark:text-blue-400 h-auto py-1"
+                >
                   Xóa tất cả
                 </Button>
               </div>
@@ -745,7 +827,10 @@ export default function CandidatesPage() {
                   </div>
                   <div className="flex items-center">
                     <Checkbox id="industry-marketing" />
-                    <label htmlFor="industry-marketing" className="ml-2 text-sm">
+                    <label
+                      htmlFor="industry-marketing"
+                      className="ml-2 text-sm"
+                    >
                       Marketing
                     </label>
                   </div>
@@ -835,5 +920,5 @@ export default function CandidatesPage() {
         />
       )}
     </div>
-  )
+  );
 }

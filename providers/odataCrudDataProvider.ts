@@ -90,11 +90,8 @@ export const odataCrudDataProvider = (
   serverSideApiUrl?: string,
   httpClient: AxiosInstance = axiosInstance
 ): Required<IDataContextProvider> => {
-  const buildUrl = (
-    resource: string,
-    config: ODataConfig = { subSystem: "buss", auth: "public", mode: "client" }
-  ) => {
-    const { subSystem, auth, mode } = config;
+  const buildUrl = (resource: string, config: ODataConfig = {}) => {
+    const { subSystem = "buss", auth = "public", mode = "client" } = config;
     return `${
       mode === "client" ? apiUrl : serverSideApiUrl
     }/${subSystem}/${auth}/${resource}`;

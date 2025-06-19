@@ -11,7 +11,7 @@ import { signIn } from "next-auth/react";
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
-  const { mutate: login, isPending } = useLogin();
+  const { mutate: login, isPending } = useLogin("employer");
   const {
     register,
     handleSubmit,

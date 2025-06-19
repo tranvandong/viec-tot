@@ -22,8 +22,14 @@ export type PermissionResponse = unknown;
 
 export type IdentityResponse = unknown;
 
+export type UserRole = "employer" | "candidate";
+
 export type AuthBindings = {
-  login: (params: any) => Promise<AuthActionResponse>;
+  login: (params: {
+    username: string;
+    password: string;
+    role: UserRole;
+  }) => Promise<AuthActionResponse>;
   logout: () => Promise<AuthActionResponse>;
   register: (params: any) => Promise<AuthActionResponse>;
   forgotPassword?: (params: any) => Promise<AuthActionResponse>;
