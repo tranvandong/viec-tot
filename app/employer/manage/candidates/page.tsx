@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import {
   Search,
@@ -21,22 +21,19 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CandidateBottomDrawer } from "@/components/candidate-bottom-drawer";
-import { Applicant } from "@/providers/types/definition";
 import dayjs from "dayjs";
-import { dataProvider } from "@/providers/dataProvider";
-import { CrudFilters } from "@/providers/types/IDataContext";
+import { Pagination } from "@/components/pagination";
+import { useApplicants } from "@/hooks/useApplicants";
 
 export default function CandidatesPage() {
   const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [search, setFullSearch] = useState("");
-  const [candidatesData, setCandidatesData] = useState<Applicant[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
+
   const [page, setPage] = useState(1);
-  const PAGE_SIZE = 20;
+  const [search, setSearch] = useState("");
   const [isSortNewest, setIsSortNewest] = useState(false);
+  const PAGE_SIZE = 10;
 
   const handleViewProfile = (candidate: any) => {
     setSelectedCandidate(candidate);
@@ -67,61 +64,16 @@ export default function CandidatesPage() {
   //   },
   // });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const filters: CrudFilters = [];
-
-        if (search) {
-          const isNumeric = /^\d+$/.test(search.trim());
-
-          filters.push({
-            field: isNumeric ? "dienThoai" : "email",
-            operator: "contains",
-            value: search,
-          });
-        }
-        const { data } = await dataProvider.getList<Applicant>({
-          resource: "Applicants",
-          pagination: {
-            current: page,
-            pageSize: PAGE_SIZE,
-          },
-          filters,
-          sorters: isSortNewest
-            ? [
-                {
-                  field: "createdDate",
-                  order: "desc",
-                },
-              ]
-            : [],
-          meta: {
-            join: [
-              "Resume",
-              "Applications($expand=Job)",
-              "Favorites",
-              "ReferralRewards($expand=CampaignUser)",
-              "JobViewers",
-              "Carts",
-            ],
-            config: {
-              subSystem: "buss",
-              auth: "allow",
-            },
-          },
-        });
-        setCandidatesData(data);
-      } catch (err) {
-        console.error("Fetch error", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [search]);
+  const {
+    data: candidatesData,
+    total,
+    loading,
+  } = useApplicants({
+    page,
+    search,
+    isSortNewest,
+    pageSize: PAGE_SIZE,
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -267,7 +219,7 @@ export default function CandidatesPage() {
                               {candidate.name ?? candidate.dienThoai}
                             </h3>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {candidate.resume?.title ?? "Chưa cập nhật"}
+                              {candidate.resume?.title ?? candidate.email}
                             </p>
                           </div>
                         </div>
@@ -359,13 +311,13 @@ export default function CandidatesPage() {
                 ))
               )}
             </div>
-            {/* <Pagination
-              currentPage={pagination.current}
-              totalItems={data?.total || 0}
-              itemsPerPage={pagination.pageSize}
+            <Pagination
+              currentPage={page}
+              totalItems={total}
+              itemsPerPage={PAGE_SIZE}
               onPageChange={setPage}
               className="px-6 py-4 border-t border-gray-200 dark:border-gray-800"
-            /> */}
+            />
           </div>
 
           {/* Filters sidebar */}
