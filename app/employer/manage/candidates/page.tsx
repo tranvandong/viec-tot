@@ -118,7 +118,7 @@ export default function CandidatesPage() {
                   <Input
                     placeholder="Tìm kiếm ứng viên..."
                     className="pl-10"
-                    onChange={(e) => setFullSearch(e.target.value)}
+                    onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
                 <div className="flex gap-2">
