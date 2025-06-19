@@ -56,6 +56,7 @@ export interface Applicant {
   id: string;
   createdDate: string;
   resume: Resume | null;
+  applications?: Application[];
 }
 
 export interface Resume {
@@ -67,4 +68,23 @@ export interface Resume {
   certifications: string;
   summary: string;
   hrViewCount: number;
+}
+export interface Application {
+  id: string;
+  applicantId: string;
+  jobId: string;
+  status: "Submitted" | "Approved" | "Rejected" | string;
+  appliedAt: string; // ISO date string
+  scheduledAt: string | null;
+  scheduledLocaltion: string | null;
+  isView: boolean;
+  isEligible: boolean | null;
+  title: string;
+  education: string;
+  experience: string;
+  skills: string;
+  certifications: string;
+  summary: string;
+  createdDate: string; // ISO date string
+  job?: JobPost[];
 }

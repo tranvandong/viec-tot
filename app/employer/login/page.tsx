@@ -19,7 +19,7 @@ export default function EmployerLogin() {
   const [password, setPassword] = useState("");
   const [stayLoggedIn, setStayLoggedIn] = useState(false);
   const router = useRouter();
-  const { mutate: login, isPending } = useLogin();
+  const { mutate: login, isPending } = useLogin("employer");
   const {
     register,
     handleSubmit,

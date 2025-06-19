@@ -2,16 +2,18 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { authProvider } from "../providers/authProvider";
 import { useToast } from "./use-toast";
 import { useRouter } from "next/navigation";
+import { UserRole } from "@/providers/types/auth";
 // Đăng nhập
-export function useLogin() {
+export function useLogin(role: UserRole) {
   const { toast } = useToast();
   const router = useRouter();
   return useMutation({
-    mutationFn: (params: {
-      username?: string;
-      email?: string;
-      password: string;
-    }) => authProvider.login(params),
+    mutationFn: (params: { username: string; password: string }) =>
+      authProvider.login({
+        username: params.username,
+        password: params.password,
+        role,
+      }),
     onSuccess(data) {
       if (data?.success) {
         router.push(data.redirectTo || "/");
@@ -68,8 +70,12 @@ export function useRegister() {
 
 // Đăng xuất
 export function useLogout() {
+  const router = useRouter();
   return useMutation({
     mutationFn: () => authProvider.logout(),
+    onSuccess() {
+      router.push("/");
+    },
   });
 }
 

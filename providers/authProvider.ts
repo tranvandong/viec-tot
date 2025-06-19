@@ -1,7 +1,6 @@
 import { axiosInstance } from "./utils";
-import { dataProvider } from "./dataProvider";
+import { dataProvider, apiUrl } from "./dataProvider";
 import { AuthBindings } from "./types/auth";
-import { apiUrl } from "./dataProvider";
 
 export const TOKEN_KEY = "invest-auth";
 export const USER_KEY = "user";
@@ -9,16 +8,20 @@ export const USER_KEY = "user";
 const redirectTo = "/employer";
 
 export const authProvider: AuthBindings = {
-  login: async ({ username, email, password }) => {
+  login: async ({ username, password, role = "candidate" }) => {
     try {
-      console.log("apiUrl", apiUrl);
-      if ((username || email) && password) {
+      console.log("role:", role);
+      const endPoint =
+        role === "candidate"
+          ? "/api/admin/public/Authenticate/Login"
+          : "/admin/public/Authenticate/LoginAccountOrganization";
+      if (username && password) {
         const { data, ...rest } = await dataProvider.custom<{
           isSuccessed: boolean;
           message: string;
         }>({
-          url: `${apiUrl}/admin/public/Authenticate/LoginAccountOrganization`,
-          payload: { username: username || email, password },
+          url: `${apiUrl}${endPoint}`,
+          payload: { username: username, password },
           method: "post",
         });
 
@@ -90,7 +93,10 @@ export const authProvider: AuthBindings = {
     }
   },
   logout: async () => {
-    await dataProvider.custom({ url: `${apiUrl}/auth/logout`, method: "post" });
+    await dataProvider.custom({
+      url: `${apiUrl}/admin/allow/Authenticate/Logout`,
+      method: "delete",
+    });
     return {
       success: true,
       redirectTo: "/login",

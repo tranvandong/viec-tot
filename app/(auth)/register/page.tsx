@@ -171,7 +171,7 @@ export default function RegisterPage() {
                       onClick={() => setStep(Steps.Step1)}
                     >
                       <Pencil height="16" width="16" className="mr-2" />
-                      <Text className="text-sm">Sửa</Text>
+                      <Text className="text-xs font-semibold">Sửa</Text>
                     </IconButton>
                   </TextField.Slot>
                 </TextField.Root>

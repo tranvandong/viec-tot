@@ -27,10 +27,10 @@ type Resource =
   | "DMCategories";
 
 interface MetaQuery {
-  join: string[];
+  join?: string[];
   config?: {
     subSystem?: "admin" | "buss" | "default";
-    auth?: boolean;
+    auth?: "allow" | "auth" | "public";
   };
 }
 

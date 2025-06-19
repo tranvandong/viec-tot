@@ -21,166 +21,107 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CandidateBottomDrawer } from "@/components/candidate-bottom-drawer";
+import { Applicant } from "@/providers/types/definition";
+import dayjs from "dayjs";
 import { dataProvider } from "@/providers/dataProvider";
-import { useList } from "@/hooks/useDataProvider";
-import { Applicant, JobPost } from "@/providers/types/definition";
-
-const mockApplicants: Applicant[] = [
-  {
-    status: "On",
-    userId: "mock-user-id",
-    dienThoai: "0123456789",
-    email: "mock@email.com",
-    fileId: null,
-    id: "mock-id",
-    createdDate: new Date().toISOString(),
-    avatar: "https://randomuser.me/api/portraits/women/65.jpg",
-    resume: {
-      applicantId: "mock-id",
-      title: "Frontend Developer",
-      education: "Bachelor of IT",
-      experience: "2 years",
-      skills: "React, TypeScript",
-      certifications: "None",
-      summary: "Enthusiastic developer",
-      hrViewCount: 0,
-    },
-  },
-  {
-    status: "On",
-    userId: "mock-user-id",
-    dienThoai: "0123456789",
-    email: "mock@email.com",
-    fileId: null,
-    id: "mock-id",
-    createdDate: new Date().toISOString(),
-    avatar: "https://randomuser.me/api/portraits/women/66.jpg",
-    name: "Nguyễn Văn A",
-    jobType: "Toàn thời gian",
-    location: "Hà Nội",
-    matchScore: 85,
-    appliedDate: "2 ngày trước",
-    resume: {
-      applicantId: "mock-id",
-      title: "Frontend Developer",
-      education: "Đại học Công nghệ",
-      experience: "2 năm",
-      skills: "React, TypeScript, Next.js",
-      certifications: "Chứng chỉ Google",
-      summary: "Lập trình viên giao diện người dùng",
-      hrViewCount: 12,
-    },
-  },
-  {
-    name: "Nguyễn Văn A",
-    avatar: "/placeholder.svg?height=100&width=100",
-    jobTitle: "UI/UX Designer",
-    company: "Pixelz Studio",
-    location: "Hà Nội, Việt Nam",
-    matchScore: 95,
-    experience: "2-4 năm",
-    education: "Đại học", // This should be a string for the card display
-    jobType: "Toàn thời gian",
-    workMode: "Từ xa",
-    appliedDate: "2 ngày trước",
-    applicants: 140,
-    salary: "1000$/tháng",
-    skills: [
-      "Figma",
-      "Adobe XD",
-      "Sketch",
-      "UI Design",
-      "UX Research",
-      "Prototyping",
-    ],
-    languages: [
-      { language: "Tiếng Việt", level: "Bản ngữ" },
-      { language: "Tiếng Anh", level: "Thành thạo" },
-    ],
-    email: "nguyenvana@example.com",
-    phone: "+84 123 456 789",
-    birthDate: "15/05/1995",
-    gender: "Nam",
-    desiredPosition: "Senior UI/UX Designer",
-    expectedSalary: "$1,200 - $1,500/tháng",
-    availability: "Có thể bắt đầu ngay",
-    summary:
-      "Tôi là một UI/UX Designer với hơn 3 năm kinh nghiệm trong việc thiết kế giao diện người dùng và trải nghiệm người dùng cho các ứng dụng web và di động. Tôi có kinh nghiệm làm việc với các công ty khởi nghiệp và doanh nghiệp lớn trong nhiều lĩnh vực khác nhau.",
-    experiences: [
-      {
-        title: "Senior UI/UX Designer",
-        company: "Pixelz Studio",
-        location: "Hà Nội",
-        period: "01/2021 - Hiện tại",
-        description:
-          "Thiết kế giao diện người dùng và trải nghiệm người dùng cho các ứng dụng web và di động. Làm việc chặt chẽ với các nhà phát triển và quản lý sản phẩm để đảm bảo trải nghiệm người dùng tốt nhất.",
-      },
-      {
-        title: "UI/UX Designer",
-        company: "Tech Solutions",
-        location: "Hồ Chí Minh",
-        period: "06/2019 - 12/2020",
-        description:
-          "Thiết kế giao diện người dùng cho các ứng dụng web. Thực hiện nghiên cứu người dùng và tạo các prototype để kiểm tra trải nghiệm người dùng.",
-      },
-    ],
-    education: [
-      {
-        degree: "Cử nhân Thiết kế Đồ họa",
-        institution: "Đại học Mỹ thuật Hà Nội",
-        location: "Hà Nội",
-        period: "2015 - 2019",
-        description: "Chuyên ngành Thiết kế Đồ họa với điểm trung bình 3.8/4.0",
-      },
-    ],
-    certifications: [
-      {
-        name: "Google UX Design Professional Certificate",
-        issuer: "Google",
-        date: "2022",
-      },
-      {
-        name: "UI/UX Design Bootcamp",
-        issuer: "Udemy",
-        date: "2020",
-      },
-    ],
-  },
-];
+import { CrudFilters } from "@/providers/types/IDataContext";
 
 export default function CandidatesPage() {
   const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [search, setFullSearch] = useState("");
+  const [candidatesData, setCandidatesData] = useState<Applicant[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
+  const [isSortNewest, setIsSortNewest] = useState(false);
 
   const handleViewProfile = (candidate: any) => {
     setSelectedCandidate(candidate);
     setIsDrawerOpen(true);
   };
 
-  const { data, pageCount, pagination, setPage } = useList<Applicant>({
-    resource: "Applicants",
-    pagination: {
-      current: 1,
-      pageSize: 10,
-    },
-    filters: [],
-    sorters: [],
-    meta: {
-      join: ["Resume"],
-      config: {
-        subSystem: "buss",
-        auth: "allow",
-        mode: "client", // hoặc "server"
-      },
-    },
-  });
-  const candidatesData =
-    Array.isArray(data?.data) && data.data.length > 0
-      ? data.data
-      : mockApplicants;
+  // const { data, pageCount, pagination, setPage } = useList<Applicant>({
+  //   resource: "Applicants",
+  //   pagination: {
+  //     current: 1,
+  //     pageSize: 20,
+  //   },
+  //   filters: [{ field: "email", operator: "eq", value: search }],
+  //   sorters: [],
+  //   meta: {
+  //     join: [
+  //       "Resume",
+  //       "Applications",
+  //       "Favorites",
+  //       "ReferralRewards",
+  //       "JobViewers",
+  //       "Carts",
+  //     ],
+  //     config: {
+  //       subSystem: "buss",
+  //       auth: "allow",
+  //     },
+  //   },
+  // });
 
-  console.log("Applicant datas:", candidatesData);
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const filters: CrudFilters = [];
+
+        if (search) {
+          const isNumeric = /^\d+$/.test(search.trim());
+
+          filters.push({
+            field: isNumeric ? "dienThoai" : "email",
+            operator: "contains",
+            value: search,
+          });
+        }
+        const { data } = await dataProvider.getList<Applicant>({
+          resource: "Applicants",
+          pagination: {
+            current: page,
+            pageSize: PAGE_SIZE,
+          },
+          filters,
+          sorters: isSortNewest
+            ? [
+                {
+                  field: "createdDate",
+                  order: "desc",
+                },
+              ]
+            : [],
+          meta: {
+            join: [
+              "Resume",
+              "Applications($expand=Job)",
+              "Favorites",
+              "ReferralRewards($expand=CampaignUser)",
+              "JobViewers",
+              "Carts",
+            ],
+            config: {
+              subSystem: "buss",
+              auth: "allow",
+            },
+          },
+        });
+        setCandidatesData(data);
+      } catch (err) {
+        console.error("Fetch error", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [search]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -222,14 +163,23 @@ export default function CandidatesPage() {
                     className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                     size={18}
                   />
-                  <Input placeholder="Tìm kiếm ứng viên..." className="pl-10" />
+                  <Input
+                    placeholder="Tìm kiếm ứng viên..."
+                    className="pl-10"
+                    onChange={(e) => setFullSearch(e.target.value)}
+                  />
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" className="flex items-center gap-2">
                     <Filter size={16} />
                     Lọc
                   </Button>
-                  <Button variant="outline">Mới nhất</Button>
+                  <Button
+                    variant={isSortNewest ? "default" : "outline"}
+                    onClick={() => setIsSortNewest((prev) => !prev)}
+                  >
+                    Mới nhất
+                  </Button>
                   <Button variant="outline">Phù hợp nhất</Button>
                 </div>
               </div>
@@ -238,8 +188,9 @@ export default function CandidatesPage() {
             {/* Results info */}
             <div className="flex justify-between items-center mb-4">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Hiển thị <span className="font-medium">150</span> ứng viên UI/UX
-                Designer
+                Hiển thị{" "}
+                <span className="font-medium">{candidatesData?.length}</span>{" "}
+                ứng viên
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -262,118 +213,159 @@ export default function CandidatesPage() {
                   : "grid-cols-1"
               } gap-4`}
             >
-              {candidatesData.map((candidate) => (
-                <div
-                  key={candidate.id}
-                  className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700 ${
-                    viewMode === "list" ? "flex" : ""
-                  }`}
-                >
-                  {viewMode === "list" && (
-                    <div className="w-24 h-24 p-2">
-                      <div className="w-full h-full rounded-lg overflow-hidden">
-                        <Image
-                          src={candidate.avatar || "/placeholder.svg"}
-                          alt={candidate.name}
-                          width={80}
-                          height={80}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="p-4 flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center">
-                        {viewMode === "grid" && (
-                          <div className="w-12 h-12 rounded-lg overflow-hidden mr-3">
-                            <Image
-                              src={candidate.avatar || "/placeholder.svg"}
-                              alt={candidate.name}
-                              width={48}
-                              height={48}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
-                        <div>
-                          <h3 className="font-medium">
-                            {candidate.name ?? "Chưa cập nhật"}
-                          </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {candidate &&
-                              candidate.resume &&
-                              candidate.resume.title}
-                          </p>
+              {loading ? (
+                <div className="animate-pulse space-y-2">
+                  <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-full"></div>
+                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                </div>
+              ) : (
+                candidatesData &&
+                candidatesData.map((candidate) => (
+                  <div
+                    key={candidate.id}
+                    className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700 ${
+                      viewMode === "list" ? "flex" : ""
+                    }`}
+                  >
+                    {viewMode === "list" && (
+                      <div className="w-24 h-24 p-2">
+                        <div className="w-full h-full rounded-lg overflow-hidden">
+                          <Image
+                            src={
+                              candidate.avatar ||
+                              `https://cdn-icons-png.flaticon.com/512/149/149071.png`
+                            }
+                            alt={candidate.email}
+                            width={80}
+                            height={80}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                       </div>
-                      <div className="bg-blue-50 dark:bg-blue-900/30 rounded px-2 py-1">
-                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                          {candidate.matchScore ?? "0"}% Match
-                        </span>
+                    )}
+
+                    <div className="p-4 flex-1">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center">
+                          {viewMode === "grid" && (
+                            <div className="w-12 h-12 rounded-lg overflow-hidden mr-3">
+                              <Image
+                                src={
+                                  candidate.avatar ||
+                                  `https://cdn-icons-png.flaticon.com/512/149/149071.png`
+                                }
+                                alt={candidate.name || ""}
+                                width={48}
+                                height={48}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <div>
+                            <h3 className="font-medium">
+                              {candidate.name ?? candidate.dienThoai}
+                            </h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              {candidate.resume?.title ?? "Chưa cập nhật"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="bg-blue-50 dark:bg-blue-900/30 rounded px-2 py-1">
+                          <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                            {candidate.matchScore ?? 0}% Match
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        {candidate.location ?? "Chưa cập nhật"}
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <Badge
+                          variant="outline"
+                          className="flex items-center gap-1"
+                        >
+                          <Briefcase className="h-3 w-3" />
+                          {candidate.resume?.experience ?? "Chưa cập nhật"}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className="flex items-center gap-1"
+                        >
+                          <GraduationCap className="h-3 w-3" />
+                          {typeof candidate.resume?.education === "string"
+                            ? candidate.resume?.education
+                            : "Đại học"}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className="flex items-center gap-1"
+                        >
+                          <Clock className="h-3 w-3" />
+                          {candidate.resume?.skills ?? "Chưa cập nhật"}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-3">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        {candidate.applications?.[0]?.appliedAt ? (
+                          <>
+                            Ứng tuyển{" "}
+                            {(() => {
+                              const appliedAt =
+                                candidate.applications?.[0]?.appliedAt;
+                              if (!appliedAt) return "chưa rõ";
+
+                              const hours = dayjs().diff(
+                                dayjs(appliedAt),
+                                "hour"
+                              );
+                              if (hours >= 24) {
+                                const days = Math.floor(hours / 24);
+                                return `${days} ngày trước`;
+                              }
+                              return `${hours} giờ trước`;
+                            })()}
+                          </>
+                        ) : (
+                          <>Chưa ứng tuyển</>
+                        )}
+                      </div>
+
+                      <div className="flex justify-between items-center mt-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-1"
+                          onClick={() => handleViewProfile(candidate)}
+                        >
+                          <Eye className="h-4 w-4" />
+                          Xem hồ sơ
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="flex items-center gap-1"
+                        >
+                          <BookmarkPlus className="h-4 w-4" />
+                          Lưu
+                        </Button>
                       </div>
                     </div>
-
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      {candidate.location}
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      <Badge
-                        variant="outline"
-                        className="flex items-center gap-1"
-                      >
-                        <Briefcase className="h-3 w-3" />
-                        {candidate.experience}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className="flex items-center gap-1"
-                      >
-                        <GraduationCap className="h-3 w-3" />
-                        {typeof candidate.education === "string"
-                          ? candidate.education
-                          : "Đại học"}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className="flex items-center gap-1"
-                      >
-                        <Clock className="h-3 w-3" />
-                        {candidate.jobType}
-                      </Badge>
-                    </div>
-
-                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-3">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      Ứng tuyển {candidate.appliedDate}
-                    </div>
-
-                    <div className="flex justify-between items-center mt-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-1"
-                        onClick={() => handleViewProfile(candidate)}
-                      >
-                        <Eye className="h-4 w-4" />
-                        Xem hồ sơ
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="flex items-center gap-1"
-                      >
-                        <BookmarkPlus className="h-4 w-4" />
-                        Lưu
-                      </Button>
-                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
+            {/* <Pagination
+              currentPage={pagination.current}
+              totalItems={data?.total || 0}
+              itemsPerPage={pagination.pageSize}
+              onPageChange={setPage}
+              className="px-6 py-4 border-t border-gray-200 dark:border-gray-800"
+            /> */}
           </div>
 
           {/* Filters sidebar */}
