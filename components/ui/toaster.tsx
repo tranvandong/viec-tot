@@ -15,7 +15,7 @@ export function Toaster() {
   const { toasts } = useToast();
 
   return (
-    <ToastProvider>
+    <ToastProvider swipeDirection="left">
       {toasts.map(function ({
         id,
         title,
@@ -34,7 +34,7 @@ export function Toaster() {
                 <AlertCircle className="mr-3 h-5 w-5 text-red-500 dark:text-red-400" />
               )}
               {variant === "warning" && (
-                <AlertTriangle className="mr-3 h-5 w-5 text-yellow-500 dark:text-yellow-400" />
+                <AlertTriangle className="mr-3  h-32 w-32 text-yellow-500 dark:text-yellow-400" />
               )}
               {variant === "info" && (
                 <Info className="mr-3 h-5 w-5 text-blue-500 dark:text-blue-400" />

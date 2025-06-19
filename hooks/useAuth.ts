@@ -41,10 +41,14 @@ export function useLogin(role: UserRole) {
 // Đăng ký
 export function useRegister() {
   const { toast } = useToast();
+  const router = useRouter();
   return useMutation({
     mutationFn: async (params: any) => authProvider.register(params),
     onSuccess(data: any) {
-      if (data?.success) {
+      console.log(data);
+
+      if (data?.isSuccessed) {
+        router.push("/login");
         toast({
           description: "Đăng ký tài khoản thành công",
           title: "Đăng ký thành công",
