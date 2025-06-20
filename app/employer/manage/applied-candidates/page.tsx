@@ -29,6 +29,7 @@ import { CandidateProfileDrawer } from "@/components/candidate-profile-drawer";
 import { useApplyCandidates } from "./useApplyCandidates";
 import { Application } from "@/providers/types/definition";
 import ChatBox from "./chatbox";
+import { Pagination } from "@/components/pagination";
 
 export default function CandidatesTablePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -279,13 +280,13 @@ export default function CandidatesTablePage() {
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
-                      Candidate
+                      Ứng viên
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
-                      Position
+                      Chức vụ
                     </th>
                     <th
                       scope="col"
@@ -460,6 +461,13 @@ export default function CandidatesTablePage() {
                   )}
                 </tbody>
               </table>
+              <Pagination
+                currentPage={page}
+                totalItems={total}
+                itemsPerPage={PAGE_SIZE}
+                onPageChange={setPage}
+                className="px-6 py-4 border-t border-gray-200 dark:border-gray-800"
+              />
             </div>
           </div>
         </div>

@@ -62,7 +62,7 @@ export const authProvider: AuthBindings = {
   register: async (params) => {
     try {
       const { data, ...rest } = await dataProvider.custom({
-        url: `${apiUrl}/auth/register`,
+        url: `${apiUrl}/default/public/UserApplicant/CreateMember`,
         payload: params,
         method: "post",
       });

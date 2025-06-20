@@ -1,3 +1,8 @@
+import {
+  dataProvider,
+  apiUrl,
+  serverSideApiUrl,
+} from "@/providers/dataProvider";
 import { OAuthConfig, OAuthUserConfig } from "next-auth/providers/oauth";
 
 export interface ZaloProfile {
@@ -44,13 +49,20 @@ export default function ZaloProvider<P extends ZaloProfile>(): OAuthConfig<P> {
         );
 
         const tokens = await response.json();
-        console.log("token: ", tokens);
+
+        // const { data } = await dataProvider.custom({
+        //   url: `${serverSideApiUrl}/default/public/UserApplicant/LoginByZalo`,
+        //   method: "post",
+        //   payload: { accessToken: tokens.access_token },
+        //   meta: { config: { mode: "server" } },
+        // });
 
         return {
           tokens: {
             access_token: tokens.access_token,
             refresh_token: tokens.refresh_token,
             expires_in: tokens.expires_in,
+            // loginSuccess: data.isSuccessed,
           },
         };
       },
@@ -65,11 +77,22 @@ export default function ZaloProvider<P extends ZaloProfile>(): OAuthConfig<P> {
         );
 
         const user = await response.json();
-        console.log("user: ", user);
+        let isLoginSuccess = false;
+        try {
+          const { data } = await dataProvider.custom({
+            url: `${serverSideApiUrl}/default/public/UserApplicant/LoginByZalo`,
+            method: "post",
+            payload: { accessToken },
+            meta: { config: { mode: "server" } },
+          });
+          isLoginSuccess = data.isSuccessed;
+        } catch (error) {}
+
         return {
           id: user.id,
           name: user.name,
           image: user.picture?.data?.url ?? null,
+          isLoginSuccess,
         };
       },
     },

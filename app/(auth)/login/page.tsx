@@ -1,17 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { useLogin } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
-import { signIn } from "next-auth/react";
+import { signIn, getSession, getProviders, useSession } from "next-auth/react";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const { toast } = useToast();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const { mutate: login, isPending } = useLogin("employer");
+
+  // const session = getSession();
+  // console.log(session);
+
+  useEffect(() => {
+    getSession().then((session: any) => {
+      if (!session.isLoginSuccess) {
+        toast({
+          description:
+            "Vui lòng đăng ký tài khoản hoặc sử dụng app Việc Tốt trên Zalo",
+          title: "Đăng nhập thất bại",
+          type: "foreground",
+          variant: "warning",
+          dir: "left",
+        });
+      } else {
+        router.push("/");
+      }
+    });
+  }, []);
+
   const {
     register,
     handleSubmit,

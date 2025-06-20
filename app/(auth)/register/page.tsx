@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Code,
@@ -10,12 +10,14 @@ import {
   LockIcon,
   Pencil,
   PhoneIcon,
+  User,
 } from "lucide-react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { useRegister } from "@/hooks/useAuth";
 import { Button, Flex, IconButton, Text, TextField } from "@radix-ui/themes";
 import { set } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 enum Steps {
   Step1,
@@ -23,21 +25,62 @@ enum Steps {
 }
 
 export default function RegisterPage() {
+  const toast = useToast();
   const [showPassword, setShowPassword] = useState(false);
-  const [activeSlide, setActiveSlide] = useState<Steps>(Steps.Step1);
-  const [step, setStep] = useState(0);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [step, setStep] = useState(Steps.Step2);
   const [phone, setPhone] = useState("");
-  const { mutate: registerUser } = useRegister();
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm();
+  const [registerData, setRegisterData] = useState({
+    phoneNumber: "",
+    otp: "",
+    password: "",
+    reEnterPassword: "",
+    name: "",
+  });
+  const [isVisiblePassword, setIsVisiblePassword] = useState(false);
+  const [isVisibleReEnterPassword, setIsVisibleReEnterPassword] =
+    useState(false);
+  const { mutateAsync: register, status } = useRegister();
 
-  const onSubmit = (data: any) => {
-    registerUser(data);
+  const onRegister = () => {
+    register({
+      phonenumber: registerData.phoneNumber,
+      name: registerData.name,
+      otp: registerData.otp,
+      password: registerData.password,
+    });
   };
+
+  const onChangeInput = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = evt.target;
+    setRegisterData((prev) => ({ ...prev, [name]: value }));
+  };
+  const isValidPhoneNumber = useMemo(() => {
+    return (
+      registerData.phoneNumber &&
+      (isNaN(Number(registerData.phoneNumber)) ||
+        registerData.phoneNumber.length !== 10)
+    );
+  }, [registerData.phoneNumber]);
+
+  const isValid = useMemo(() => {
+    if (
+      !registerData.phoneNumber ||
+      !registerData.name ||
+      !registerData.otp ||
+      !registerData.password ||
+      !registerData.reEnterPassword
+    ) {
+      return false;
+    }
+    if (isValidPhoneNumber) {
+      return false;
+    }
+    if (registerData.password !== registerData.reEnterPassword) {
+      return false;
+    }
+    return true;
+  }, [registerData]);
 
   const slides = [
     {
@@ -126,7 +169,7 @@ export default function RegisterPage() {
             </span>
             <div className="h-px bg-gray-200 flex-1"></div>
           </div> */}
-          {step === Steps.Step1 && (
+          {/* {step === Steps.Step1 && (
             <>
               <Flex width={{ lg: "100%" }} direction="column" gap="3">
                 <TextField.Root
@@ -142,30 +185,32 @@ export default function RegisterPage() {
                     <PhoneIcon height="16" width="16" />
                   </TextField.Slot>
                 </TextField.Root>
-                <Button size={"3"} onClick={() => setStep(Steps.Step2)}>
+                <Button
+                  size={"3"}
+                  onClick={() => onSendOpt()}
+                  loading={status === "pending"}
+                >
                   Gửi OTP
                 </Button>
               </Flex>
             </>
-          )}
+          )} */}
           {step === Steps.Step2 && (
             <>
-              <div className="mb-1">
-                Đã gửi mã OTP tới: <strong>{phone}</strong>
-              </div>
-              <br />
               <Flex width={{ lg: "100%" }} direction="column" gap="4">
-                <TextField.Root
-                  size={"3"}
-                  placeholder="Nhập số điện thoại của bạn"
-                  className="w-full"
-                  disabled
-                  defaultValue={phone}
-                >
-                  <TextField.Slot>
-                    <PhoneIcon height="16" width="16" />
-                  </TextField.Slot>
-                  <TextField.Slot>
+                <div>
+                  <TextField.Root
+                    size={"3"}
+                    placeholder="Nhập số điện thoại của bạn"
+                    className="w-full"
+                    name="phoneNumber"
+                    value={registerData.phoneNumber}
+                    onChange={onChangeInput}
+                  >
+                    <TextField.Slot>
+                      <PhoneIcon height="16" width="16" />
+                    </TextField.Slot>
+                    {/* <TextField.Slot>
                     <IconButton
                       variant="ghost"
                       onClick={() => setStep(Steps.Step1)}
@@ -173,12 +218,33 @@ export default function RegisterPage() {
                       <Pencil height="16" width="16" className="mr-2" />
                       <Text className="text-xs font-semibold">Sửa</Text>
                     </IconButton>
+                  </TextField.Slot> */}
+                  </TextField.Root>
+                  {isValidPhoneNumber && (
+                    <Text size="2" color="red">
+                      Số điện thoại không hợp lệ
+                    </Text>
+                  )}
+                </div>
+                <TextField.Root
+                  size={"3"}
+                  placeholder="Nhập tên của bạn"
+                  className="w-full"
+                  name="name"
+                  value={registerData.name}
+                  onChange={onChangeInput}
+                >
+                  <TextField.Slot>
+                    <User height="16" width="16" />
                   </TextField.Slot>
                 </TextField.Root>
                 <TextField.Root
                   size={"3"}
                   placeholder="Nhập mã OTP"
                   className="w-full"
+                  name="otp"
+                  value={registerData.otp}
+                  onChange={onChangeInput}
                 >
                   <TextField.Slot>
                     <Code height="16" width="16" />
@@ -188,7 +254,10 @@ export default function RegisterPage() {
                   size={"3"}
                   placeholder="Nhập mật khẩu"
                   className="w-full"
-                  type="password"
+                  type={isVisiblePassword ? "text" : "password"}
+                  name="password"
+                  value={registerData.password}
+                  onChange={onChangeInput}
                 >
                   <TextField.Slot>
                     <LockIcon height="16" width="16" />
@@ -196,31 +265,59 @@ export default function RegisterPage() {
                   <TextField.Slot>
                     <IconButton
                       variant="ghost"
-                      onClick={() => setStep(Steps.Step1)}
+                      onClick={() => setIsVisiblePassword((prev) => !prev)}
                     >
-                      <Eye height="16" width="16" />
+                      {isVisiblePassword ? (
+                        <EyeOff height="16" width="16" />
+                      ) : (
+                        <Eye height="16" width="16" />
+                      )}
                     </IconButton>
                   </TextField.Slot>
                 </TextField.Root>
-                <TextField.Root
-                  size={"3"}
-                  placeholder="Nhập lại mật khẩu"
-                  className="w-full"
-                >
-                  <TextField.Slot>
-                    <LockIcon height="16" width="16" />
-                  </TextField.Slot>
-                  <TextField.Slot>
-                    <IconButton
-                      variant="ghost"
-                      onClick={() => setStep(Steps.Step1)}
-                    >
-                      <Eye height="16" width="16" />
-                    </IconButton>
-                  </TextField.Slot>
-                </TextField.Root>
+                <div>
+                  <TextField.Root
+                    size={"3"}
+                    placeholder="Nhập lại mật khẩu"
+                    className="w-full"
+                    type={isVisibleReEnterPassword ? "text" : "password"}
+                    name="reEnterPassword"
+                    value={registerData.reEnterPassword}
+                    onChange={onChangeInput}
+                  >
+                    <TextField.Slot>
+                      <LockIcon height="16" width="16" />
+                    </TextField.Slot>
+                    <TextField.Slot>
+                      <IconButton
+                        variant="ghost"
+                        onClick={() =>
+                          setIsVisibleReEnterPassword((prev) => !prev)
+                        }
+                      >
+                        {isVisibleReEnterPassword ? (
+                          <EyeOff height="16" width="16" />
+                        ) : (
+                          <Eye height="16" width="16" />
+                        )}
+                      </IconButton>
+                    </TextField.Slot>
+                  </TextField.Root>
 
-                <Button size={"3"} onClick={() => setStep(Steps.Step2)}>
+                  {registerData.reEnterPassword &&
+                    registerData.password &&
+                    registerData.password !== registerData.reEnterPassword && (
+                      <Text size="2" color="red">
+                        Mật khẩu nhập lại không đúng
+                      </Text>
+                    )}
+                </div>
+                <Button
+                  size={"3"}
+                  onClick={() => onRegister()}
+                  disabled={!isValid}
+                  loading={status === "pending"}
+                >
                   Đăng ký
                 </Button>
               </Flex>
