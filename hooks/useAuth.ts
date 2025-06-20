@@ -3,9 +3,11 @@ import { authProvider } from "../providers/authProvider";
 import { useToast } from "./use-toast";
 import { useRouter } from "next/navigation";
 import { UserRole } from "@/providers/types/auth";
+import { useAuth } from "@/providers/contexts/AuthProvider";
 // Đăng nhập
 export function useLogin(role: UserRole) {
   const { toast } = useToast();
+  const { resetAuth } = useAuth();
   const router = useRouter();
   return useMutation({
     mutationFn: (params: { username: string; password: string }) =>
@@ -16,6 +18,7 @@ export function useLogin(role: UserRole) {
       }),
     onSuccess(data) {
       if (data?.success) {
+        resetAuth(); // Reset the auth state
         router.push(data.redirectTo || "/");
       } else {
         toast({
@@ -41,6 +44,7 @@ export function useLogin(role: UserRole) {
 // Đăng ký
 export function useRegister() {
   const { toast } = useToast();
+
   const router = useRouter();
   return useMutation({
     mutationFn: async (params: any) => authProvider.register(params),
@@ -74,10 +78,12 @@ export function useRegister() {
 
 // Đăng xuất
 export function useLogout() {
+  const { handleUnauthorized } = useAuth();
   const router = useRouter();
   return useMutation({
     mutationFn: () => authProvider.logout(),
     onSuccess() {
+      handleUnauthorized();
       router.push("/");
     },
   });

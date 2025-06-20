@@ -76,7 +76,7 @@ export function SearchBox() {
   };
   const { data } = useList({
     resource: "DMTinhs",
-    meta: { join: ["DMHuyens"] },
+    meta: { join: ["DMXas"] },
     pagination: { pageSize: 50, current: 1 },
   });
   const provinces = data?.data || [];
@@ -133,7 +133,7 @@ export function SearchBox() {
       districtName =
         provinces
           .find((p) => p.code === province)
-          ?.dmHuyens?.find((h: any) => h.code === district)?.name || "";
+          ?.dmXas?.find((h: any) => h.code === district)?.name || "";
     } else if (province) {
       provinceName = provinces.find((p) => p.code === province)?.name || "";
     }
@@ -438,7 +438,7 @@ export function SearchBox() {
                         const selectedProvince = provinces.find(
                           (p) => p.code === province
                         );
-                        const districts = selectedProvince?.dmHuyens;
+                        const districts = selectedProvince?.dmXas;
                         if (!districts) return null;
                         return (districts as any[])
                           .filter((d) =>

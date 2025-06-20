@@ -10,7 +10,7 @@ import {
 } from "@radix-ui/themes";
 import { JobPost } from "@/providers/types/definition";
 import { useParams } from "next/navigation";
-import { useOne } from "@/hooks/useDataProvider";
+import { useCreate, useOne } from "@/hooks/useDataProvider";
 
 interface ApplyJobModalProps {
   isOpen: boolean;
@@ -28,6 +28,37 @@ const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
   });
   const job1 = data?.data;
   console.log(job1);
+
+  const { mutate: applyJob } = useCreate({
+    resource: "Applications",
+  });
+
+  const onSubmit = () => {
+    // Handle form submission logic here
+    const formData = {
+      jobId: job1?.id,
+      appliedAt: "2025-06-20T08:03:20.156Z",
+      scheduledAt: "2025-06-20T08:03:20.156Z",
+      scheduledLocaltion: "string",
+      status: "Submitted",
+      isView: true,
+      isEligible: true,
+      title: "string",
+      education: "string",
+      experience: "string",
+      skills: "string",
+      certifications: "string",
+      summary: "string",
+    };
+    applyJob(formData, {
+      onSuccess: () => {
+        onClose();
+      },
+      onError: (error) => {
+        console.error("Error applying for job:", error);
+      },
+    });
+  };
 
   return (
     <Dialog.Root open={isOpen}>
@@ -98,7 +129,7 @@ const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
             </Button>
           </Dialog.Close>
           <Dialog.Close>
-            <Button>Ứng tuyển</Button>
+            <Button onClick={() => onSubmit()}>Ứng tuyển</Button>
           </Dialog.Close>
         </Flex>
       </Dialog.Content>

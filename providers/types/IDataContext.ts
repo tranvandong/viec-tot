@@ -216,10 +216,6 @@ export interface DeleteManyParams<TVariables = Record<string, never>> {
 export interface CustomParams<TQuery = unknown, TPayload = unknown> {
   url: string;
   method: "get" | "delete" | "head" | "options" | "post" | "put" | "patch";
-  /**
-   * @deprecated `sort` is deprecated, use `sorters` instead.
-   */
-  sort?: CrudSorting;
   sorters?: CrudSorting;
   filters?: CrudFilter[];
   payload?: TPayload;
