@@ -31,7 +31,7 @@ export function Nav() {
     isSuccessed: boolean;
     resultObj: {
       displayName: string;
-      role: string;
+      role: "HR" | "MEMBER";
     };
   }>({
     url: `${apiUrl}/default/allow/UserInfo/UserInfo`,
@@ -193,8 +193,7 @@ export function Nav() {
               </Link>
             </>
           )}
-
-          {authorized && (
+          {authorized && userInfo?.role === "MEMBER" && (
             <>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -227,7 +226,7 @@ export function Nav() {
                     <div className="flex flex-col space-y-1 leading-none">
                       <p className="font-medium">{userInfo?.displayName}</p>
                       <p className="text-xs text-muted-foreground">
-                        {profile.email}
+                        email@example.com
                       </p>
                     </div>
                   </div>
@@ -250,6 +249,83 @@ export function Nav() {
                     <Briefcase className="mr-2 h-4 w-4" />
                     <span>Việc đang theo dõi</span>
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => logout()}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="mr-2"
+                    >
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    <span>Đăng xuất</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
+          {authorized && userInfo?.role === "HR" && (
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        // src="https://i.pravatar.cc/50"
+                        alt={userInfo?.displayName}
+                      />
+                      <AvatarFallback color="green" style={{ color: "orange" }}>
+                        {userInfo?.displayName?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        // src="/placeholder.svg"
+                        alt={userInfo?.displayName}
+                      />
+                      <AvatarFallback style={{ color: "orange" }}>
+                        {userInfo?.displayName?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium">{userInfo?.displayName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        email@example.com
+                      </p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => onNavigate("/employer/manage/profile")}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    <span>Quản lý hồ sơ</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      onNavigate("/employer/manage/applied-candidates")
+                    }
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    <span>Ứng tuyển</span>
+                  </DropdownMenuItem>
+
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => logout()}>
                     <svg

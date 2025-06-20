@@ -316,15 +316,10 @@ export type UseCustomMutationProps<
   url: string;
   config?: UseCustomConfig<TQuery, TPayload>;
   queryOptions?: Omit<
-    UseMutationOptions<
-      CustomResponse<TQueryFnData>,
-      TError,
-      CustomResponse<TData>
-    >,
+    UseMutationOptions<CustomResponse<TQueryFnData>, TError, TPayload>,
     "mutationKey"
   >;
   meta?: MetaQuery;
-  payload?: TPayload;
 };
 
 export const useCustomMutation = <
@@ -339,11 +334,10 @@ export const useCustomMutation = <
   config,
   queryOptions,
   meta,
-  payload,
 }: UseCustomMutationProps<TQueryFnData, TError, TQuery, TPayload, TData>) => {
   return useMutation({
     mutationKey: ["custom", url, method, config, meta],
-    mutationFn: () =>
+    mutationFn: (payload: TPayload) =>
       provider.custom<TQueryFnData>({
         url,
         method,

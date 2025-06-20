@@ -34,10 +34,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
+import { useApi, useCustom } from "@/hooks/useDataProvider";
 
 export default function CandidateProfile() {
   const { theme, setTheme } = useTheme();
   const [editing, setEditing] = useState<string | null>(null);
+  const apiUrl = useApi();
+  const { data } = useCustom({
+    url: `${apiUrl}/buss/allow/Resumes/GetByUser`,
+    method: "get",
+  });
+  console.log(data);
 
   // Mock data for the candidate profile
   const [profile, setProfile] = useState({

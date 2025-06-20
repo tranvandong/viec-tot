@@ -10,7 +10,12 @@ import {
 } from "@radix-ui/themes";
 import { JobPost } from "@/providers/types/definition";
 import { useParams } from "next/navigation";
-import { useCreate, useOne } from "@/hooks/useDataProvider";
+import {
+  useApi,
+  useCreate,
+  useCustomMutation,
+  useOne,
+} from "@/hooks/useDataProvider";
 
 interface ApplyJobModalProps {
   isOpen: boolean;
@@ -21,6 +26,7 @@ interface ApplyJobModalProps {
 const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
   const params = useParams();
   const slug = params?.slug as string | undefined;
+  const apiUrl = useApi();
   const { data } = useOne({
     resource: "Jobs",
     id: slug as string,
@@ -33,24 +39,17 @@ const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
     resource: "Applications",
   });
 
+  const { mutate: applyJob1 } = useCustomMutation({
+    url: `${apiUrl}/default/allow/Applications/AppliedJob`,
+    method: "post",
+  });
+
   const onSubmit = () => {
     // Handle form submission logic here
     const formData = {
       jobId: job1?.id,
-      appliedAt: "2025-06-20T08:03:20.156Z",
-      scheduledAt: "2025-06-20T08:03:20.156Z",
-      scheduledLocaltion: "string",
-      status: "Submitted",
-      isView: true,
-      isEligible: true,
-      title: "string",
-      education: "string",
-      experience: "string",
-      skills: "string",
-      certifications: "string",
-      summary: "string",
     };
-    applyJob(formData, {
+    applyJob1(formData, {
       onSuccess: () => {
         onClose();
       },
@@ -63,8 +62,8 @@ const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
   return (
     <Dialog.Root open={isOpen}>
       <Dialog.Content
-        maxWidth={"1200px"}
-        width={{ lg: "1000px", xl: "1000px", initial: "1000px", xs: "1000px" }}
+      // maxWidth={"1200px"}
+      // width={{ lg: "1000px", xl: "1000px", initial: "1000px", xs: "1000px" }}
       >
         <Dialog.Title>
           <>
@@ -83,8 +82,10 @@ const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
             </Text>
           </>
         </Dialog.Title>
-
-        <div className="w-full">
+        <Text as="div" size="3" mb="1">
+          Bạn có muốn ứng tuyển cho công việc này không?
+        </Text>
+        {/* <div className="w-full">
           <Flex gap="3" width={"100%"} mb={"4"}>
             <label className="flex-1">
               <Text as="div" size="3" mb="1" weight="bold">
@@ -120,7 +121,7 @@ const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
             </Text>
             <TextArea placeholder="Giới thiệu chung" size="3" />
           </label>
-        </div>
+        </div> */}
 
         <Flex gap="3" mt="4" justify="end">
           <Dialog.Close>
