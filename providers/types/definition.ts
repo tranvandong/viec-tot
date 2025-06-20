@@ -48,6 +48,7 @@ export type Organization = {
 };
 
 export interface Applicant {
+  name: any;
   status: "On" | "Off"; // hoặc string nếu có nhiều giá trị khác
   userId: string;
   dienThoai: string;
@@ -87,4 +88,5 @@ export interface Application {
   summary: string;
   createdDate: string; // ISO date string
   job?: JobPost[];
+  applicant?: Applicant;
 }

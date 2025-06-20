@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { CandidateBottomDrawer } from "@/components/candidate-bottom-drawer";
 import dayjs from "dayjs";
 import { Pagination } from "@/components/pagination";
-import { useApplicants } from "@/hooks/useApplicants";
+import { useApplicants } from "@/app/employer/manage/candidates/useApplicants";
 
 export default function CandidatesPage() {
   const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
