@@ -105,6 +105,7 @@ export const useList = <TQueryFnData extends BaseRecord = BaseRecord>(
       current: page,
       pageSize,
     },
+    reload: query.refetch,
   };
 };
 
@@ -184,7 +185,8 @@ export const useCreate = <T = any>(params: UseCreateParams<T>) => {
 interface UseUpdateParams<T = any> {
   resource: string;
   id: string | number;
-  variables: T;
+  variables?: T;
+  meta?: MetaQuery;
 }
 
 export const useUpdate = <T = any>(params: UseUpdateParams<T>) => {
@@ -194,13 +196,28 @@ export const useUpdate = <T = any>(params: UseUpdateParams<T>) => {
         resource: params.resource,
         id: params.id,
         variables: variables || params.variables,
+        ...(params.meta ? { meta: params.meta } : {}),
       });
       return result.data as T;
     },
   });
 };
 
-interface UseDeleteParams {
+export const useUpdateNew = <T = any>(params: UseUpdateParams<T>) => {
+  return useMutation({
+    mutationFn: async (variables?: T) => {
+      const result = await provider.updateNew({
+        resource: params.resource,
+        id: params.id,
+        variables: variables || params.variables,
+        ...(params.meta ? { meta: params.meta } : {}),
+      });
+      return result.data as T;
+    },
+  });
+};
+
+export interface UseDeleteParams {
   resource: string;
   id: string | number;
 }
@@ -208,6 +225,15 @@ interface UseDeleteParams {
 export const useDelete = (params: UseDeleteParams) => {
   return useMutation({
     mutationFn: async () => {
+      await provider.deleteOne(params);
+    },
+  });
+};
+
+
+export const useDeleteNew = () => {
+  return useMutation({
+    mutationFn: async (params: UseDeleteParams) => {
       await provider.deleteOne(params);
     },
   });

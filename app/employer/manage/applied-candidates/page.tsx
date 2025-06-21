@@ -31,6 +31,27 @@ import { Application } from "@/providers/types/definition";
 import ChatBox from "./chatbox";
 import { Pagination } from "@/components/pagination";
 
+export const getStatusDisplayText = (status: string) => {
+  switch (status) {
+    case "review":
+      return "Đang xem xét";
+    case "shortlisted":
+      return "Đã vào danh sách";
+    case "interview":
+      return "Phỏng vấn";
+    case "rejected":
+      return "Đã bị từ chối";
+    case "hired":
+      return "Đã tuyển dụng";
+    case "Submitted":
+      return "Đã nộp";
+    case "Approved":
+      return "Đã duyệt";
+    default:
+      return status;
+  }
+};
+
 export default function CandidatesTablePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -119,24 +140,6 @@ export default function CandidatesTablePage() {
   // };
 
   // Lấy nội dung hiển thị trạng thái
-  const getStatusDisplayText = (status: string) => {
-    switch (status) {
-      case "review":
-        return "Đang xem xét";
-      case "shortlisted":
-        return "Đã vào danh sách";
-      case "interview":
-        return "Phỏng vấn";
-      case "rejected":
-        return "Đã bị từ chối";
-      case "hired":
-        return "Đã tuyển dụng";
-      case "Submitted":
-        return "Đã nộp";
-      default:
-        return status;
-    }
-  };
 
   const {
     data: candidates,

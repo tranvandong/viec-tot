@@ -16,9 +16,17 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { EmployerJobDetailDrawer } from "@/components/employer-job-detail-drawer";
-import { useList } from "@/hooks/useDataProvider";
+import {
+  useDelete,
+  useDeleteNew,
+  UseDeleteParams,
+  useList,
+  useUpdate,
+  useUpdateNew,
+} from "@/hooks/useDataProvider";
 import { JobPost } from "@/providers/types/definition";
 import { Pagination } from "@/components/pagination";
+import { useToast } from "@/hooks/use-toast";
 
 export default function EmployerJobsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,12 +39,14 @@ export default function EmployerJobsPage() {
   const [drawerMode, setDrawerMode] = useState<"view" | "edit">("view");
   const [showHeader, setShowHeader] = useState(true);
   const lastScrollY = useRef(0);
+  const { toast } = useToast();
 
-  const { data, pageCount, pagination, setPage } = useList<JobPost>({
+  const { data, pageCount, pagination, setPage, reload } = useList<JobPost>({
     resource: "Jobs",
   });
   const jobs = data?.data || [];
   console.log("Jobs data:", data);
+  const [jobToDelete, setJobToDelete] = useState(null);
 
   // Scroll event handler for hiding/showing header
   useEffect(() => {
@@ -55,130 +65,6 @@ export default function EmployerJobsPage() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Mock data for jobs
-  // const jobs = [
-  //   {
-  //     id: "1",
-  //     title: "Senior Product Designer",
-  //     department: "Design",
-  //     location: "San Francisco, CA",
-  //     type: "Full-time",
-  //     workType: "Remote",
-  //     experience: "Senior Level",
-  //     postedDate: "2023-04-15",
-  //     applicants: 24,
-  //     status: "active",
-  //   },
-  //   {
-  //     id: "2",
-  //     title: "Frontend Developer",
-  //     department: "Engineering",
-  //     location: "New York, NY",
-  //     type: "Full-time",
-  //     workType: "Hybrid",
-  //     experience: "Mid Level",
-  //     postedDate: "2023-04-10",
-  //     applicants: 18,
-  //     status: "active",
-  //   },
-  //   {
-  //     id: "3",
-  //     title: "Marketing Manager",
-  //     department: "Marketing",
-  //     location: "Chicago, IL",
-  //     type: "Full-time",
-  //     workType: "On-site",
-  //     experience: "Senior Level",
-  //     postedDate: "2023-04-05",
-  //     applicants: 12,
-  //     status: "closed",
-  //   },
-  //   {
-  //     id: "4",
-  //     title: "UX Researcher",
-  //     department: "Design",
-  //     location: "Remote",
-  //     type: "Contract",
-  //     workType: "Remote",
-  //     experience: "Mid Level",
-  //     postedDate: "2023-04-01",
-  //     applicants: 9,
-  //     status: "active",
-  //   },
-  //   {
-  //     id: "5",
-  //     title: "Data Analyst",
-  //     department: "Analytics",
-  //     location: "Boston, MA",
-  //     type: "Full-time",
-  //     workType: "On-site",
-  //     experience: "Entry Level",
-  //     postedDate: "2023-03-28",
-  //     applicants: 32,
-  //     status: "active",
-  //   },
-  //   {
-  //     id: "6",
-  //     title: "Backend Developer",
-  //     department: "Engineering",
-  //     location: "Seattle, WA",
-  //     type: "Full-time",
-  //     workType: "Hybrid",
-  //     experience: "Senior Level",
-  //     postedDate: "2023-03-25",
-  //     applicants: 15,
-  //     status: "active",
-  //   },
-  //   {
-  //     id: "7",
-  //     title: "Content Writer",
-  //     department: "Marketing",
-  //     location: "Austin, TX",
-  //     type: "Part-time",
-  //     workType: "Remote",
-  //     experience: "Entry Level",
-  //     postedDate: "2023-03-22",
-  //     applicants: 28,
-  //     status: "active",
-  //   },
-  //   {
-  //     id: "8",
-  //     title: "HR Specialist",
-  //     department: "Human Resources",
-  //     location: "Denver, CO",
-  //     type: "Full-time",
-  //     workType: "On-site",
-  //     experience: "Mid Level",
-  //     postedDate: "2023-03-20",
-  //     applicants: 7,
-  //     status: "closed",
-  //   },
-  //   {
-  //     id: "9",
-  //     title: "Project Manager",
-  //     department: "Operations",
-  //     location: "Portland, OR",
-  //     type: "Contract",
-  //     workType: "Hybrid",
-  //     experience: "Senior Level",
-  //     postedDate: "2023-03-18",
-  //     applicants: 11,
-  //     status: "active",
-  //   },
-  //   {
-  //     id: "10",
-  //     title: "Sales Representative",
-  //     department: "Sales",
-  //     location: "Miami, FL",
-  //     type: "Full-time",
-  //     workType: "On-site",
-  //     experience: "Entry Level",
-  //     postedDate: "2023-03-15",
-  //     applicants: 19,
-  //     status: "active",
-  //   },
-  // ];
 
   // Get unique departments for filter
   // const departments = Array.from(new Set(jobs.map((job) => job.department)));
@@ -205,6 +91,16 @@ export default function EmployerJobsPage() {
     });
   };
 
+  const filteredJobs = jobs.filter((job) => {
+    const matchesSearch = job.title
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || job.status === statusFilter;
+    const matchesTypes = typeFilter === "all" || job.industry === typeFilter;
+
+    return matchesSearch && matchesStatus && matchesTypes;
+  });
+
   // Calculate days ago
   const getDaysAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -221,12 +117,86 @@ export default function EmployerJobsPage() {
     setIsDrawerOpen(true);
   };
 
+  const { mutate, isPending } = useDeleteNew();
+
+  const handleDelete = (id: string) => {
+    mutate(
+      { resource: "Jobs", id },
+      {
+        onSuccess: () => {
+          toast({
+            description:
+              data?.error?.message || "Xoá thông báo tuyển dụng thành công ",
+            title: "Xoá thành công",
+            type: "background",
+            variant: "success",
+          });
+          reload();
+        },
+        onError: (err) => {
+          toast({
+            description:
+              data?.error?.message || "Xoá thông báo tuyển dụng thất bại ",
+            title: "Xoá thất bại",
+            type: "background",
+            variant: "warning",
+          });
+          console.error("Xoá thất bại:", err);
+        },
+      }
+    );
+  };
+
+  const { mutate: updateJob } = useUpdateNew({
+    resource: "Jobs",
+    id: `(${selectedJob?.id})`,
+    meta: {
+      config: {
+        subSystem: "buss",
+        auth: "auth",
+      },
+    },
+  });
+
   // Handle job update
   const handleJobUpdate = (updatedJob: any) => {
-    // In a real app, you would update the job in your database
-    console.log("Updated job:", updatedJob);
-    // For now, we'll just close the drawer
-    setIsDrawerOpen(false);
+    const {
+      title,
+      description,
+      location,
+      industry,
+      status,
+      ...newSelectedJob
+    } = updatedJob;
+    updateJob(
+      { title, description, location, industry, status },
+      {
+        onSuccess: (data) => {
+          toast({
+            description:
+              data?.message || "Cập nhật thông tin công việc thành công",
+            title: "Cập nhật thành công",
+            type: "background",
+            variant: "success",
+          });
+
+          // Đóng drawer và reload danh sách nếu cần
+          setIsDrawerOpen(false);
+          reload?.();
+        },
+        onError: (err: any) => {
+          toast({
+            description:
+              err?.response?.data?.message ||
+              "Cập nhật thông tin công việc thất bại",
+            title: "Cập nhật thất bại",
+            type: "background",
+            variant: "warning",
+          });
+          console.error("Cập nhật lỗi:", err);
+        },
+      }
+    );
   };
 
   return (
@@ -288,7 +258,7 @@ export default function EmployerJobsPage() {
                       htmlFor="status-filter"
                       className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                     >
-                      Status
+                      Trạng thái
                     </label>
                     <select
                       id="status-filter"
@@ -296,9 +266,9 @@ export default function EmployerJobsPage() {
                       onChange={(e) => setStatusFilter(e.target.value)}
                       className="w-full rounded-md border border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                     >
-                      <option value="all">All Statuses</option>
-                      <option value="active">Active</option>
-                      <option value="closed">Closed</option>
+                      <option value="all">Tất cả trạng thái</option>
+                      <option value="Approved">Kích hoạt</option>
+                      <option value="UnApproved">Chưa kích hoạt</option>
                     </select>
                   </div>
                   <div>
@@ -306,7 +276,7 @@ export default function EmployerJobsPage() {
                       htmlFor="type-filter"
                       className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                     >
-                      Job Type
+                      Loại công việc
                     </label>
                     <select
                       id="type-filter"
@@ -314,11 +284,9 @@ export default function EmployerJobsPage() {
                       onChange={(e) => setTypeFilter(e.target.value)}
                       className="w-full rounded-md border border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                     >
-                      <option value="all">All Types</option>
-                      <option value="Full-time">Full-time</option>
-                      <option value="Part-time">Part-time</option>
-                      <option value="Contract">Contract</option>
-                      <option value="Internship">Internship</option>
+                      <option value="all">Tất cả</option>
+                      <option value="Toàn thời gian">Toàn thời gian</option>
+                      <option value="Bán thời gian">Bán thời gian</option>
                     </select>
                   </div>
                   {/* <div>
@@ -353,14 +321,16 @@ export default function EmployerJobsPage() {
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 Tổng việc làm
               </div>
-              <div className="text-2xl font-bold mt-1">{jobs.length}</div>
+              <div className="text-2xl font-bold mt-1">
+                {filteredJobs.length}
+              </div>
             </div>
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 Việc làm đang hoạt động
               </div>
               <div className="text-2xl font-bold mt-1">
-                {jobs.filter((job) => job.isPublished).length}
+                {filteredJobs.filter((job) => job.isPublished).length}
               </div>
             </div>
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
@@ -368,7 +338,7 @@ export default function EmployerJobsPage() {
                 Tổng số ứng viên
               </div>
               <div className="text-2xl font-bold mt-1">
-                {jobs.reduce((sum, job) => sum + 10, 0)}
+                {filteredJobs.reduce((sum, job) => sum + 10, 0)}
               </div>
             </div>
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
@@ -377,7 +347,8 @@ export default function EmployerJobsPage() {
               </div>
               <div className="text-2xl font-bold mt-1">
                 {Math.round(
-                  jobs.reduce((sum, job) => sum + 10, 0) / jobs.length
+                  filteredJobs.reduce((sum, job) => sum + 10, 0) /
+                    filteredJobs.length
                 )}
               </div>
             </div>
@@ -386,9 +357,10 @@ export default function EmployerJobsPage() {
           {/* Job Listings Table */}
           <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-              <h2 className="text-lg font-medium">Job Listings</h2>
+              <h2 className="text-lg font-medium">Danh sách việc làm</h2>
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                Showing {jobs.length} of {jobs.length} jobs
+                Hiển thị {filteredJobs.length} trên {filteredJobs.length} Việc
+                làm
               </div>
             </div>
             <div className="overflow-x-auto">
@@ -400,7 +372,7 @@ export default function EmployerJobsPage() {
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       <div className="flex items-center">
-                        Job
+                        Việc làm
                         <ArrowUpDown className="h-3 w-3 ml-1" />
                       </div>
                     </th>
@@ -409,7 +381,7 @@ export default function EmployerJobsPage() {
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell"
                     >
                       <div className="flex items-center">
-                        Location
+                        Địa chỉ
                         <ArrowUpDown className="h-3 w-3 ml-1" />
                       </div>
                     </th>
@@ -418,7 +390,7 @@ export default function EmployerJobsPage() {
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell"
                     >
                       <div className="flex items-center">
-                        Posted Date
+                        Ngày đăng
                         <ArrowUpDown className="h-3 w-3 ml-1" />
                       </div>
                     </th>
@@ -427,7 +399,7 @@ export default function EmployerJobsPage() {
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       <div className="flex items-center">
-                        Applicants
+                        Người nộp đơn
                         <ArrowUpDown className="h-3 w-3 ml-1" />
                       </div>
                     </th>
@@ -436,7 +408,7 @@ export default function EmployerJobsPage() {
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       <div className="flex items-center">
-                        Status
+                        Trạng thái
                         <ArrowUpDown className="h-3 w-3 ml-1" />
                       </div>
                     </th>
@@ -446,8 +418,8 @@ export default function EmployerJobsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-                  {jobs.length > 0 ? (
-                    jobs.map((job) => (
+                  {filteredJobs.length > 0 ? (
+                    filteredJobs.map((job) => (
                       <tr
                         key={job.id}
                         className="hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -513,8 +485,9 @@ export default function EmployerJobsPage() {
                               <Edit className="h-4 w-4" />
                             </button>
                             <button
+                              onClick={() => setJobToDelete(job)}
                               className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                              title="Delete Job"
+                              title="Xoá công việc"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -578,6 +551,35 @@ export default function EmployerJobsPage() {
           mode={drawerMode}
           onSave={handleJobUpdate}
         />
+      )}
+
+      {jobToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 animate-fadeIn flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-[320px] text-center animate-fadeInScale">
+            <h2 className="text-lg font-semibold mb-3">Xác nhận xoá</h2>
+            <p className="text-sm mb-4">
+              Bạn có chắc chắn muốn xoá công việc <b>{jobToDelete.title}</b>{" "}
+              không?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setJobToDelete(null)}
+                className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
+              >
+                Huỷ
+              </button>
+              <button
+                onClick={() => {
+                  handleDelete(jobToDelete.id);
+                  setJobToDelete(null);
+                }}
+                className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Xoá
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -273,6 +273,13 @@ export interface IDataContextProvider {
     params: UpdateParams<TVariables>
   ) => Promise<UpdateResponse<TData>>;
 
+  updateNew: <
+    TData extends BaseRecord = BaseRecord,
+    TVariables = Record<string, never>
+  >(
+    params: UpdateParams<TVariables>
+  ) => Promise<UpdateResponse<TData>>;
+
   updateMany?: <
     TData extends BaseRecord = BaseRecord,
     TVariables = Record<string, never>

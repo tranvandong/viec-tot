@@ -1,60 +1,161 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { X, Edit, Trash2, Users, MapPin, Calendar, Clock, DollarSign } from "lucide-react"
+import { useState, useEffect } from "react";
+import {
+  X,
+  Edit,
+  Trash2,
+  Users,
+  MapPin,
+  Calendar,
+  Clock,
+  DollarSign,
+} from "lucide-react";
+import parse from "html-react-parser";
+import { formatVND } from "@/helpers";
+import { getStatusDisplayText } from "@/app/employer/manage/applied-candidates/page";
 
 type JobDetailDrawerProps = {
-  job: any
-  isOpen: boolean
-  onClose: () => void
-  mode: "view" | "edit"
-  onSave?: (job: any) => void
-}
+  job: any;
+  isOpen: boolean;
+  onClose: () => void;
+  mode: "view" | "edit";
+  onSave?: (job: any) => void;
+};
 
-export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", onSave }: JobDetailDrawerProps) {
-  const [isAnimating, setIsAnimating] = useState(false)
-  const [editedJob, setEditedJob] = useState<any>(job)
-  const [currentMode, setCurrentMode] = useState<"view" | "edit">(mode)
+export const JobDescriptionSection = ({
+  description,
+}: {
+  description: string;
+}) => {
+  return <div className="space-y-6">{parse(description)}</div>;
+};
+
+export function EmployerJobDetailDrawer({
+  job,
+  isOpen,
+  onClose,
+  mode = "view",
+  onSave,
+}: JobDetailDrawerProps) {
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [editedJob, setEditedJob] = useState<any>(job);
+  const [currentMode, setCurrentMode] = useState<"view" | "edit">(mode);
+
+  console.log(job);
 
   useEffect(() => {
     if (isOpen) {
-      setIsAnimating(true)
+      setIsAnimating(true);
       // Prevent body scrolling when drawer is open
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     } else {
       const timer = setTimeout(() => {
-        setIsAnimating(false)
+        setIsAnimating(false);
         // Re-enable body scrolling
-        document.body.style.overflow = ""
-      }, 300) // Match this with the CSS transition duration
-      return () => clearTimeout(timer)
+        document.body.style.overflow = "";
+      }, 300); // Match this with the CSS transition duration
+      return () => clearTimeout(timer);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   useEffect(() => {
-    setEditedJob(job)
-    setCurrentMode(mode)
-  }, [job, mode])
+    setEditedJob(job);
+    setCurrentMode(mode);
+  }, [job, mode]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setEditedJob({ ...editedJob, [name]: value })
-  }
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setEditedJob({ ...editedJob, [name]: value });
+  };
 
   const handleSave = () => {
+    const updatedDescriptionHtml = combineJobDescriptionHtml();
+    const updatedJob = {
+      ...editedJob,
+      description: updatedDescriptionHtml,
+    };
+
     if (onSave) {
-      onSave(editedJob)
+      onSave(updatedJob);
     }
-    setCurrentMode("view")
-  }
+
+    setCurrentMode("view");
+  };
 
   const toggleEditMode = () => {
-    setCurrentMode(currentMode === "view" ? "edit" : "view")
-  }
+    setCurrentMode(currentMode === "view" ? "edit" : "view");
+  };
 
-  if (!isAnimating && !isOpen) return null
+  if (!isAnimating && !isOpen) return null;
+
+  const parseJobSections = (html: string) => {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+
+    const sections: Record<string, string[]> = {
+      description: [],
+      requirements: [],
+      benefits: [],
+    };
+
+    let currentKey: keyof typeof sections | null = null;
+
+    for (const child of div.children) {
+      if (child.tagName === "P") {
+        const text = child.textContent || "";
+        if (text.includes("Mô tả công việc")) currentKey = "description";
+        else if (text.includes("Yêu cầu")) currentKey = "requirements";
+        else if (text.includes("Quyền lợi")) currentKey = "benefits";
+      }
+
+      if (child.tagName === "UL" && currentKey) {
+        const items = Array.from(child.querySelectorAll("li")).map(
+          (li) => li.textContent?.trim() || ""
+        );
+        sections[currentKey] = items;
+      }
+    }
+
+    return sections;
+  };
+
+  const combineJobDescriptionHtml = () => {
+    const description = (
+      document.getElementById("description") as HTMLTextAreaElement
+    )?.value;
+    const requirements = (
+      document.getElementById("requirements") as HTMLTextAreaElement
+    )?.value;
+    const benefits = (
+      document.getElementById("benefits") as HTMLTextAreaElement
+    )?.value;
+
+    const createSection = (title: string, items: string) => {
+      const listItems = items
+        .split("\n")
+        .filter((line) => line.trim() !== "")
+        .map((line) => `<li>${line.trim()}</li>`)
+        .join("");
+      return `<p><strong>${title}</strong></p><ul>${listItems}</ul>`;
+    };
+
+    return `
+    ${createSection("Mô tả công việc", description)}
+    ${createSection("Yêu cầu", requirements)}
+    ${createSection("Quyền lợi", benefits)}
+  `;
+  };
+
+  const { description, requirements, benefits } = parseJobSections(
+    job.description
+  );
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -98,7 +199,10 @@ export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", o
                   >
                     <Edit className="h-5 w-5" />
                   </button>
-                  <button className="p-2 rounded-full hover:bg-gray-100 text-red-600" title="Delete job">
+                  <button
+                    className="p-2 rounded-full hover:bg-gray-100 text-red-600"
+                    title="Delete job"
+                  >
                     <Trash2 className="h-5 w-5" />
                   </button>
                 </div>
@@ -106,12 +210,14 @@ export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", o
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Job Details</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Chi tiết công việc
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-start gap-2">
                       <MapPin className="h-5 w-5 text-gray-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Location</div>
+                        <div className="font-medium">Địa chỉ</div>
                         <div className="text-gray-600">{job.location}</div>
                       </div>
                     </div>
@@ -125,14 +231,14 @@ export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", o
                     <div className="flex items-start gap-2">
                       <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Job Type</div>
-                        <div className="text-gray-600">{job.type}</div>
+                        <div className="font-medium">Loại công việc</div>
+                        <div className="text-gray-600">{job.industry}</div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <Clock className="h-5 w-5 text-gray-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Experience Level</div>
+                        <div className="font-medium">Kinh nghiệm</div>
                         <div className="text-gray-600">{job.experience}</div>
                       </div>
                     </div>
@@ -140,36 +246,51 @@ export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", o
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Posting Details</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Chi tiết bài đăng
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-start gap-2">
                       <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Posted Date</div>
-                        <div className="text-gray-600">{new Date(job.postedDate).toLocaleDateString()}</div>
+                        <div className="font-medium">Ngày đăng</div>
+                        <div className="text-gray-600">
+                          {new Date(job.effectiveDate).toLocaleDateString()}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <Users className="h-5 w-5 text-gray-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Applicants</div>
-                        <div className="text-gray-600">{job.applicants} applicants</div>
+                        <div className="font-medium">Người nộp đơn</div>
+                        <div className="text-gray-600">
+                          {job.applicants} người nộp đơn
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <DollarSign className="h-5 w-5 text-gray-500 mt-0.5" />
                       <div>
-                        <div className="font-medium">Salary Range</div>
-                        <div className="text-gray-600">$80,000 - $120,000 per year</div>
+                        <div className="font-medium">Mức lương</div>
+                        <div className="text-gray-600">
+                          {formatVND(job.fromSalary)} -{" "}
+                          {formatVND(job.toSalary)}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <div
-                        className={`h-5 w-5 rounded-full ${job.status === "active" ? "bg-green-500" : "bg-gray-500"} mt-0.5`}
+                        className={`h-5 w-5 rounded-full ${
+                          job.status === "active"
+                            ? "bg-green-500"
+                            : "bg-gray-500"
+                        } mt-0.5`}
                       ></div>
                       <div>
-                        <div className="font-medium">Status</div>
-                        <div className="text-gray-600 capitalize">{job.status}</div>
+                        <div className="font-medium">Trạng thái</div>
+                        <div className="text-gray-600 capitalize">
+                          {getStatusDisplayText(job.status)}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -177,19 +298,15 @@ export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", o
               </div>
 
               <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-4">Job Description</h3>
-                <p className="text-gray-600 whitespace-pre-line">
-                  We are looking for a talented {job.title} to join our team. The ideal candidate will have experience
-                  in {job.department} and be passionate about creating exceptional products. As a {job.title}, you will
-                  be responsible for designing and implementing solutions that meet our customers' needs. You will work
-                  closely with cross-functional teams to deliver high-quality results.
-                </p>
+                <JobDescriptionSection description={job.description} />
               </div>
 
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-4">Requirements</h3>
+              {/* <div className="mb-8">
+                <h3 className="text-lg font-semibold mb-4">Yêu cầu</h3>
                 <ul className="list-disc pl-5 space-y-2 text-gray-600">
-                  <li>Bachelor's degree in {job.department} or related field</li>
+                  <li>
+                    Bachelor's degree in {job.department} or related field
+                  </li>
                   <li>{job.experience} of experience in a similar role</li>
                   <li>Strong communication and collaboration skills</li>
                   <li>Ability to work in a fast-paced environment</li>
@@ -198,40 +315,43 @@ export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", o
               </div>
 
               <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-4">Benefits</h3>
+                <h3 className="text-lg font-semibold mb-4">Quyền lợi</h3>
                 <ul className="list-disc pl-5 space-y-2 text-gray-600">
                   <li>Competitive salary and benefits package</li>
                   <li>Flexible working arrangements</li>
                   <li>Professional development opportunities</li>
                   <li>Collaborative and innovative work environment</li>
                 </ul>
-              </div>
+              </div> */}
 
               <div className="flex justify-end gap-3">
                 <button
                   onClick={onClose}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                 >
-                  Close
+                  Đóng
                 </button>
                 <button
                   onClick={toggleEditMode}
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
-                  Edit Job
+                  Chỉnh sửa
                 </button>
               </div>
             </div>
           ) : (
             /* Edit Mode */
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl font-bold mb-6">Edit Job</h2>
+              <h2 className="text-2xl font-bold mb-6">CHỈNH SỬA</h2>
 
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                      Job Title*
+                    <label
+                      htmlFor="title"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Tên công việc*
                     </label>
                     <input
                       type="text"
@@ -245,7 +365,10 @@ export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", o
                   </div>
 
                   <div>
-                    <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="department"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Department*
                     </label>
                     <input
@@ -260,8 +383,11 @@ export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", o
                   </div>
 
                   <div>
-                    <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                      Location*
+                    <label
+                      htmlFor="location"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Địa chỉ*
                     </label>
                     <input
                       type="text"
@@ -275,26 +401,30 @@ export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", o
                   </div>
 
                   <div>
-                    <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-                      Job Type*
+                    <label
+                      htmlFor="type"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Loại công việc*
                     </label>
                     <select
                       id="type"
-                      name="type"
-                      value={editedJob.type}
+                      name="industry"
+                      value={editedJob.industry}
                       onChange={handleInputChange}
                       className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       required
                     >
-                      <option value="Full-time">Full-time</option>
-                      <option value="Part-time">Part-time</option>
-                      <option value="Contract">Contract</option>
-                      <option value="Internship">Internship</option>
+                      <option value="Toàn thời gian">Toàn thời gian</option>
+                      <option value="Bán thời gian">Bán thời gian</option>
                     </select>
                   </div>
 
-                  <div>
-                    <label htmlFor="workType" className="block text-sm font-medium text-gray-700 mb-1">
+                  {/* <div>
+                    <label
+                      htmlFor="workType"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Work Type*
                     </label>
                     <select
@@ -309,10 +439,13 @@ export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", o
                       <option value="On-site">On-site</option>
                       <option value="Hybrid">Hybrid</option>
                     </select>
-                  </div>
+                  </div> */}
 
-                  <div>
-                    <label htmlFor="experience" className="block text-sm font-medium text-gray-700 mb-1">
+                  {/* <div>
+                    <label
+                      htmlFor="experience"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Experience Level*
                     </label>
                     <select
@@ -328,11 +461,14 @@ export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", o
                       <option value="Senior Level">Senior Level</option>
                       <option value="Executive">Executive</option>
                     </select>
-                  </div>
+                  </div> */}
 
                   <div>
-                    <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-                      Status*
+                    <label
+                      htmlFor="status"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Trạng thái*
                     </label>
                     <select
                       id="status"
@@ -342,61 +478,61 @@ export function EmployerJobDetailDrawer({ job, isOpen, onClose, mode = "view", o
                       className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       required
                     >
-                      <option value="active">Active</option>
-                      <option value="closed">Closed</option>
+                      <option value="Approved">Kích hoạt</option>
+                      {/* <option value="Rejected">Từ chối</option> */}
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                    Job Description*
+                  <label
+                    htmlFor="description"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Mô tả*
                   </label>
                   <textarea
                     id="description"
                     name="description"
                     rows={5}
                     className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="Enter job description..."
-                    defaultValue={`We are looking for a talented ${job.title} to join our team. The ideal candidate will have experience in ${job.department} and be passionate about creating exceptional products.
-                    
-As a ${job.title}, you will be responsible for designing and implementing solutions that meet our customers' needs. You will work closely with cross-functional teams to deliver high-quality results.`}
-                  ></textarea>
+                    placeholder="Nhập mô tả"
+                    defaultValue={description.join("\n")}
+                  />
                 </div>
 
                 <div>
-                  <label htmlFor="requirements" className="block text-sm font-medium text-gray-700 mb-1">
-                    Requirements*
+                  <label
+                    htmlFor="requirements"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Yêu cầu*
                   </label>
                   <textarea
                     id="requirements"
                     name="requirements"
                     rows={4}
                     className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="Enter job requirements..."
-                    defaultValue={`- Bachelor's degree in ${job.department} or related field
-- ${job.experience} of experience in a similar role
-- Strong communication and collaboration skills
-- Ability to work in a fast-paced environment
-- Passion for creating exceptional user experiences`}
-                  ></textarea>
+                    placeholder="Nhập yêu cầu"
+                    defaultValue={requirements.join("\n")}
+                  />
                 </div>
 
                 <div>
-                  <label htmlFor="benefits" className="block text-sm font-medium text-gray-700 mb-1">
-                    Benefits
+                  <label
+                    htmlFor="benefits"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Quyền lợi*
                   </label>
                   <textarea
                     id="benefits"
                     name="benefits"
                     rows={4}
                     className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="Enter job benefits..."
-                    defaultValue={`- Competitive salary and benefits package
-- Flexible working arrangements
-- Professional development opportunities
-- Collaborative and innovative work environment`}
-                  ></textarea>
+                    placeholder="Nhập quyền lợi"
+                    defaultValue={benefits.join("\n")}
+                  />
                 </div>
 
                 <div className="flex justify-end gap-3">
@@ -404,13 +540,13 @@ As a ${job.title}, you will be responsible for designing and implementing soluti
                     onClick={() => setCurrentMode("view")}
                     className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                   >
-                    Cancel
+                    Huỷ
                   </button>
                   <button
                     onClick={handleSave}
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
-                    Save Changes
+                    Lưu thay đổi
                   </button>
                 </div>
               </div>
@@ -419,5 +555,5 @@ As a ${job.title}, you will be responsible for designing and implementing soluti
         </div>
       </div>
     </div>
-  )
+  );
 }

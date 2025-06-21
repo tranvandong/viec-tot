@@ -167,6 +167,22 @@ export const odataCrudDataProvider = (
       }
     },
 
+    updateNew: async ({ resource, id, variables, meta }) => {
+      const url = buildUrl(resource, meta?.config);
+
+      try {
+        const { data } = await httpClient.patch(`${url}${id}`, variables);
+
+        return {
+          data,
+        };
+      } catch (error) {
+        const httpError = transformHttpError(error);
+        throw httpError;
+      }
+    },
+
+
     updateMany: async ({ resource, ids, variables, meta }) => {
       const errors: HttpError[] = [];
       const baseUrl = buildUrl(resource, meta?.config);
