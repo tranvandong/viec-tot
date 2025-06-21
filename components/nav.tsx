@@ -15,12 +15,34 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Briefcase, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useApi, useCustom } from "@/hooks/useDataProvider";
+import { useAuth } from "@/providers/contexts/AuthProvider";
+import { useLogout } from "@/hooks/useAuth";
 
 export function Nav() {
   // Header scroll hide/show logic
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const { authorized } = useAuth();
+  const { mutate: logout } = useLogout();
   const lastScrollY = useRef(0);
   const router = useRouter();
+  const apiUrl = useApi();
+  const { data } = useCustom<{
+    isSuccessed: boolean;
+    resultObj: {
+      displayName: string;
+      role: string;
+    };
+  }>({
+    url: `${apiUrl}/default/allow/UserInfo/UserInfo`,
+    method: "get",
+    queryOptions: {
+      retry: 1,
+      enabled: authorized,
+      refetchOnWindowFocus: false,
+    },
+  });
+  const userInfo = data?.data?.resultObj;
 
   // Mock data for the candidate profile
   const profile = {
@@ -152,87 +174,106 @@ export function Nav() {
           {/* <div className="hidden md:block">
             <ThemeToggle />
           </div> */}
-          <Link href="/register" className="text-sm font-medium text-white">
-            Đăng ký
-          </Link>
-          <Link
-            href="/login"
-            className="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
-          >
-            Đăng nhập
-          </Link>
-          <Link
-            href="/employer/login"
-            className="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-full border border-white text-white"
-          >
-            Nhà tuyển dụng
-          </Link>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src="https://i.pravatar.cc/50"
-                    alt={profile.name}
-                  />
-                  <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <div className="flex items-center justify-start gap-2 p-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder.svg" alt={profile.name} />
-                  <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col space-y-1 leading-none">
-                  <p className="font-medium">{profile.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {profile.email}
-                  </p>
-                </div>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => onNavigate("/candidate/profile")}
+          {!authorized && (
+            <>
+              <Link href="/register" className="text-sm font-medium text-white">
+                Đăng ký
+              </Link>
+              <Link
+                href="/login"
+                className="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
               >
-                <FileText className="mr-2 h-4 w-4" />
-                <span>Quản lý CV</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onNavigate("/candidate/my-jobs")}
+                Đăng nhập
+              </Link>
+              <Link
+                href="/employer/login"
+                className="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-full border border-white text-white"
               >
-                <FileText className="mr-2 h-4 w-4" />
-                <span>Việc đã ứng tuyển</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onNavigate("/candidate/my-jobs")}
-              >
-                <Briefcase className="mr-2 h-4 w-4" />
-                <span>Việc đang theo dõi</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="mr-2"
-                >
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
-                <span>Đăng xuất</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                Nhà tuyển dụng
+              </Link>
+            </>
+          )}
+
+          {authorized && (
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        // src="https://i.pravatar.cc/50"
+                        alt={userInfo?.displayName}
+                      />
+                      <AvatarFallback color="green" style={{ color: "orange" }}>
+                        {userInfo?.displayName?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        // src="/placeholder.svg"
+                        alt={userInfo?.displayName}
+                      />
+                      <AvatarFallback style={{ color: "orange" }}>
+                        {userInfo?.displayName?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium">{userInfo?.displayName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {profile.email}
+                      </p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => onNavigate("/candidate/profile")}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    <span>Quản lý CV</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => onNavigate("/candidate/my-jobs")}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    <span>Việc đã ứng tuyển</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => onNavigate("/candidate/my-jobs")}
+                  >
+                    <Briefcase className="mr-2 h-4 w-4" />
+                    <span>Việc đang theo dõi</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => logout()}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="mr-2"
+                    >
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    <span>Đăng xuất</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
         </div>
       </div>
     </header>

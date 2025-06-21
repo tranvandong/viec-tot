@@ -13,7 +13,7 @@ export const authProvider: AuthBindings = {
       console.log("role:", role);
       const endPoint =
         role === "candidate"
-          ? "/api/admin/public/Authenticate/Login"
+          ? "/admin/public/Authenticate/Login"
           : "/admin/public/Authenticate/LoginAccountOrganization";
       if (username && password) {
         const { data, ...rest } = await dataProvider.custom<{
@@ -37,7 +37,7 @@ export const authProvider: AuthBindings = {
 
         return {
           success: true,
-          redirectTo: "/employer/manage/jobs",
+          redirectTo: role === "candidate" ? "/" : "/employer/manage/jobs",
           data,
         };
       }

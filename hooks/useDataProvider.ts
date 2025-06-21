@@ -1,10 +1,19 @@
-import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import { odataCrudDataProvider } from "../providers/odataCrudDataProvider";
 import { HttpError } from "../providers/types/HttpError";
 import { useState } from "react";
 import { dataProvider as provider } from "@/providers/dataProvider";
 import {
   BaseRecord,
+  CrudFilters,
+  CrudSorting,
+  CustomParams,
+  CustomResponse,
   GetListResponse,
   GetManyResponse,
   GetOneResponse,
@@ -253,3 +262,120 @@ export const useDeleteMany = (params: UseDeleteManyParams) => {
 };
 
 export const useApi = () => provider.getApiUrl();
+
+interface UseCustomConfig<TQuery = unknown, TPayload = unknown> {
+  sort?: CrudSorting;
+  sorters?: CrudSorting;
+  filters?: CrudFilters;
+  query?: TQuery;
+  payload?: TPayload;
+  headers?: {};
+}
+
+type Method = "get" | "delete" | "head" | "options" | "post" | "put" | "patch";
+
+export type UseCustomProps<TQueryFnData, TError, TQuery, TPayload, TData> = {
+  /**
+   * request's URL
+   */
+  url: string;
+  /**
+   * request's method (`GET`, `POST`, etc.)
+   */
+  method: "get";
+  /**
+   * The config of your request. You can send headers, payload, query, filters and sorters using this field
+   */
+  config?: UseCustomConfig<TQuery, TPayload>;
+  /**
+   * react-query's [useQuery](https://tanstack.com/query/v4/docs/reference/useQuery) options"
+   */
+  queryOptions?: Omit<
+    UseQueryOptions<
+      CustomResponse<TQueryFnData>,
+      TError,
+      CustomResponse<TData>
+    >,
+    "queryKey"
+  >;
+
+  /**
+   * meta data for `dataProvider`
+   */
+  meta?: MetaQuery;
+  payload?: TPayload;
+};
+
+export const useCustom = <
+  TQueryFnData extends BaseRecord = BaseRecord,
+  TError extends HttpError = HttpError,
+  TQuery = unknown,
+  TPayload = unknown,
+  TData extends BaseRecord = TQueryFnData
+>({
+  url,
+  method,
+  config,
+  queryOptions,
+  meta,
+}: UseCustomProps<TQueryFnData, TError, TQuery, TPayload, TData>) => {
+  return useQuery({
+    queryKey: ["custom", url, method, config, meta],
+    queryFn: () =>
+      provider.custom<TQueryFnData>({
+        url,
+        method,
+        meta,
+      }),
+    ...queryOptions,
+  });
+};
+
+export type UseCustomMutationProps<
+  TQueryFnData,
+  TError,
+  TQuery,
+  TPayload,
+  TData
+> = {
+  method: Exclude<Method, "get">;
+  url: string;
+  config?: UseCustomConfig<TQuery, TPayload>;
+  queryOptions?: Omit<
+    UseMutationOptions<
+      CustomResponse<TQueryFnData>,
+      TError,
+      CustomResponse<TData>
+    >,
+    "mutationKey"
+  >;
+  meta?: MetaQuery;
+  payload?: TPayload;
+};
+
+export const useCustomMutation = <
+  TQueryFnData extends BaseRecord = BaseRecord,
+  TError extends HttpError = HttpError,
+  TQuery = unknown,
+  TPayload = unknown,
+  TData extends BaseRecord = TQueryFnData
+>({
+  url,
+  method,
+  config,
+  queryOptions,
+  meta,
+  payload,
+}: UseCustomMutationProps<TQueryFnData, TError, TQuery, TPayload, TData>) => {
+  return useMutation({
+    mutationKey: ["custom", url, method, config, meta],
+    mutationFn: () =>
+      provider.custom<TQueryFnData>({
+        url,
+        method,
+        meta,
+        payload,
+      }),
+    ...queryOptions,
+  });
+};

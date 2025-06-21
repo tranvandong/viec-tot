@@ -15,7 +15,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
-  const { mutate: login, isPending } = useLogin("employer");
+  const { mutate: login, isPending } = useLogin("candidate");
 
   // const session = getSession();
   // console.log(session);
