@@ -1,42 +1,60 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { X, MapPin, Briefcase, GraduationCap, Award, Download, Mail, Phone, LinkIcon } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import {
+  X,
+  MapPin,
+  Briefcase,
+  GraduationCap,
+  Award,
+  Download,
+  Mail,
+  Phone,
+  LinkIcon,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 type CandidateProfileDrawerProps = {
-  candidate: any
-  isOpen: boolean
-  onClose: () => void
-}
+  candidate: any;
+  isOpen: boolean;
+  onClose: () => void;
+};
 
-export function CandidateProfileDrawer({ candidate, isOpen, onClose }: CandidateProfileDrawerProps) {
-  const [isAnimating, setIsAnimating] = useState(false)
+export function CandidateProfileDrawer({
+  candidate,
+  isOpen,
+  onClose,
+}: CandidateProfileDrawerProps) {
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setIsAnimating(true)
+      setIsAnimating(true);
       // Prevent body scrolling when drawer is open
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     } else {
       const timer = setTimeout(() => {
-        setIsAnimating(false)
+        setIsAnimating(false);
         // Re-enable body scrolling
-        document.body.style.overflow = ""
-      }, 300) // Match this with the CSS transition duration
-      return () => clearTimeout(timer)
+        document.body.style.overflow = "";
+      }, 300); // Match this with the CSS transition duration
+      return () => clearTimeout(timer);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
-  if (!isAnimating && !isOpen) return null
+  if (!isAnimating && !isOpen) return null;
 
   // Format date
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
-  }
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -68,29 +86,36 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
           <div className="flex flex-col items-center mb-8">
             <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-4 border-blue-100 dark:border-blue-900">
               <Image
-                src={candidate.avatar || "/placeholder.svg?height=96&width=96"}
+                src={
+                  candidate.avatar ||
+                  "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                }
                 alt={candidate.name}
                 width={96}
                 height={96}
                 className="object-cover"
               />
             </div>
-            <h2 className="text-2xl font-bold text-center">{candidate.name}</h2>
-            <p className="text-gray-600 dark:text-gray-400 text-center">{candidate.jobTitle}</p>
+            <h2 className="text-2xl font-bold text-center">
+              {candidate.name ?? candidate.applicant.dienThoai}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 text-center">
+              {candidate.jobTitle ?? candidate.applicant.email}
+            </p>
 
             <div className="flex items-center mt-2 text-sm text-gray-500 dark:text-gray-400">
               <MapPin className="h-4 w-4 mr-1" />
-              {candidate.location}
+              {candidate.location ?? "Đang cập nhật"}
             </div>
 
             <div className="mt-4 flex gap-2">
               <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                 <Mail className="h-4 w-4 inline mr-2" />
-                Contact
+                Liên hệ
               </button>
               <button className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800">
                 <Download className="h-4 w-4 inline mr-2" />
-                Download CV
+                Tải về CV
               </button>
             </div>
           </div>
@@ -99,30 +124,44 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
           <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4 mb-6">
             <div className="flex justify-between mb-2">
               <span className="text-sm font-medium">Match Score</span>
-              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{candidate.matchScore}%</span>
+              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                {candidate.matchScore ?? 0}%
+              </span>
             </div>
             <Progress value={candidate.matchScore} className="h-2" />
           </div>
 
           {/* Application details */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">Application Details</h3>
+            <h3 className="text-lg font-semibold mb-3">Thông tin ứng tuyển</h3>
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Applied for</p>
-                  <p className="font-medium">{candidate.jobTitle}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Ứng tuyển cho
+                  </p>
+                  <p className="font-medium">
+                    {candidate.jobTitle ?? candidate.title}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Applied on</p>
-                  <p className="font-medium">{formatDate(candidate.appliedDate)}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Ứng tuyển vào ngày
+                  </p>
+                  <p className="font-medium">
+                    {formatDate(candidate.appliedAt)}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Experience</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Kinh nghiệm
+                  </p>
                   <p className="font-medium">{candidate.experience}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Trạng thái
+                  </p>
                   <p className="font-medium capitalize">{candidate.status}</p>
                 </div>
               </div>
@@ -130,7 +169,7 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
           </div>
 
           {/* Skills */}
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <h3 className="text-lg font-semibold mb-3">Skills</h3>
             <div className="flex flex-wrap gap-2">
               {candidate.skills.map((skill: string, index: number) => (
@@ -139,11 +178,11 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
                 </Badge>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Experience */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">Work Experience</h3>
+            <h3 className="text-lg font-semibold mb-3">Kinh nghiệm làm việc</h3>
             <div className="space-y-4">
               <div className="border-l-2 border-gray-200 dark:border-gray-700 pl-4 ml-2">
                 <div className="flex items-start">
@@ -152,11 +191,16 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
                   </div>
                   <div>
                     <h4 className="font-medium">Senior UX Designer</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Design Studio Inc.</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Jan 2020 - Present</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Design Studio Inc.
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      Jan 2020 - Present
+                    </p>
                     <p className="text-sm mt-2">
-                      Led the redesign of multiple products, resulting in a 40% increase in user engagement and a 25%
-                      decrease in user complaints.
+                      Led the redesign of multiple products, resulting in a 40%
+                      increase in user engagement and a 25% decrease in user
+                      complaints.
                     </p>
                   </div>
                 </div>
@@ -169,11 +213,16 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
                   </div>
                   <div>
                     <h4 className="font-medium">UX Designer</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Tech Solutions Ltd.</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Mar 2017 - Dec 2019</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Tech Solutions Ltd.
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      Mar 2017 - Dec 2019
+                    </p>
                     <p className="text-sm mt-2">
-                      Collaborated with product managers and developers to create user-centered designs for web and
-                      mobile applications.
+                      Collaborated with product managers and developers to
+                      create user-centered designs for web and mobile
+                      applications.
                     </p>
                   </div>
                 </div>
@@ -183,7 +232,7 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
 
           {/* Education */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">Education</h3>
+            <h3 className="text-lg font-semibold mb-3">Học vấn</h3>
             <div className="space-y-4">
               <div className="border-l-2 border-gray-200 dark:border-gray-700 pl-4 ml-2">
                 <div className="flex items-start">
@@ -192,8 +241,12 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
                   </div>
                   <div>
                     <h4 className="font-medium">Master of Design</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">University of Design Arts</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">2015 - 2017</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      University of Design Arts
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      2015 - 2017
+                    </p>
                   </div>
                 </div>
               </div>
@@ -205,8 +258,12 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
                   </div>
                   <div>
                     <h4 className="font-medium">Bachelor of Fine Arts</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">State University</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">2011 - 2015</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      State University
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      2011 - 2015
+                    </p>
                   </div>
                 </div>
               </div>
@@ -215,7 +272,7 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
 
           {/* Certifications */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">Certifications</h3>
+            <h3 className="text-lg font-semibold mb-3">Các chứng chỉ</h3>
             <div className="space-y-4">
               <div className="border-l-2 border-gray-200 dark:border-gray-700 pl-4 ml-2">
                 <div className="flex items-start">
@@ -223,9 +280,15 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
                     <Award className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                   </div>
                   <div>
-                    <h4 className="font-medium">UX Design Professional Certificate</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Google</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Issued Jan 2022</p>
+                    <h4 className="font-medium">
+                      UX Design Professional Certificate
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Google
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      Issued Jan 2022
+                    </p>
                   </div>
                 </div>
               </div>
@@ -234,20 +297,31 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
 
           {/* Contact Information */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">Contact Information</h3>
+            <h3 className="text-lg font-semibold mb-3">Thông tin liên hệ</h3>
             <div className="space-y-3">
               <div className="flex items-center">
                 <Mail className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-3" />
-                <span>{candidate.name.toLowerCase().replace(" ", ".")}@example.com</span>
+                <span>
+                  {/* {candidate.name &&
+                    candidate.name.toLowerCase().replace(" ", ".")} */}
+                  {candidate.applicant.email}
+                  @example.com
+                </span>
               </div>
               <div className="flex items-center">
                 <Phone className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-3" />
-                <span>+1 (555) 123-4567</span>
+                {/* <span>+1 (555) 123-4567</span> */}
+                {candidate.applicant.dienThoai}
               </div>
               <div className="flex items-center">
                 <LinkIcon className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-3" />
-                <a href="#" className="text-blue-600 dark:text-blue-400 hover:underline">
-                  linkedin.com/in/{candidate.name.toLowerCase().replace(" ", "-")}
+                <a
+                  href="#"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  linkedin.com/in/
+                  {candidate.name &&
+                    candidate.name.toLowerCase().replace(" ", "-")}
                 </a>
               </div>
             </div>
@@ -259,14 +333,14 @@ export function CandidateProfileDrawer({ candidate, isOpen, onClose }: Candidate
               onClick={onClose}
               className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
-              Close
+              Đóng
             </button>
             <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-              Schedule Interview
+              Lên lịch phỏng vấn
             </button>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

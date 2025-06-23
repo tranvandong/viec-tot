@@ -9,3 +9,11 @@ export const handleSlug = (str: string) =>
     locale: "vi", // language code of the locale to use
     trim: true, // trim leading and trailing replacement chars, defaults to `true`
   });
+
+export const formatVND = (value: number) => {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(value);
+};

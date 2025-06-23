@@ -26,170 +26,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CandidateProfileDrawer } from "@/components/candidate-profile-drawer";
+import { useApplyCandidates } from "./useApplyCandidates";
+import { Application } from "@/providers/types/definition";
+import ChatBox from "./chatbox";
+import { Pagination } from "@/components/pagination";
 
-// Sample candidate data
-const candidates = [
-  {
-    id: "1",
-    name: "Alex Johnson",
-    avatar: "/placeholder.svg?height=40&width=40&text=AJ",
-    jobTitle: "Senior Product Designer",
-    jobId: "1",
-    appliedDate: "2023-04-16",
-    status: "review", // review, shortlisted, interview, rejected, hired
-    experience: "5 years",
-    location: "San Francisco, CA",
-    skills: ["UI/UX", "Figma", "User Research", "Prototyping"],
-    matchScore: 92,
-    education: "Bachelor's Degree",
-    email: "alex.johnson@example.com",
-    phone: "+1 (555) 123-4567",
-  },
-  {
-    id: "2",
-    name: "Sarah Williams",
-    avatar: "/placeholder.svg?height=40&width=40&text=SW",
-    jobTitle: "Senior Product Designer",
-    jobId: "1",
-    appliedDate: "2023-04-17",
-    status: "shortlisted",
-    experience: "6 years",
-    location: "Seattle, WA",
-    skills: ["UI/UX", "Adobe XD", "Design Systems", "Wireframing"],
-    matchScore: 88,
-    education: "Master's Degree",
-    email: "sarah.williams@example.com",
-    phone: "+1 (555) 234-5678",
-  },
-  {
-    id: "3",
-    name: "Michael Brown",
-    avatar: "/placeholder.svg?height=40&width=40&text=MB",
-    jobTitle: "Frontend Developer",
-    jobId: "2",
-    appliedDate: "2023-04-12",
-    status: "interview",
-    experience: "4 years",
-    location: "New York, NY",
-    skills: ["React", "TypeScript", "CSS", "HTML"],
-    matchScore: 95,
-    education: "Bachelor's Degree",
-    email: "michael.brown@example.com",
-    phone: "+1 (555) 345-6789",
-  },
-  {
-    id: "4",
-    name: "Emily Davis",
-    avatar: "/placeholder.svg?height=40&width=40&text=ED",
-    jobTitle: "Frontend Developer",
-    jobId: "2",
-    appliedDate: "2023-04-11",
-    status: "rejected",
-    experience: "2 years",
-    location: "Chicago, IL",
-    skills: ["JavaScript", "React", "CSS", "HTML"],
-    matchScore: 75,
-    education: "Bachelor's Degree",
-    email: "emily.davis@example.com",
-    phone: "+1 (555) 456-7890",
-  },
-  {
-    id: "5",
-    name: "David Wilson",
-    avatar: "/placeholder.svg?height=40&width=40&text=DW",
-    jobTitle: "UX Researcher",
-    jobId: "4",
-    appliedDate: "2023-04-03",
-    status: "hired",
-    experience: "3 years",
-    location: "Remote",
-    skills: ["User Research", "Usability Testing", "Data Analysis"],
-    matchScore: 90,
-    education: "Master's Degree",
-    email: "david.wilson@example.com",
-    phone: "+1 (555) 567-8901",
-  },
-  {
-    id: "6",
-    name: "Jennifer Lee",
-    avatar: "/placeholder.svg?height=40&width=40&text=JL",
-    jobTitle: "Data Analyst",
-    jobId: "5",
-    appliedDate: "2023-03-30",
-    status: "review",
-    experience: "1 year",
-    location: "Boston, MA",
-    skills: ["SQL", "Python", "Data Visualization", "Excel"],
-    matchScore: 82,
-    education: "Bachelor's Degree",
-    email: "jennifer.lee@example.com",
-    phone: "+1 (555) 678-9012",
-  },
-  {
-    id: "7",
-    name: "Robert Garcia",
-    avatar: "/placeholder.svg?height=40&width=40&text=RG",
-    jobTitle: "Backend Developer",
-    jobId: "3",
-    appliedDate: "2023-04-05",
-    status: "shortlisted",
-    experience: "7 years",
-    location: "Austin, TX",
-    skills: ["Node.js", "Python", "MongoDB", "AWS"],
-    matchScore: 87,
-    education: "Master's Degree",
-    email: "robert.garcia@example.com",
-    phone: "+1 (555) 789-0123",
-  },
-  {
-    id: "8",
-    name: "Lisa Martinez",
-    avatar: "/placeholder.svg?height=40&width=40&text=LM",
-    jobTitle: "Marketing Manager",
-    jobId: "6",
-    appliedDate: "2023-04-08",
-    status: "interview",
-    experience: "5 years",
-    location: "Miami, FL",
-    skills: ["Digital Marketing", "SEO", "Content Strategy", "Analytics"],
-    matchScore: 91,
-    education: "Bachelor's Degree",
-    email: "lisa.martinez@example.com",
-    phone: "+1 (555) 890-1234",
-  },
-  {
-    id: "9",
-    name: "James Taylor",
-    avatar: "/placeholder.svg?height=40&width=40&text=JT",
-    jobTitle: "DevOps Engineer",
-    jobId: "7",
-    appliedDate: "2023-04-14",
-    status: "review",
-    experience: "4 years",
-    location: "Denver, CO",
-    skills: ["Docker", "Kubernetes", "CI/CD", "AWS"],
-    matchScore: 84,
-    education: "Bachelor's Degree",
-    email: "james.taylor@example.com",
-    phone: "+1 (555) 901-2345",
-  },
-  {
-    id: "10",
-    name: "Patricia Anderson",
-    avatar: "/placeholder.svg?height=40&width=40&text=PA",
-    jobTitle: "Product Manager",
-    jobId: "8",
-    appliedDate: "2023-04-10",
-    status: "shortlisted",
-    experience: "8 years",
-    location: "Portland, OR",
-    skills: ["Product Strategy", "Agile", "User Stories", "Roadmapping"],
-    matchScore: 93,
-    education: "MBA",
-    email: "patricia.anderson@example.com",
-    phone: "+1 (555) 012-3456",
-  },
-];
+export const getStatusDisplayText = (status: string) => {
+  switch (status) {
+    case "review":
+      return "Đang xem xét";
+    case "shortlisted":
+      return "Đã vào danh sách";
+    case "interview":
+      return "Phỏng vấn";
+    case "rejected":
+      return "Đã bị từ chối";
+    case "hired":
+      return "Đã tuyển dụng";
+    case "Submitted":
+      return "Đã nộp";
+    case "Approved":
+      return "Đã duyệt";
+    default:
+      return status;
+  }
+};
 
 export default function CandidatesTablePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -198,23 +59,24 @@ export default function CandidatesTablePage() {
   const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // Filter candidates based on search query and filters
-  const filteredCandidates = candidates.filter((candidate) => {
-    const matchesSearch =
-      candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      candidate.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      candidate.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      candidate.skills.some((skill) =>
-        skill.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [isSortNewest, setIsSortNewest] = useState(false);
+  const PAGE_SIZE = 10;
 
-    const matchesStatus =
-      statusFilter === "all" || candidate.status === statusFilter;
-    const matchesPosition =
-      positionFilter === "all" || candidate.jobTitle === positionFilter;
+  const [openChats, setOpenChats] = useState<{ id: number; name: string }[]>(
+    []
+  );
 
-    return matchesSearch && matchesStatus && matchesPosition;
-  });
+  const openChat = (candidate: Application) => {
+    if (!openChats.find((c) => c.id === candidate.id)) {
+      setOpenChats((prev) => [...prev, candidate]);
+    }
+  };
+
+  const closeChat = (id: number) => {
+    setOpenChats((prev) => prev.filter((c) => c.id !== id));
+  };
 
   // Get status badge color
   const getStatusBadgeColor = (status: string) => {
@@ -253,34 +115,68 @@ export default function CandidatesTablePage() {
     return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
   };
 
-  // Get unique job titles for filter
-  const jobTitles = Array.from(
-    new Set(candidates.map((candidate) => candidate.jobTitle))
-  );
-
   // Open candidate profile drawer
   const openCandidateDrawer = (candidate: any) => {
     setSelectedCandidate(candidate);
     setIsDrawerOpen(true);
   };
 
-  // Get status display text
-  const getStatusDisplayText = (status: string) => {
-    switch (status) {
-      case "review":
-        return "Under Review";
-      case "shortlisted":
-        return "Shortlisted";
-      case "interview":
-        return "Interview";
-      case "rejected":
-        return "Rejected";
-      case "hired":
-        return "Hired";
-      default:
-        return status;
-    }
-  };
+  // // Get status display text
+  // const getStatusDisplayText = (status: string) => {
+  //   switch (status) {
+  //     case "review":
+  //       return "Under Review";
+  //     case "shortlisted":
+  //       return "Shortlisted";
+  //     case "interview":
+  //       return "Interview";
+  //     case "rejected":
+  //       return "Rejected";
+  //     case "hired":
+  //       return "Hired";
+  //     default:
+  //       return status;
+  //   }
+  // };
+
+  // Lấy nội dung hiển thị trạng thái
+
+  const {
+    data: candidates,
+    total,
+    loading,
+  } = useApplyCandidates({
+    page,
+    search,
+    isSortNewest,
+    pageSize: PAGE_SIZE,
+  });
+
+  // Get unique job titles for filter
+  const jobTitles = Array.from(
+    new Set(candidates.map((candidate) => candidate.jobTitle))
+  );
+
+  const filteredCandidates = candidates.filter((candidate) => {
+    const matchesSearch =
+      candidate.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      candidate.jobTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      candidate.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      candidate.applicant?.dienThoai
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      candidate.applicant?.email
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      candidate.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "all" || candidate.status === statusFilter;
+    const matchesPosition =
+      positionFilter === "all" || candidate.jobTitle === positionFilter;
+
+    return matchesSearch && matchesStatus && matchesPosition;
+  });
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-950">
@@ -288,7 +184,7 @@ export default function CandidatesTablePage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-            <h1 className="text-2xl font-bold">Candidates</h1>
+            <h1 className="text-2xl font-bold">Ứng viên</h1>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -314,7 +210,7 @@ export default function CandidatesTablePage() {
                 </div>
                 <Input
                   type="text"
-                  placeholder="Search candidates by name, position, skills..."
+                  placeholder="Tìm ứng viên theo tên, vị trí, kỹ năng..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -328,12 +224,15 @@ export default function CandidatesTablePage() {
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      <SelectItem value="review">Under Review</SelectItem>
-                      <SelectItem value="shortlisted">Shortlisted</SelectItem>
-                      <SelectItem value="interview">Interview</SelectItem>
-                      <SelectItem value="hired">Hired</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
+                      <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                      <SelectItem value="Submitted">Đã nộp</SelectItem>
+                      <SelectItem value="review">Đang xem xét</SelectItem>
+                      <SelectItem value="shortlisted">
+                        Đã vào danh sách
+                      </SelectItem>
+                      <SelectItem value="interview">Phỏng vấn</SelectItem>
+                      <SelectItem value="hired">Đã tuyển dụng</SelectItem>
+                      <SelectItem value="rejected">Đã bị từ chối</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -347,19 +246,19 @@ export default function CandidatesTablePage() {
                       <SelectValue placeholder="Position" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Positions</SelectItem>
-                      {jobTitles.map((title) => (
+                      <SelectItem value="all">Tất cả vị trí</SelectItem>
+                      {/* {jobTitles.map((title) => (
                         <SelectItem key={title} value={title}>
                           {title}
                         </SelectItem>
-                      ))}
+                      ))} */}
                     </SelectContent>
                   </Select>
                 </div>
 
                 <Button variant="outline" className="flex items-center gap-1">
                   <SlidersHorizontal className="h-4 w-4" />
-                  More Filters
+                  Bộ lọc khác
                 </Button>
               </div>
             </div>
@@ -368,9 +267,9 @@ export default function CandidatesTablePage() {
           {/* Results info */}
           <div className="flex justify-between items-center mb-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing{" "}
+              Hiển thị{" "}
               <span className="font-medium">{filteredCandidates.length}</span>{" "}
-              candidates
+              ứng viên
             </p>
           </div>
 
@@ -384,31 +283,31 @@ export default function CandidatesTablePage() {
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
-                      Candidate
+                      Ứng viên
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
-                      Position
+                      Chức vụ
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
-                      Location
+                      Địa chỉ
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
-                      Applied Date
+                      Ngày ứng tuyển
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
-                      Status
+                      Trạng thái
                     </th>
                     <th
                       scope="col"
@@ -420,7 +319,7 @@ export default function CandidatesTablePage() {
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
-                      Actions
+                      Hành động
                     </th>
                   </tr>
                 </thead>
@@ -435,8 +334,11 @@ export default function CandidatesTablePage() {
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden">
                               <Image
-                                src={candidate.avatar || "/placeholder.svg"}
-                                alt={candidate.name}
+                                src={
+                                  candidate.avatar ||
+                                  "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                                }
+                                alt={candidate?.applicant?.name ?? ""}
                                 width={40}
                                 height={40}
                                 className="h-10 w-10 object-cover"
@@ -444,10 +346,12 @@ export default function CandidatesTablePage() {
                             </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                {candidate.name}
+                                {candidate?.applicant?.name ??
+                                  candidate?.applicant?.dienThoai}
                               </div>
                               <div className="text-sm text-gray-500 dark:text-gray-400">
-                                {candidate.email}
+                                {candidate?.applicant?.name ??
+                                  candidate?.applicant?.email}
                               </div>
                             </div>
                           </div>
@@ -464,15 +368,15 @@ export default function CandidatesTablePage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                             <MapPin className="h-4 w-4 mr-1" />
-                            {candidate.location}
+                            {candidate.location ?? "Đang cập nhật"}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900 dark:text-gray-100">
-                            {formatDate(candidate.appliedDate)}
+                            {formatDate(candidate.appliedAt)}
                           </div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {getDaysAgo(candidate.appliedDate)}
+                            {getDaysAgo(candidate.appliedAt)}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -486,7 +390,7 @@ export default function CandidatesTablePage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded text-center">
-                            {candidate.matchScore}%
+                            {candidate.matchScore ?? 0}%
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -500,10 +404,26 @@ export default function CandidatesTablePage() {
                             </button>
                             <button
                               className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300"
-                              title="Message"
+                              title="Nhắn tin"
+                              onClick={() => openChat(candidate)}
                             >
                               <MessageCircle className="h-4 w-4" />
                             </button>
+                            {/* Các khung chat đã mở */}
+                            <div className="fixed bottom-4 right-4 flex gap-4">
+                              {openChats.map((user, index) => (
+                                <div
+                                  key={user.id}
+                                  style={{ right: `${index * 340}px` }}
+                                  className="relative"
+                                >
+                                  <ChatBox
+                                    user={user}
+                                    onClose={() => closeChat(user.id)}
+                                  />
+                                </div>
+                              ))}
+                            </div>
                             {candidate.status === "review" && (
                               <>
                                 <button
@@ -544,6 +464,13 @@ export default function CandidatesTablePage() {
                   )}
                 </tbody>
               </table>
+              <Pagination
+                currentPage={page}
+                totalItems={total}
+                itemsPerPage={PAGE_SIZE}
+                onPageChange={setPage}
+                className="px-6 py-4 border-t border-gray-200 dark:border-gray-800"
+              />
             </div>
           </div>
         </div>
