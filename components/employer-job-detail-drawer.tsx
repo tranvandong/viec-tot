@@ -115,7 +115,7 @@ export function EmployerJobDetailDrawer({
         else if (text.includes("Quyền lợi")) currentKey = "benefits";
       }
 
-      if (child.tagName !== "UL" && currentKey) {
+      if (child.tagName === "UL" && currentKey) {
         const items = Array.from(child.querySelectorAll("li")).map(
           (li) => li.textContent?.trim() || ""
         );
@@ -156,8 +156,6 @@ export function EmployerJobDetailDrawer({
   const { description, requirements, benefits } = parseJobSections(
     job.description
   );
-
-  console.log(description, "description");
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
