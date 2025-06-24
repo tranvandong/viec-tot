@@ -3,7 +3,17 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Camera, Globe, MapPin, Pencil, Users } from "lucide-react";
+import {
+  Briefcase,
+  CalendarDays,
+  Camera,
+  Clock,
+  Globe,
+  Mail,
+  MapPin,
+  Pencil,
+  Users,
+} from "lucide-react";
 import ProvinceSelect from "@/components/ProvinceSelect";
 import { useList, useUpdateNew } from "@/hooks/useDataProvider";
 import { JobPost, Organization } from "@/providers/types/definition";
@@ -13,7 +23,8 @@ import {
 } from "./companyIntroUtils";
 import parse from "html-react-parser";
 import { toast } from "@/hooks/use-toast";
-import Link from "next/link";
+import { formatDate } from "../jobs/page";
+import { Calendar } from "@/components/ui/calendar";
 
 export default function CompanyProfile() {
   const { data, reload } = useList<Organization>({
@@ -22,19 +33,14 @@ export default function CompanyProfile() {
     pagination: undefined,
   });
 
-  const {
-    data: job,
-    pageCount,
-    pagination,
-    setPage,
-  } = useList<JobPost>({
+  const { data: job } = useList<JobPost>({
     resource: "Jobs",
   });
   const jobs = job?.data || [];
-  console.log("Jobs data:", jobs);
-  console.log(job);
 
   const [formData, setFormData] = useState<Organization>();
+  const [selected, setSelected] = React.useState<Date | undefined>();
+  const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => {
     setFormData(data?.data);
@@ -78,10 +84,20 @@ export default function CompanyProfile() {
       website,
       employeeCount,
       address,
+      email,
+      workingTime,
       ...newSelectedJob
     } = updatedJob;
     updateInfo(
-      { description, name, website, employeeCount, address },
+      {
+        description,
+        name,
+        website,
+        employeeCount,
+        address,
+        email,
+        workingTime,
+      },
       {
         onSuccess: (data) => {
           toast({
@@ -263,6 +279,57 @@ export default function CompanyProfile() {
                 isEditing={isEditing}
                 onChange={handleChange}
               />
+              {/* <InfoItem
+                icon={<CalendarDays className="w-4 h-4" />}
+                name="createdDate"
+                value={formatDate(formData.createdDate)}
+                isEditing={isEditing}
+                onChange={() => {}}
+                onClick={() => setShowCalendar(true)}
+              /> */}
+              {/* {showCalendar && (
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
+                  onClick={() => setShowCalendar(false)} // Click nền sẽ tắt
+                >
+                  <div
+                    className="bg-white p-4 rounded shadow"
+                    onClick={(e) => e.stopPropagation()} // Ngăn sự kiện lan ra ngoài
+                  >
+                    <Calendar
+                      mode="single"
+                      selected={selected}
+                      onSelect={(date) => {
+                        if (date) {
+                          setSelected(date);
+                          setShowCalendar(false);
+                          if (date) {
+                            handleChange({
+                              target: { name: "createdDate", value: date },
+                            });
+                            setShowCalendar(false);
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              )} */}
+
+              <InfoItem
+                icon={<Mail className="w-4 h-4" />}
+                name="email"
+                value={formData.email}
+                isEditing={isEditing}
+                onChange={handleChange}
+              />
+              <InfoItem
+                icon={<Clock className="w-4 h-4" />}
+                name="workingTime"
+                value={formData.workingTime}
+                isEditing={isEditing}
+                onChange={handleChange}
+              />
             </div>
           </div>
           <Button className="ml-auto" onClick={handleEditClick}>
@@ -277,17 +344,6 @@ export default function CompanyProfile() {
         <div className="md:col-span-2">
           {/* About */}
           <div className="bg-white rounded-lg shadow p-6 mb-6">
-            {/* {isEditing ? (
-              <textarea
-                name="about"
-                value={formData.description ?? "Chưa cập nhật"}
-                onChange={handleChange}
-                rows={6}
-                className="w-full border rounded px-2 py-1 text-sm"
-              />
-            ) : (
-              <p className="text-gray-700 text-sm">{formData.description}</p>
-            )} */}
             {isEditing ? (
               <div className="space-y-4">
                 {Object.entries(sections).map(([key, label]) => (
@@ -389,15 +445,17 @@ function InfoItem({
   value,
   isEditing,
   onChange,
+  onClick,
 }: {
   icon: React.ReactNode;
   name: string;
   value: string | null;
   isEditing: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onClick?: () => void;
 }) {
   return (
-    <div className="flex items-center gap-1">
+    <div onClick={onClick} className="flex items-center gap-1">
       {icon}
       {isEditing ? (
         <input
