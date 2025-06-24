@@ -1,531 +1,442 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
-import Link from "next/link";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Briefcase, Camera, Globe, MapPin, Pencil, Users } from "lucide-react";
+import ProvinceSelect from "@/components/ProvinceSelect";
+import { useList, useUpdateNew } from "@/hooks/useDataProvider";
+import { JobPost, Organization } from "@/providers/types/definition";
 import {
-  Camera,
-  MapPin,
-  Globe,
-  Mail,
-  Briefcase,
-  Users,
-  Calendar,
-} from "lucide-react";
+  combineCompanyIntroHtml,
+  parseCompanyIntro,
+} from "./companyIntroUtils";
+import parse from "html-react-parser";
+import { toast } from "@/hooks/use-toast";
+import Link from "next/link";
 
-export default function CompanyProfilePage() {
-  // Mock company data
-  const [company, setCompany] = useState({
-    name: "Acme Inc.",
-    logo: "/placeholder.svg?height=100&width=100&text=A&bg=blue",
-    coverImage: "/placeholder.svg?height=300&width=1200&text=Acme+Inc.&bg=gray",
-    website: "www.acmeinc.com",
-    industry: "Technology",
-    companySize: "51-200 employees",
-    founded: "2010",
-    headquarters: "San Francisco, CA",
-    description:
-      "Acme Inc. is a leading technology company specializing in innovative software solutions for businesses. We are dedicated to creating products that help our customers succeed.",
-    mission:
-      "Our mission is to provide cutting-edge technology solutions that empower businesses to achieve their goals.",
-    phone: "+1 (555) 123-4567",
-    email: "contact@acmeinc.com",
-    socialMedia: {
-      linkedin: "linkedin.com/company/acmeinc",
-      twitter: "twitter.com/acmeinc",
-      facebook: "facebook.com/acmeinc",
+export default function CompanyProfile() {
+  const { data, reload } = useList<Organization>({
+    resource: "Organizations/GetByUser",
+    meta: { config: { auth: "allow" } },
+    pagination: undefined,
+  });
+
+  const {
+    data: job,
+    pageCount,
+    pagination,
+    setPage,
+  } = useList<JobPost>({
+    resource: "Jobs",
+  });
+  const jobs = job?.data || [];
+  console.log("Jobs data:", jobs);
+  console.log(job);
+
+  const [formData, setFormData] = useState<Organization>();
+
+  useEffect(() => {
+    setFormData(data?.data);
+  }, [data]);
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [coverImage, setCoverImage] = useState(
+    "https://images.unsplash.com/photo-1504384308090-c894fdcc538d"
+  );
+  const [logoImage, setLogoImage] = useState(
+    "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+  );
+
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    console.log(e.target.name);
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const { mutate: updateInfo } = useUpdateNew({
+    resource: "Organizations",
+    id: `(${formData?.id})`,
+    meta: {
+      config: {
+        subSystem: "buss",
+        auth: "allow",
+      },
     },
   });
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedCompany, setEditedCompany] = useState(company);
-
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setEditedCompany({ ...editedCompany, [name]: value });
+  // Handle job update
+  const handleJobUpdate = (updatedJob: any) => {
+    const {
+      description,
+      name,
+      website,
+      employeeCount,
+      address,
+      ...newSelectedJob
+    } = updatedJob;
+    updateInfo(
+      { description, name, website, employeeCount, address },
+      {
+        onSuccess: (data) => {
+          toast({
+            description:
+              data?.message || "Cập nhật thông tin công việc thành công",
+            title: "Cập nhật thành công",
+            type: "background",
+            variant: "success",
+          });
+          reload?.();
+        },
+        onError: (err: any) => {
+          toast({
+            description:
+              err?.response?.data?.message ||
+              "Cập nhật thông tin công việc thất bại",
+            title: "Cập nhật thất bại",
+            type: "background",
+            variant: "warning",
+          });
+          console.error("Cập nhật lỗi:", err);
+        },
+      }
+    );
   };
 
-  const handleSocialMediaChange = (platform: string, value: string) => {
-    setEditedCompany({
-      ...editedCompany,
-      socialMedia: {
-        ...editedCompany.socialMedia,
-        [platform]: value,
-      },
-    });
+  const handleEditClick = () => {
+    if (isEditing) {
+      const updatedDescriptionHtml = combineCompanyIntroHtml();
+      const updatedJob = {
+        ...formData,
+        description: updatedDescriptionHtml,
+      };
+
+      handleJobUpdate(updatedJob);
+    }
+    setIsEditing(!isEditing);
   };
 
-  const handleSave = () => {
-    setCompany(editedCompany);
-    setIsEditing(false);
+  const sections = {
+    intro: "Giới thiệu",
+    vision: "Tầm nhìn & Sứ mệnh",
+    coreValues: "Giá trị cốt lõi",
+    services: "Sản phẩm & Dịch vụ",
+    contact: "Liên hệ",
   };
+
+  const parsedSections = parseCompanyIntro(formData?.description || "");
+
+  if (!formData) {
+    return;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Company Profile</h1>
-            {!isEditing ? (
+      {/* Cover Image */}
+      <div className="relative w-full h-64 overflow-hidden group">
+        <Image src={coverImage} alt="cover" fill className="object-cover" />
+        {isEditing && (
+          <>
+            <div className="absolute inset-0 bg-black/30 group-hover:flex items-center justify-center hidden">
               <button
-                onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                onClick={() => coverInputRef.current?.click()}
+                className="text-white bg-black/50 p-2 rounded-full"
               >
-                Edit Profile
+                <Camera className="w-5 h-5" />
               </button>
-            ) : (
-              <div className="flex gap-3">
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              ref={coverInputRef}
+              onChange={(e) => {
+                if (e.target.files?.[0]) {
+                  const url = URL.createObjectURL(e.target.files[0]);
+                  setCoverImage(url);
+                }
+              }}
+              className="hidden"
+            />
+          </>
+        )}
+      </div>
+
+      {/* Info Card */}
+      <div className="relative bg-white rounded-xl shadow-lg p-6 mt-[-3rem] mx-auto max-w-4xl">
+        <div className="flex items-start gap-4">
+          <div className="relative">
+            <Image
+              src={logoImage}
+              alt="logo"
+              width={100}
+              height={100}
+              className="rounded-md border"
+            />
+            {isEditing && (
+              <>
                 <button
-                  onClick={() => {
-                    setIsEditing(false);
-                    setEditedCompany(company);
+                  onClick={() => logoInputRef.current?.click()}
+                  className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow"
+                >
+                  <Camera className="w-4 h-4 text-gray-600" />
+                </button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={logoInputRef}
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      const url = URL.createObjectURL(e.target.files[0]);
+                      setLogoImage(url);
+                    }
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  Save Changes
-                </button>
+                  className="hidden"
+                />
+              </>
+            )}
+          </div>
+          <div className="flex-1">
+            {isEditing ? (
+              <>
+                <input
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="text-2xl font-semibold w-full border rounded px-2 py-1"
+                />
+                {/* <input
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  className="mt-1 text-gray-600 w-full border rounded px-2 py-1"
+                /> */}
+              </>
+            ) : (
+              <>
+                <h1 className="text-2xl font-semibold">{formData.name}</h1>
+                {/* <p className="text-gray-600">{formData.description}</p> */}
+              </>
+            )}
+
+            <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-700">
+              <InfoItem
+                icon={<Globe className="w-4 h-4" />}
+                name="website"
+                value={formData.website ?? "Chưa cập nhật"}
+                isEditing={isEditing}
+                onChange={handleChange}
+              />
+              {isEditing ? (
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-4 h-4 text-gray-600" />
+                  <ProvinceSelect
+                    value={formData.address}
+                    onChange={(value) =>
+                      setFormData({ ...formData, address: value })
+                    }
+                    className="flex-1"
+                    label="" // Không cần label vì đã có icon
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <MapPin className="w-4 h-4 text-gray-600" />
+                  <span>{formData.address}</span>
+                </div>
+              )}
+              <InfoItem
+                icon={<Users className="w-4 h-4" />}
+                name="employeeCount"
+                value={formData.employeeCount}
+                isEditing={isEditing}
+                onChange={handleChange}
+              />
+              <InfoItem
+                icon={<Briefcase className="w-4 h-4" />}
+                name="industry"
+                value={formData.industry ?? "Giám đốc"}
+                isEditing={isEditing}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          <Button className="ml-auto" onClick={handleEditClick}>
+            {isEditing ? "Save" : "Edit"}
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Left */}
+        <div className="md:col-span-2">
+          {/* About */}
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            {/* {isEditing ? (
+              <textarea
+                name="about"
+                value={formData.description ?? "Chưa cập nhật"}
+                onChange={handleChange}
+                rows={6}
+                className="w-full border rounded px-2 py-1 text-sm"
+              />
+            ) : (
+              <p className="text-gray-700 text-sm">{formData.description}</p>
+            )} */}
+            {isEditing ? (
+              <div className="space-y-4">
+                {Object.entries(sections).map(([key, label]) => (
+                  <div key={key} className="mb-4">
+                    <label
+                      htmlFor={key}
+                      className="block text-base font-semibold text-gray-800 mb-2"
+                    >
+                      {label}
+                    </label>
+                    <textarea
+                      id={key}
+                      name={key}
+                      rows={5}
+                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder={`Nhập ${label.toLowerCase()}`}
+                      defaultValue={
+                        parsedSections[key as keyof typeof parsedSections]
+                      }
+                    />
+                  </div>
+                ))}
               </div>
+            ) : (
+              <div className="space-y-3">{parse(formData.description)}</div>
             )}
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            {/* Cover Image */}
-            <div className="relative h-48 bg-gray-200">
-              <Image
-                src={company.coverImage || "/placeholder.svg"}
-                alt={`${company.name} cover`}
-                fill
-                className="object-cover"
-              />
-              {isEditing && (
-                <div className="absolute bottom-4 right-4">
-                  <button className="flex items-center gap-2 px-3 py-2 bg-white rounded-md shadow-sm text-sm font-medium">
-                    <Camera className="h-4 w-4" />
-                    Change Cover
-                  </button>
-                </div>
-              )}
+          {/* Jobs */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">
+                Công việc từ {formData.name}
+              </h2>
+              <a href="/employer/manage/jobs" className="text-blue-600 text-sm">
+                Xem tất cả
+              </a>
             </div>
-
-            {/* Company Logo */}
-            <div className="relative -mt-16 ml-8">
-              <div className="w-32 h-32 rounded-lg border-4 border-white bg-white overflow-hidden">
-                <Image
-                  src={company.logo || "/placeholder.svg"}
-                  alt={company.name}
-                  width={128}
-                  height={128}
-                  className="object-cover"
+            <div className="space-y-4">
+              {jobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  title={job.title}
+                  type={job.industry || "Không rõ loại hình"} // Bán thời gian / Toàn thời gian
+                  mode="Onsite" // Hoặc job.mode nếu có
+                  exp={`${job.experience || "Không yêu cầu"} năm`}
+                  href="/employer/manage/jobs"
                 />
-              </div>
-              {isEditing && (
-                <button className="absolute bottom-2 right-2 p-2 bg-white rounded-full shadow-sm">
-                  <Camera className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-
-            {/* Company Information */}
-            <div className="p-6 pt-0">
-              {isEditing ? (
-                /* Edit Mode */
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label
-                        htmlFor="name"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Company Name*
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={editedCompany.name}
-                        onChange={handleInputChange}
-                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="industry"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Industry*
-                      </label>
-                      <input
-                        type="text"
-                        id="industry"
-                        name="industry"
-                        value={editedCompany.industry}
-                        onChange={handleInputChange}
-                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="website"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Website
-                      </label>
-                      <input
-                        type="text"
-                        id="website"
-                        name="website"
-                        value={editedCompany.website}
-                        onChange={handleInputChange}
-                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="headquarters"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Headquarters
-                      </label>
-                      <input
-                        type="text"
-                        id="headquarters"
-                        name="headquarters"
-                        value={editedCompany.headquarters}
-                        onChange={handleInputChange}
-                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="companySize"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Company Size
-                      </label>
-                      <select
-                        id="companySize"
-                        name="companySize"
-                        value={editedCompany.companySize}
-                        onChange={handleInputChange}
-                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      >
-                        <option value="1-10 employees">1-10 employees</option>
-                        <option value="11-50 employees">11-50 employees</option>
-                        <option value="51-200 employees">
-                          51-200 employees
-                        </option>
-                        <option value="201-500 employees">
-                          201-500 employees
-                        </option>
-                        <option value="501-1000 employees">
-                          501-1000 employees
-                        </option>
-                        <option value="1001+ employees">1001+ employees</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="founded"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Founded
-                      </label>
-                      <input
-                        type="text"
-                        id="founded"
-                        name="founded"
-                        value={editedCompany.founded}
-                        onChange={handleInputChange}
-                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="phone"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Phone
-                      </label>
-                      <input
-                        type="text"
-                        id="phone"
-                        name="phone"
-                        value={editedCompany.phone}
-                        onChange={handleInputChange}
-                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={editedCompany.email}
-                        onChange={handleInputChange}
-                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="description"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Company Description*
-                    </label>
-                    <textarea
-                      id="description"
-                      name="description"
-                      rows={4}
-                      value={editedCompany.description}
-                      onChange={handleInputChange}
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      required
-                    ></textarea>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="mission"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Company Mission
-                    </label>
-                    <textarea
-                      id="mission"
-                      name="mission"
-                      rows={3}
-                      value={editedCompany.mission}
-                      onChange={handleInputChange}
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    ></textarea>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-700 mb-3">
-                      Social Media
-                    </h3>
-                    <div className="space-y-3">
-                      <div>
-                        <label
-                          htmlFor="linkedin"
-                          className="block text-xs text-gray-500 mb-1"
-                        >
-                          LinkedIn
-                        </label>
-                        <input
-                          type="text"
-                          id="linkedin"
-                          value={editedCompany.socialMedia.linkedin}
-                          onChange={(e) =>
-                            handleSocialMediaChange("linkedin", e.target.value)
-                          }
-                          className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="twitter"
-                          className="block text-xs text-gray-500 mb-1"
-                        >
-                          Twitter
-                        </label>
-                        <input
-                          type="text"
-                          id="twitter"
-                          value={editedCompany.socialMedia.twitter}
-                          onChange={(e) =>
-                            handleSocialMediaChange("twitter", e.target.value)
-                          }
-                          className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="facebook"
-                          className="block text-xs text-gray-500 mb-1"
-                        >
-                          Facebook
-                        </label>
-                        <input
-                          type="text"
-                          id="facebook"
-                          value={editedCompany.socialMedia.facebook}
-                          onChange={(e) =>
-                            handleSocialMediaChange("facebook", e.target.value)
-                          }
-                          className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                /* View Mode */
-                <div>
-                  <h2 className="text-2xl font-bold mt-4 mb-2">
-                    {company.name}
-                  </h2>
-                  <div className="flex flex-wrap gap-4 mb-6">
-                    <div className="flex items-center text-gray-600">
-                      <Briefcase className="h-4 w-4 mr-1" />
-                      <span>{company.industry}</span>
-                    </div>
-                    <div className="flex items-center text-gray-600">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span>{company.headquarters}</span>
-                    </div>
-                    <div className="flex items-center text-gray-600">
-                      <Globe className="h-4 w-4 mr-1" />
-                      <a
-                        href={`https://${company.website}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        {company.website}
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <Users className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-500">
-                          Company Size
-                        </div>
-                        <div className="font-medium">{company.companySize}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <Calendar className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-500">Founded</div>
-                        <div className="font-medium">{company.founded}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <Mail className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-500">Contact</div>
-                        <div className="font-medium">{company.email}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-8">
-                    <h3 className="text-lg font-semibold mb-3">
-                      About {company.name}
-                    </h3>
-                    <p className="text-gray-700">{company.description}</p>
-                  </div>
-
-                  {company.mission && (
-                    <div className="mb-8">
-                      <h3 className="text-lg font-semibold mb-3">
-                        Our Mission
-                      </h3>
-                      <p className="text-gray-700">{company.mission}</p>
-                    </div>
-                  )}
-
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">
-                      Connect With Us
-                    </h3>
-                    <div className="flex gap-4">
-                      {company.socialMedia.linkedin && (
-                        <a
-                          href={`https://${company.socialMedia.linkedin}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200"
-                        >
-                          <svg
-                            className="h-5 w-5"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                          </svg>
-                        </a>
-                      )}
-                      {company.socialMedia.twitter && (
-                        <a
-                          href={`https://${company.socialMedia.twitter}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200"
-                        >
-                          <svg
-                            className="h-5 w-5"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
-                          </svg>
-                        </a>
-                      )}
-                      {company.socialMedia.facebook && (
-                        <a
-                          href={`https://${company.socialMedia.facebook}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200"
-                        >
-                          <svg
-                            className="h-5 w-5"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" />
-                          </svg>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
+              ))}
             </div>
           </div>
         </div>
+
+        {/* Right */}
+        <div className="space-y-6">
+          {/* People */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold mb-4">
+              Nhân viên tại {formData.name}
+            </h2>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <strong>Trần Quanh Ánh</strong> – Nhà sáng lập
+              </li>
+              <li>
+                <strong>Trần Thùy Linh</strong> – Đồng sáng lập
+              </li>
+              <li>
+                <strong>Phạm Quốc Duy</strong> – Thiết kế giao diện
+              </li>
+              <li>
+                <strong>Võ Kim Anh</strong> – Minh họa & Hình ảnh
+              </li>
+            </ul>
+            <Button variant="outline" className="mt-4 w-full text-sm">
+              Show All
+            </Button>
+          </div>
+
+          {/* Related Companies */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold mb-4">Người dùng cũng xem</h2>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li>FPT Software – Hà Nội</li>
+              <li>VNG Corporation – TP. Hồ Chí Minh</li>
+              <li>MoMo – TP. Hồ Chí Minh</li>
+              <li>VNPT – Hà Nội</li>
+            </ul>
+          </div>
+        </div>
       </div>
+    </div>
+  );
+}
+
+function InfoItem({
+  icon,
+  name,
+  value,
+  isEditing,
+  onChange,
+}: {
+  icon: React.ReactNode;
+  name: string;
+  value: string | null;
+  isEditing: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      {icon}
+      {isEditing ? (
+        <input
+          type="text"
+          name={name}
+          value={value ?? ""}
+          onChange={onChange}
+          className="border rounded px-3 py-2 text-sm w-[207px]"
+        />
+      ) : (
+        <span>{value}</span>
+      )}
+    </div>
+  );
+}
+
+function JobCard({
+  title,
+  type,
+  mode,
+  exp,
+  href,
+}: {
+  title: string;
+  type: string;
+  mode: string;
+  exp: string;
+  href: string;
+}) {
+  return (
+    <div className="border border-gray-200 rounded-md p-4 text-sm">
+      <h3 className="font-semibold text-base mb-1">
+        <a href={href} className="hover:underline text-blue-600">
+          {title}
+        </a>
+      </h3>
+      <p className="text-gray-600">
+        {type} · {mode} · {exp}
+      </p>
     </div>
   );
 }

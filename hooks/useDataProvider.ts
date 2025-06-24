@@ -33,7 +33,8 @@ type Resource =
   | "DMHuyens"
   | "Applications"
   | "Resumes"
-  | "DMCategories";
+  | "DMCategories"
+  | "Organizations/GetByUser"
 
 interface MetaQuery {
   join?: string[];
@@ -67,34 +68,43 @@ export const useList = <TQueryFnData extends BaseRecord = BaseRecord>(
   const [sorters, setSorters] = useState(params.sorters || []);
 
   const queryKey = [
-    "list",
-    params.resource,
-    {
-      ...params,
+  "list",
+  params.resource,
+  {
+    ...params,
+    ...(params.pagination && {
       pagination: { pageSize, page },
-      filters,
-      sorters,
-    },
-  ];
+    }),
+    filters,
+    sorters,
+  },
+];
 
   const query = useQuery({
     ...params.queryOptions,
     queryKey,
     queryFn: async () => {
-      const result = await provider.getList({
-        ...params,
-        filters,
-        sorters,
-        pagination: {
-          pageSize,
-          current: page,
-        },
-      });
-      return {
-        data: result.data as TQueryFnData[],
-        total: result.total,
-      };
-    },
+  const shouldPaginate = !!params.pagination;
+
+  const result = await provider.getList({
+    ...params,
+    filters,
+    sorters,
+    ...(shouldPaginate
+      ? {
+          pagination: {
+            pageSize,
+            current: page,
+          },
+        }
+      : {}),
+  });
+
+  return {
+    data: result.data as TQueryFnData[],
+    total: result.total,
+  };
+},
   });
 
   const pageCount = query.data?.total
