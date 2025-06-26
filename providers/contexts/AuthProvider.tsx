@@ -1,10 +1,12 @@
 "use client";
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { axiosInstance } from "../utils";
+import { useRouter } from "next/navigation";
 
 const AuthContext = createContext({} as any);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const router = useRouter();
   const [authorized, setAuthorized] = useState(true);
 
   // Hàm này sẽ được gọi khi có lỗi 401
@@ -22,6 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     (error) => {
       if (error.response.status === 401) {
         handleUnauthorized();
+        router.push("/");
       }
       return Promise.reject(error);
     }

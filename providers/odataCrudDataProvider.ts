@@ -156,7 +156,7 @@ export const odataCrudDataProvider = (
       const url = buildUrl(resource, meta?.config);
 
       try {
-        const { data } = await httpClient.patch(`${url}/${id}`, variables);
+        const { data } = await httpClient.patch(`${url}(${id})`, variables);
 
         return {
           data,
@@ -181,7 +181,6 @@ export const odataCrudDataProvider = (
         throw httpError;
       }
     },
-
 
     updateMany: async ({ resource, ids, variables, meta }) => {
       const errors: HttpError[] = [];

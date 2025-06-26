@@ -22,6 +22,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     getSession().then((session: any) => {
+      console.log(session);
+
       if (!session.isLoginSuccess) {
         toast({
           description:

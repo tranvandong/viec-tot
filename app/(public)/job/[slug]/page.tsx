@@ -22,7 +22,7 @@ import {
   AlarmClock,
   Clock,
 } from "lucide-react";
-import { useOne } from "@/hooks/useDataProvider";
+import { useCreate, useOne } from "@/hooks/useDataProvider";
 import { JobPost } from "@/providers/types/definition";
 import { dataProvider } from "@/providers/dataProvider";
 import dayjs from "@/lib/dayjs";
@@ -38,6 +38,11 @@ export default function JobDetail() {
     console.log("fsf");
   };
 
+  const { mutate: createFavorite } = useCreate({
+    resource: "Favorites",
+    meta: { config: { subSystem: "buss", auth: "auth" } },
+  });
+
   const params = useParams();
   const slug = params?.slug as string;
   console.log(slug);
@@ -46,7 +51,7 @@ export default function JobDetail() {
     resource: "Jobs",
     id: slug as string,
     meta: {
-      join: ["Organization"],
+      join: ["Organization", "Favorites"],
     },
   });
 

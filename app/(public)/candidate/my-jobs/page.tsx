@@ -139,7 +139,7 @@ export default function MyJobsPage() {
     <div className="min-h-screen bg-gray-100">
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">My Jobs</h1>
+        <h1 className="text-2xl font-bold mb-6">Công việc của tôi</h1>
 
         {/* Tabs */}
         <div className="flex border-b border-gray-200 mb-6">
@@ -151,7 +151,7 @@ export default function MyJobsPage() {
             }`}
             onClick={() => setActiveTab("applied")}
           >
-            Applied Jobs ({appliedJobs.length})
+            Đã ứng tuyển ({appliedJobs.length})
           </button>
           <button
             className={`py-3 px-6 font-medium text-sm ${
@@ -161,7 +161,7 @@ export default function MyJobsPage() {
             }`}
             onClick={() => setActiveTab("saved")}
           >
-            Saved Jobs ({savedJobs.length})
+            Đã lưu ({savedJobs.length})
           </button>
         </div>
 

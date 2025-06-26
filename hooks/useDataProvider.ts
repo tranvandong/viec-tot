@@ -10,6 +10,7 @@ import { useState } from "react";
 import { dataProvider as provider } from "@/providers/dataProvider";
 import {
   BaseRecord,
+  CreateResponse,
   CrudFilters,
   CrudSorting,
   CustomParams,
@@ -17,6 +18,7 @@ import {
   GetListResponse,
   GetManyResponse,
   GetOneResponse,
+  UpdateResponse,
 } from "@/providers/types/IDataContext";
 
 // Initialize dataProvider with API URL
@@ -39,7 +41,7 @@ interface MetaQuery {
   join?: string[];
   config?: {
     subSystem?: "admin" | "buss" | "default";
-    auth?: "allow" | "auth" | "public";
+    auth?: "allow" | "auth" | "public"; // naming to scope
   };
 }
 
@@ -174,40 +176,53 @@ export const useOne = <TQueryFnData extends BaseRecord = BaseRecord>(
   });
 };
 
-interface UseCreateParams<T = any> {
+interface UseCreateParams<T>
+  extends UseMutationOptions<CreateResponse<T>, Error, T> {
   resource: string;
+  meta?: Omit<MetaQuery, "join">;
 }
 
-export const useCreate = <T = any>(params: UseCreateParams<T>) => {
-  return useMutation({
+export const useCreate = <T = BaseRecord>({
+  resource,
+  meta,
+  ...rest
+}: UseCreateParams<T>) => {
+  return useMutation<CreateResponse<T>, Error, T>({
+    ...rest,
     mutationFn: async (variables: T) => {
       const result = await provider.create({
-        resource: params.resource,
-        variables: variables,
+        resource: resource,
+        variables,
+        meta: meta,
       });
-      return result.data as T;
+      return result as CreateResponse<T>;
     },
-    onSuccess(data, variables, context) {},
   });
 };
-
-interface UseUpdateParams<T = any> {
+interface UseUpdateParams<T = BaseRecord>
+  extends UseMutationOptions<UpdateResponse<T>, Error, T> {
   resource: string;
   id: string | number;
   variables?: T;
-  meta?: MetaQuery;
+  meta?: Omit<MetaQuery, "join">;
 }
 
-export const useUpdate = <T = any>(params: UseUpdateParams<T>) => {
-  return useMutation({
-    mutationFn: async (variables?: T) => {
+export const useUpdate = <T = BaseRecord>({
+  resource,
+  meta,
+  id,
+  ...rest
+}: UseUpdateParams<T>) => {
+  return useMutation<UpdateResponse<T>, Error, T>({
+    ...rest,
+    mutationFn: async (values: T) => {
       const result = await provider.update({
-        resource: params.resource,
-        id: params.id,
-        variables: variables || params.variables,
-        ...(params.meta ? { meta: params.meta } : {}),
+        resource: resource,
+        id: id,
+        variables: values,
+        ...(meta ? { meta: meta } : {}),
       });
-      return result.data as T;
+      return result as UpdateResponse<T>;
     },
   });
 };
@@ -238,7 +253,6 @@ export const useDelete = (params: UseDeleteParams) => {
     },
   });
 };
-
 
 export const useDeleteNew = () => {
   return useMutation({
