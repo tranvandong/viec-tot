@@ -1,12 +1,139 @@
 import { AxiosInstance } from "axios";
 import { axiosInstance, transformHttpError } from "./utils";
 import {
+  CrudFilter,
   CrudFilters,
   IDataContextProvider,
+  Join,
   MetaQueryMode,
   ODataConfig,
 } from "./types/IDataContext";
 import { HttpError } from "./types/HttpError";
+
+// Helper function to format filter value
+const formatFilterValue = (value: any, isUuid?: boolean): string => {
+  if (isUuid) {
+    return value;
+  }
+  if (typeof value === "string") {
+    return `'${value}'`;
+  }
+  if (Array.isArray(value)) {
+    return value.map((v: any) => `'${v}'`).join(",");
+  }
+  return value;
+};
+
+// Helper function to build filter condition
+const buildFilterCondition = (filter: CrudFilter): string => {
+  if ("field" in filter) {
+    const { field, operator, value, isUuid = false } = filter;
+    const formattedValue = formatFilterValue(value, isUuid);
+
+    const operatorMap: Record<string, string> = {
+      eq: "eq",
+      ne: "ne",
+      gt: "gt",
+      gte: "ge",
+      lt: "lt",
+      lte: "le",
+      contains: `contains(tolower(${field}),'${value}')`,
+      in: `${field} in (${formattedValue})`,
+    };
+
+    if (operator === "contains" || operator === "in") {
+      return operatorMap[operator];
+    }
+
+    return `${field} ${operatorMap[operator]} ${formattedValue}`;
+  }
+  return "";
+};
+
+// Helper function to build filter string
+const buildFilterString = (filters?: CrudFilters): string => {
+  if (!filters || !Array.isArray(filters) || filters.length === 0) {
+    return "";
+  }
+
+  const validFilters = filters.filter((filter) => "field" in filter);
+  if (validFilters.length === 0) {
+    return "";
+  }
+
+  const filterConditions = validFilters
+    .map(buildFilterCondition)
+    .filter((condition) => condition !== "");
+  console.log(filterConditions);
+
+  return filterConditions.length > 0
+    ? `$filter=${filterConditions.join(" and ")}`
+    : "";
+};
+
+// Helper function to build orderby string
+const buildOrderByString = (sorters?: any[]): string => {
+  if (!sorters || sorters.length === 0) {
+    return "";
+  }
+
+  const orderBy = sorters
+    .map(
+      (sorter) => `${sorter.field} ${sorter.order === "desc" ? "desc" : "asc"}`
+    )
+    .join(",");
+
+  return `$orderby=${orderBy}`;
+};
+
+// Helper function to build pagination string
+const buildPaginationString = (pagination?: {
+  current?: number;
+  pageSize?: number;
+}): string[] => {
+  if (!pagination?.current || !pagination?.pageSize) {
+    return [];
+  }
+
+  const { current, pageSize } = pagination;
+  return [`$skip=${(current - 1) * pageSize}`, `$top=${pageSize}`];
+};
+
+// Helper function to build expand string
+const buildExpandString = (
+  join?: Array<string | { name: string; filters?: CrudFilters }>
+): string => {
+  if (!join || join.length === 0) {
+    return "";
+  }
+
+  const expandConditions = join
+    .map((joinItem) => {
+      if (typeof joinItem === "string") {
+        return joinItem;
+      }
+
+      if (typeof joinItem === "object" && joinItem.name) {
+        let expandString = joinItem.name;
+
+        if (joinItem.filters && joinItem.filters.length > 0) {
+          const filterString = buildFilterString(joinItem.filters);
+          if (filterString) {
+            expandString += `(${filterString})`;
+          }
+        }
+
+        return expandString;
+      }
+
+      return "";
+    })
+    .filter((condition) => condition !== "");
+
+  return expandConditions.length > 0
+    ? `$expand=${expandConditions.join(",")}`
+    : "";
+};
 
 const buildODataQuery = (params: {
   filters?: CrudFilters;
@@ -15,72 +142,25 @@ const buildODataQuery = (params: {
     current?: number;
     pageSize?: number;
   };
-  join?: string[];
+  join?: Array<Join>;
 }) => {
   const queryParams: string[] = [];
 
-  // Handle filters
-  if (
-    params.filters &&
-    Array.isArray(params.filters) &&
-    params.filters.length > 0 &&
-    params.filters.every((filter) => "field" in filter)
-  ) {
-    const filterConditions = params.filters.map((filter) => {
-      const { field, operator, value } = filter;
-      switch (operator) {
-        case "eq":
-          return `${field} eq ${
-            typeof value === "string" ? `'${value}'` : value
-          }`;
-        case "ne":
-          return `${field} ne ${
-            typeof value === "string" ? `'${value}'` : value
-          }`;
-        case "gt":
-          return `${field} gt ${value}`;
-        case "gte":
-          return `${field} ge ${value}`;
-        case "lt":
-          return `${field} lt ${value}`;
-        case "lte":
-          return `${field} le ${value}`;
-        case "contains":
-          return `contains(tolower(${field}),'${value}')`;
-        case "in":
-          return `${field} in (${value.map((v: any) => `'${v}'`).join(",")})`;
-        default:
-          return "";
-      }
-    });
-    if (filterConditions.length > 0) {
-      queryParams.push(`$filter=${filterConditions.join(" and ")}`);
-    }
-  }
+  // Build filter query
+  const filterQuery = buildFilterString(params.filters);
+  if (filterQuery) queryParams.push(filterQuery);
 
-  // Handle sorting
-  if (params.sorters && params.sorters.length > 0) {
-    const orderBy = params.sorters
-      .map(
-        (sorter) =>
-          `${sorter.field} ${sorter.order === "desc" ? "desc" : "asc"}`
-      )
-      .join(",");
-    queryParams.push(`$orderby=${orderBy}`);
-  }
+  // Build orderby query
+  const orderByQuery = buildOrderByString(params.sorters);
+  if (orderByQuery) queryParams.push(orderByQuery);
 
-  // Handle pagination
-  if (params.pagination?.current && params.pagination?.pageSize) {
-    const { current, pageSize } = params.pagination;
-    queryParams.push(`$skip=${(current - 1) * pageSize}`);
-    queryParams.push(`$top=${pageSize}`);
-    // queryParams.push(`$count=true`);
-  }
+  // Build pagination query
+  const paginationQueries = buildPaginationString(params.pagination);
+  queryParams.push(...paginationQueries);
 
-  // Handle expand (join)
-  if (params.join && params.join.length > 0) {
-    queryParams.push(`$expand=${params.join.join(",")}`);
-  }
+  // Build expand query
+  const expandQuery = buildExpandString(params.join);
+  if (expandQuery) queryParams.push(expandQuery);
 
   return queryParams.join("&");
 };

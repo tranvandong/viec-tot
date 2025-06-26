@@ -18,6 +18,7 @@ import {
   GetListResponse,
   GetManyResponse,
   GetOneResponse,
+  Join,
   UpdateResponse,
 } from "@/providers/types/IDataContext";
 
@@ -36,10 +37,10 @@ type Resource =
   | "Applications"
   | "Resumes"
   | "DMCategories"
-  | "Organizations/GetByUser"
+  | "Organizations/GetByUser";
 
 interface MetaQuery {
-  join?: string[];
+  join?: Join[];
   config?: {
     subSystem?: "admin" | "buss" | "default";
     auth?: "allow" | "auth" | "public"; // naming to scope
@@ -70,43 +71,43 @@ export const useList = <TQueryFnData extends BaseRecord = BaseRecord>(
   const [sorters, setSorters] = useState(params.sorters || []);
 
   const queryKey = [
-  "list",
-  params.resource,
-  {
-    ...params,
-    ...(params.pagination && {
-      pagination: { pageSize, page },
-    }),
-    filters,
-    sorters,
-  },
-];
+    "list",
+    params.resource,
+    {
+      ...params,
+      ...(params.pagination && {
+        pagination: { pageSize, page },
+      }),
+      filters,
+      sorters,
+    },
+  ];
 
   const query = useQuery({
     ...params.queryOptions,
     queryKey,
     queryFn: async () => {
-  const shouldPaginate = !!params.pagination;
+      const shouldPaginate = !!params.pagination;
 
-  const result = await provider.getList({
-    ...params,
-    filters,
-    sorters,
-    ...(shouldPaginate
-      ? {
-          pagination: {
-            pageSize,
-            current: page,
-          },
-        }
-      : {}),
-  });
+      const result = await provider.getList({
+        ...params,
+        filters,
+        sorters,
+        ...(shouldPaginate
+          ? {
+              pagination: {
+                pageSize,
+                current: page,
+              },
+            }
+          : {}),
+      });
 
-  return {
-    data: result.data as TQueryFnData[],
-    total: result.total,
-  };
-},
+      return {
+        data: result.data as TQueryFnData[],
+        total: result.total,
+      };
+    },
   });
 
   const pageCount = query.data?.total
@@ -253,21 +254,17 @@ export const useUpdateNew = <T = any>(params: UseUpdateParams<T>) => {
 
 export interface UseDeleteParams {
   resource: string;
-  id: string | number;
+  meta?: Omit<MetaQuery, "join">;
 }
 
 export const useDelete = (params: UseDeleteParams) => {
   return useMutation({
-    mutationFn: async () => {
-      await provider.deleteOne(params);
-    },
-  });
-};
-
-export const useDeleteNew = () => {
-  return useMutation({
-    mutationFn: async (params: UseDeleteParams) => {
-      await provider.deleteOne(params);
+    mutationFn: async (id: string) => {
+      await provider.deleteOne({
+        resource: params.resource,
+        id,
+        meta: params.meta,
+      });
     },
   });
 };
@@ -306,7 +303,7 @@ export type UseCustomProps<TQueryFnData, TError, TQuery, TPayload, TData> = {
   /**
    * request's method (`GET`, `POST`, etc.)
    */
-  method: "get";
+  method?: "get";
   /**
    * The config of your request. You can send headers, payload, query, filters and sorters using this field
    */
@@ -338,7 +335,7 @@ export const useCustom = <
   TData extends BaseRecord = TQueryFnData
 >({
   url,
-  method,
+  method = "get",
   config,
   queryOptions,
   meta,

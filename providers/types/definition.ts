@@ -21,6 +21,7 @@ export type JobPost = {
   title: string;
   toSalary: number | null;
   views: number;
+  favorites?: Array<{ jobId: string }>;
 };
 
 export type Organization = {

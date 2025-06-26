@@ -3,19 +3,48 @@
 import type React from "react";
 
 import { useCallback, useEffect, useState } from "react";
-import { ChevronDown, ChevronUp, Clock } from "lucide-react";
+import { BookmarkIcon, ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Select as RadixSelect, Slider, RadioGroup } from "@radix-ui/themes";
-import { useList } from "@/hooks/useDataProvider";
+import {
+  Select as RadixSelect,
+  Slider,
+  RadioGroup,
+  Button,
+  Flex,
+} from "@radix-ui/themes";
+import {
+  useApi,
+  useCreate,
+  useCustom,
+  useDelete,
+  useList,
+} from "@/hooks/useDataProvider";
 import { handleSlug } from "@/helpers";
 import { on } from "events";
 import Image from "next/image";
 import { dataProvider } from "@/providers/dataProvider";
 import Link from "next/link";
 import dayjs from "@/lib/dayjs";
-import { CrudFilters } from "@/providers/types/IDataContext";
+import { CrudFilters, Join } from "@/providers/types/IDataContext";
+import { useAuth } from "@/providers/contexts/AuthProvider";
+import { JobPost } from "@/providers/types/definition";
 
 export default function JobResult() {
+  const { applicant, authorized } = useAuth();
+  const jobExpand: Join[] = ["Organization"];
+  authorized &&
+    jobExpand.push({
+      name: "favorites",
+      filters: [
+        {
+          field: "ApplicantId",
+          operator: "eq",
+          value: applicant?.id,
+          isUuid: true,
+        },
+      ],
+    });
+
   const searchParams = useSearchParams();
   const pathName = usePathname();
   const router = useRouter();
@@ -29,9 +58,10 @@ export default function JobResult() {
   const [salary, setSalary] = useState("");
   const [jobType, setJobType] = useState("");
   const [experience, setExperience] = useState("");
-  const district = searchParams.get("district");
-  const province = searchParams.get("province");
-  const jobTitle = searchParams.get("job") || searchParams.get("categoryName");
+  const district = searchParams?.get("district");
+  const province = searchParams?.get("province");
+  const jobTitle =
+    searchParams?.get("job") || searchParams?.get("categoryName");
   const jobFilters = [];
   if (district) {
     jobFilters.push({
@@ -63,51 +93,19 @@ export default function JobResult() {
     refetch: refetchJobs,
     isLoading: isLoadingJobs,
     isFetching: isFetchingJobs,
-  } = useList({
+  } = useList<JobPost>({
     resource: "Jobs",
     // queryOptions: { enabled: false },
     filters: jobFilters,
+    meta: { join: jobExpand },
   });
-  const jobs = jobData?.data || [];
-  console.log(jobData);
 
-  useEffect(() => {
-    // setFilters((prevFilter: CrudFilters) => {
-    //   const newFilter: CrudFilters = [...prevFilter];
-    //   // if (salary) {
-    //   //   newFilter.push({
-    //   //     field: "salary",
-    //   //     operator: "eq",
-    //   //     value: salary,
-    //   //   });
-    //   // }
-    //   // if (experience) {
-    //   //   newFilter.push({
-    //   //     field: "experience",
-    //   //     operator: "eq",
-    //   //     value: experience,
-    //   //   });
-    //   // }
-    //   return newFilter;
-    // });
-    // refetchJobs();
-  }, []);
   const { data } = useList({ resource: "DMCategories" });
   const dmViecLams = data?.data || [];
-  const locationParam = searchParams.get("location") || "";
+  const locationParam = searchParams?.get("location") || "";
   const provinceCode = locationParam?.includes(",")
     ? locationParam.split(",")[1]
     : locationParam;
-
-  const { data: provinceData, refetch } = useList({
-    resource: "DMTinhs",
-    filters: provinceCode
-      ? [{ field: "code", operator: "eq", value: provinceCode }]
-      : [],
-    meta: { join: ["DMHuyens"] },
-    queryOptions: { enabled: false },
-  });
-  const provinces = provinceData?.data || [];
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections({
@@ -121,7 +119,7 @@ export default function JobResult() {
       params: Record<string, string | undefined | null>,
       removeKeys: string[] = []
     ) => {
-      const sParams = new URLSearchParams(searchParams.toString());
+      const sParams = new URLSearchParams(searchParams?.toString());
 
       // Remove specified keys
       removeKeys.forEach((key) => {
@@ -209,40 +207,7 @@ export default function JobResult() {
       experience_to: experienceTo,
       experience: target.value,
     });
-    // setFilters((prevFilter: CrudFilters) => {
-    //   const newFilter: CrudFilters = [...prevFilter];
-    //   const experienceFromFilter = newFilter.find(
-    //     (filter: any) =>
-    //       filter.field === "experience" && filter.operator === "gte"
-    //   );
-    //   // Remove existing experience filter if it exists
-    //   if (experienceFromFilter) {
-    //     newFilter.splice(newFilter.indexOf(experienceFromFilter), 1);
-    //   }
-    //   if (experienceFrom) {
-    //     newFilter.push({
-    //       field: "experience",
-    //       operator: "gte",
-    //       value: experienceFrom,
-    //     });
-    //   }
-    //   const experienceToFilter = newFilter.find(
-    //     (filter: any) =>
-    //       filter.field === "experience" && filter.operator === "lte"
-    //   );
-    //   // Remove existing experience filter if it exists
-    //   if (experienceToFilter) {
-    //     newFilter.splice(newFilter.indexOf(experienceToFilter), 1);
-    //   }
-    //   if (experienceTo) {
-    //     newFilter.push({
-    //       field: "experience",
-    //       operator: "lte",
-    //       value: experienceTo,
-    //     });
-    //   }
-    //   return newFilter;
-    // });
+
     setExperience(target.value);
     router.push(`${pathName}?${queryString}#search-results`);
   };
@@ -259,55 +224,22 @@ export default function JobResult() {
       salary_to: salaryMax,
       salary: target.value,
     });
-    // setFilters((prevFilter: CrudFilters) => {
-    //   const newFilter: CrudFilters = [...prevFilter];
-    //   const salaryFromFilter = newFilter.find(
-    //     (filter: any) =>
-    //       filter.field === "fromSalary" && filter.operator === "gte"
-    //   );
-    //   // Remove existing salary filter if it exists
-    //   if (salaryFromFilter) {
-    //     newFilter.splice(newFilter.indexOf(salaryFromFilter), 1);
-    //   }
-    //   if (salaryMin) {
-    //     newFilter.push({
-    //       field: "fromSalary",
-    //       operator: "gte",
-    //       value: +salaryMin * 1000000,
-    //     });
-    //   }
-    //   const salaryToFilter = newFilter.find(
-    //     (filter: any) =>
-    //       filter.field === "toSalary" && filter.operator === "lte"
-    //   );
-    //   // Remove existing salary filter if it exists
-    //   if (salaryToFilter) {
-    //     newFilter.splice(newFilter.indexOf(salaryToFilter), 1);
-    //   }
-    //   if (salaryMax) {
-    //     newFilter.push({
-    //       field: "toSalary",
-    //       operator: "lte",
-    //       value: +salaryMax * 1000000,
-    //     });
-    //   }
-    //   return newFilter;
-    // });
+
     setSalary(target.value);
     router.push(`${pathName}?${queryString}#search-results`);
   };
 
   useEffect(() => {
-    if (searchParams.get("category")) {
-      console.log("lv", extractJobTitle(pathName));
-      setLinhVuc(extractJobTitle(pathName));
+    if (searchParams?.get("category")) {
+      console.log("lv", extractJobTitle(pathName || ""));
+      setLinhVuc(extractJobTitle(pathName || ""));
     } else {
       setLinhVuc("");
     }
-    searchParams.get("jobType") &&
-      setJobType(searchParams.get("jobType") || "");
-    searchParams.get("salary") && setSalary(searchParams.get("salary") || "");
-    searchParams.get("experience") &&
+    searchParams?.get("jobType") &&
+      setJobType(searchParams?.get("jobType") || "");
+    searchParams?.get("salary") && setSalary(searchParams?.get("salary") || "");
+    searchParams?.get("experience") &&
       setExperience(searchParams.get("experience") || "");
   }, [pathName, searchParams]);
 
@@ -333,11 +265,11 @@ export default function JobResult() {
   };
 
   useEffect(() => {
-    const salaryMin = searchParams.get("salary_from");
-    const salaryMax = searchParams.get("salary_to");
-    const experienceMin = searchParams.get("experience_from");
-    const experienceMax = searchParams.get("experience_to");
-    const jobType = searchParams.get("jobType");
+    const salaryMin = searchParams?.get("salary_from");
+    const salaryMax = searchParams?.get("salary_to");
+    const experienceMin = searchParams?.get("experience_from");
+    const experienceMax = searchParams?.get("experience_to");
+    const jobType = searchParams?.get("jobType");
     setFilters((prevFilter: CrudFilters) => {
       const newFilter: CrudFilters = [...prevFilter];
       const salaryFromFilter = newFilter.find(
@@ -720,12 +652,12 @@ export default function JobResult() {
                   <span className="font-semibold">{jobData?.total}</span> việc
                   làm{" "}
                   <span className="font-semibold">
-                    {searchParams.get("job") ||
-                      searchParams.get("categoryName")}
+                    {searchParams?.get("job") ||
+                      searchParams?.get("categoryName")}
                   </span>{" "}
-                  {searchParams.get("locationName") ? "tại " : ""}
+                  {searchParams?.get("locationName") ? "tại " : ""}
                   <span className="font-semibold">
-                    {searchParams.get("locationName")}
+                    {searchParams?.get("locationName")}
                   </span>
                 </h1>
               </div>
@@ -747,9 +679,8 @@ export default function JobResult() {
 
             <div className="space-y-4">
               {jobData?.data.map((job) => (
-                <Link
-                  href={`/job/${job.id}`}
-                  key={job.id}
+                <div
+                  key={`${job.id}-${job?.favorites?.length}`}
                   className="block bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
                   // onClick={(e) => openJobModal(job, e)}
                 >
@@ -772,9 +703,11 @@ export default function JobResult() {
                         />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg dark:text-white">
-                          {job.title}
-                        </h3>
+                        <Link href={`/job/${job.id}`}>
+                          <h3 className="font-semibold text-lg dark:text-white">
+                            {job.title}
+                          </h3>
+                        </Link>
                         <p className="text-gray-600 dark:text-gray-300 text-sm">
                           {job?.organization?.name} • {job.location}
                         </p>
@@ -856,16 +789,72 @@ export default function JobResult() {
                       </span>
                     </div>
 
-                    <button className="py-1.5 px-3 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-md text-sm font-medium hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
-                      Ứng tuyển ngay
-                    </button>
+                    {/* <Button
+                      variant="surface"
+                      onClick={(evt) => toggleFavorite(job, evt)}
+                    >
+                      <BookmarkIcon
+                        width={18}
+                        height={18}
+                        fill={
+                          job?.favorites?.length !== undefined &&
+                          job.favorites.length > 0
+                            ? "#3b82f6"
+                            : "none"
+                        }
+                      />
+                    </Button> */}
+                    <JobBookmark favorites={job.favorites} jobId={job.id} />
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export function JobBookmark({
+  favorites = [],
+  jobId,
+}: {
+  favorites?: any[];
+  jobId: string;
+}) {
+  const [isFavorite, setIsFavorite] = useState(favorites.length > 0);
+  const { mutate: createFavorite } = useCreate({
+    resource: "Favorites",
+    meta: { config: { auth: "auth", subSystem: "buss" } },
+  });
+
+  const { mutate: deleteFavorite } = useDelete({
+    resource: "Favorites",
+    meta: { config: { auth: "auth", subSystem: "buss" } },
+  });
+
+  const toggleFavorite = (
+    favorites: any[],
+    evt: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    evt.stopPropagation();
+
+    if (isFavorite) {
+      deleteFavorite(jobId);
+      setIsFavorite(false);
+    } else {
+      createFavorite({ jobId });
+      setIsFavorite(true);
+    }
+  };
+  return (
+    <Button variant="surface" onClick={(evt) => toggleFavorite(favorites, evt)}>
+      <BookmarkIcon
+        width={18}
+        height={18}
+        fill={isFavorite ? "#3b82f6" : "none"}
+      />
+    </Button>
   );
 }

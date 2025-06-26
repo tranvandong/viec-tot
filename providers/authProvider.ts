@@ -38,7 +38,6 @@ export const authProvider: AuthBindings = {
         return {
           success: true,
           redirectTo: role === "candidate" ? "/" : "/employer/manage/jobs",
-          data,
         };
       }
 
@@ -61,7 +60,9 @@ export const authProvider: AuthBindings = {
   },
   register: async (params) => {
     try {
-      const { data, ...rest } = await dataProvider.custom({
+      const { data, ...rest } = await dataProvider.custom<{
+        isSuccessed: boolean;
+      }>({
         url: `${apiUrl}/default/public/UserApplicant/CreateMember`,
         payload: params,
         method: "post",
@@ -76,7 +77,15 @@ export const authProvider: AuthBindings = {
           },
         };
       }
-
+      if (!data.isSuccessed) {
+        return {
+          success: false,
+          error: {
+            name: "RegisterError",
+            message: "Error",
+          },
+        };
+      }
       return {
         success: true,
         redirectTo,
