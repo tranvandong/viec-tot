@@ -192,27 +192,6 @@ export default function PostJobPage() {
                   Chi tiết công việc
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* <div>
-                    <label
-                      htmlFor="workType"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Loại hình làm việc
-                    </label>
-                    <select
-                      id="workType"
-                      name="workType"
-                      value={formData.shift || ""}
-                      onChange={handleChange}
-                      required
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    >
-                      <option value="onsite">On-site</option>
-                      <option value="remote">Remote</option>
-                      <option value="hybrid">Hybrid</option>
-                    </select>
-                  </div> */}
-
                   <div>
                     <label
                       htmlFor="jobType"
@@ -234,28 +213,6 @@ export default function PostJobPage() {
                       <option value="internship">Internship</option>
                     </select>
                   </div>
-
-                  {/* <div>
-                    <label
-                      htmlFor="experienceLevel"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Experience Level*
-                    </label>
-                    <select
-                      id="experienceLevel"
-                      name="experienceLevel"
-                      value={formData.}
-                      onChange={handleChange}
-                      required
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    >
-                      <option value="entry-level">Entry Level</option>
-                      <option value="mid-level">Mid Level</option>
-                      <option value="senior">Senior Level</option>
-                      <option value="executive">Executive Level</option>
-                    </select>
-                  </div> */}
                   <div>
                     <label
                       htmlFor="expiredDate"
@@ -307,22 +264,6 @@ export default function PostJobPage() {
                   <h2 className="text-lg font-semibold text-gray-800">
                     Salary Information
                   </h2>
-                  {/* <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="showSalary"
-                      name="showSalary"
-                      checked={formData.showSalary}
-                      onChange={handleCheckboxChange}
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <label
-                      htmlFor="showSalary"
-                      className="ml-2 block text-sm text-gray-700"
-                    >
-                      Show salary on job post
-                    </label>
-                  </div> */}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -370,26 +311,6 @@ export default function PostJobPage() {
                       />
                     </div>
                   </div>
-
-                  {/*<div>
-                    <label
-                      htmlFor="salaryPeriod"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Salary Period
-                    </label>
-                    <select
-                      id="salaryPeriod"
-                      name="salaryPeriod"
-                      value={formData.salaryPeriod}
-                      onChange={handleChange}
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    >
-                      <option value="yearly">Per Year</option>
-                      <option value="monthly">Per Month</option>
-                      <option value="hourly">Per Hour</option>
-                    </select>
-                  </div> */}
                 </div>
               </div>
 
@@ -488,68 +409,8 @@ export default function PostJobPage() {
                       (-)
                     </p>
                   </div>
-
-                  {/* <div>
-                    <label
-                      htmlFor="requirements"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Requirements*
-                    </label>
-                    <textarea
-                      id="requirements"
-                      name="requirements"
-                      value={formData.requirements}
-                      onChange={handleChange}
-                      required
-                      rows={4}
-                      placeholder="List the qualifications and requirements for this role..."
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="benefits"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Benefits
-                    </label>
-                    <textarea
-                      id="benefits"
-                      name="benefits"
-                      value={formData.benefits}
-                      onChange={handleChange}
-                      rows={4}
-                      placeholder="List the benefits and perks offered with this position..."
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    />
-                  </div> */}
                 </div>
               </div>
-
-              {/* Additional Options */}
-              {/* <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4 text-gray-800">
-                  Additional Options
-                </h2>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="activelyRecruiting"
-                    name="activelyRecruiting"
-                    checked={formData.activelyRecruiting}
-                    onChange={handleCheckboxChange}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label
-                    htmlFor="activelyRecruiting"
-                    className="ml-2 block text-sm text-gray-700"
-                  >
-                    Show "Actively Recruiting" badge on job listing
-                  </label>
-                </div>
-              </div> */}
 
               {/* Submit Buttons */}
               <div className="flex justify-end gap-4">

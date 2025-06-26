@@ -69,6 +69,8 @@ export interface Resume {
   certifications: string;
   summary: string;
   hrViewCount: number;
+  name?: string;
+  gioiTinh?: string;
 }
 export interface Application {
   id: string;

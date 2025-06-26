@@ -25,6 +25,17 @@ import dayjs from "dayjs";
 import { Pagination } from "@/components/pagination";
 import { useApplicants } from "@/app/employer/manage/candidates/useApplicants";
 
+export function toVietnamPhoneIntl(phone: string): string {
+  if (phone.startsWith("0")) {
+    return "+84" + phone.slice(1);
+  } else if (phone.startsWith("84")) {
+    return "+84" + phone.slice(2);
+  } else if (phone.startsWith("+84")) {
+    return phone; // đã đúng rồi
+  }
+  return phone; // fallback
+}
+
 export default function CandidatesPage() {
   const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -74,6 +85,8 @@ export default function CandidatesPage() {
     isSortNewest,
     pageSize: PAGE_SIZE,
   });
+
+  console.log(candidatesData);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -216,27 +229,57 @@ export default function CandidatesPage() {
                           )}
                           <div>
                             <h3 className="font-medium">
-                              {candidate.name ?? candidate.dienThoai}
+                              {candidate.resume?.name ??
+                                toVietnamPhoneIntl(candidate.dienThoai)}
                             </h3>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
                               {candidate.resume?.title ?? candidate.email}
                             </p>
                           </div>
                         </div>
-                        <div className="bg-blue-50 dark:bg-blue-900/30 rounded px-2 py-1">
+                        {/* <div className="bg-blue-50 dark:bg-blue-900/30 rounded px-2 py-1">
                           <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
                             {candidate.matchScore ?? 0}% Match
                           </span>
-                        </div>
+                        </div> */}
                       </div>
 
                       <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
                         <MapPin className="h-4 w-4 mr-1" />
-                        {candidate.location ?? "Chưa cập nhật"}
+                        {candidate.location ?? "Quy nhơn"}
+                      </div>
+                      <div className="flex items-start text-sm text-gray-500 dark:text-gray-400 mb-3">
+                        <Briefcase className="h-4 w-4 mr-1 shrink-0 mt-0.5" />
+                        <p
+                          style={{
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {candidate.resume?.experience ?? "Chưa cập nhật"}
+                        </p>
+                      </div>
+
+                      <div className="flex items-start text-sm text-gray-500 dark:text-gray-400 mb-3">
+                        <GraduationCap className="h-4 w-4 mr-1 shrink-0 mt-0.5" />
+                        <p
+                          style={{
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {typeof candidate.resume?.education === "string"
+                            ? candidate.resume.education
+                            : "Đại học"}
+                        </p>
                       </div>
 
                       <div className="flex flex-wrap gap-2 mb-3">
-                        <Badge
+                        {/* <Badge
                           variant="outline"
                           className="flex items-center gap-1"
                         >
@@ -251,7 +294,7 @@ export default function CandidatesPage() {
                           {typeof candidate.resume?.education === "string"
                             ? candidate.resume?.education
                             : "Đại học"}
-                        </Badge>
+                        </Badge> */}
                         <Badge
                           variant="outline"
                           className="flex items-center gap-1"
