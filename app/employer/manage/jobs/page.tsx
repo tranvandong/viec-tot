@@ -28,6 +28,16 @@ import { JobPost } from "@/providers/types/definition";
 import { Pagination } from "@/components/pagination";
 import { useToast } from "@/hooks/use-toast";
 
+// Format date
+export const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
 export default function EmployerJobsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -79,16 +89,6 @@ export default function EmployerJobsPage() {
       default:
         return "bg-gray-100 text-gray-800";
     }
-  };
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   const filteredJobs = jobs.filter((job) => {
