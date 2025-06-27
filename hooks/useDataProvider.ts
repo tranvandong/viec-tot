@@ -15,6 +15,7 @@ import {
   CrudSorting,
   CustomParams,
   CustomResponse,
+  DeleteOneResponse,
   GetListResponse,
   GetManyResponse,
   GetOneResponse,
@@ -252,18 +253,20 @@ export const useUpdateNew = <T = any>(params: UseUpdateParams<T>) => {
   });
 };
 
-export interface UseDeleteParams {
+export interface UseDeleteParams
+  extends UseMutationOptions<void, Error, unknown> {
   resource: string;
   meta?: Omit<MetaQuery, "join">;
 }
 
-export const useDelete = (params: UseDeleteParams) => {
+export const useDelete = ({ resource, meta, ...rest }: UseDeleteParams) => {
   return useMutation({
+    ...rest,
     mutationFn: async (id: string) => {
       await provider.deleteOne({
-        resource: params.resource,
+        resource: resource,
         id,
-        meta: params.meta,
+        meta: meta,
       });
     },
   });
@@ -296,21 +299,8 @@ interface UseCustomConfig<TQuery = unknown, TPayload = unknown> {
 type Method = "get" | "delete" | "head" | "options" | "post" | "put" | "patch";
 
 export type UseCustomProps<TQueryFnData, TError, TQuery, TPayload, TData> = {
-  /**
-   * request's URL
-   */
   url: string;
-  /**
-   * request's method (`GET`, `POST`, etc.)
-   */
   method?: "get";
-  /**
-   * The config of your request. You can send headers, payload, query, filters and sorters using this field
-   */
-  config?: UseCustomConfig<TQuery, TPayload>;
-  /**
-   * react-query's [useQuery](https://tanstack.com/query/v4/docs/reference/useQuery) options"
-   */
   queryOptions?: Omit<
     UseQueryOptions<
       CustomResponse<TQueryFnData>,
@@ -319,10 +309,6 @@ export type UseCustomProps<TQueryFnData, TError, TQuery, TPayload, TData> = {
     >,
     "queryKey"
   >;
-
-  /**
-   * meta data for `dataProvider`
-   */
   meta?: MetaQuery;
   payload?: TPayload;
 };
@@ -336,12 +322,11 @@ export const useCustom = <
 >({
   url,
   method = "get",
-  config,
   queryOptions,
   meta,
 }: UseCustomProps<TQueryFnData, TError, TQuery, TPayload, TData>) => {
   return useQuery({
-    queryKey: ["custom", url, method, config, meta],
+    queryKey: ["custom", url, method, meta],
     queryFn: () =>
       provider.custom<TQueryFnData>({
         url,

@@ -2,17 +2,76 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Bookmark, CheckCircle, Building, MapPin } from "lucide-react";
+import { Bookmark, CheckCircle, Building, MapPin, Trash } from "lucide-react";
 import { JobDetailModal } from "@/components/job-detail-modal";
+import { useApi, useCustom, useDelete } from "@/hooks/useDataProvider";
+import { JobPost } from "@/providers/types/definition";
+import dayjs from "@/lib/dayjs";
+import { JobBookmark } from "@/components/job-results";
+import { Button } from "@radix-ui/themes";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+enum TabActive {
+  applied = 1,
+  saved,
+}
 
 export default function MyJobsPage() {
-  const [activeTab, setActiveTab] = useState<"applied" | "saved">("applied");
+  const apiUrl = useApi();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const activeParam = searchParams?.get("active");
+
+  const [activeTab, setActiveTab] = useState<TabActive>(TabActive.applied);
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [savedJobIds, setSavedJobIds] = useState<string[]>(["1", "3", "5"]);
+
+  const handleSetParam = (active: TabActive) => {
+    const newSearchParams = new URLSearchParams(searchParams?.toString());
+    newSearchParams.set("active", active.toString());
+    router.push(`${pathname}?${newSearchParams.toString()}`);
+  };
+  const { data: appliedJobsData, refetch: refetchAppliedJobs } = useCustom<{
+    value: JobPost[];
+  }>({
+    url: `${apiUrl}/buss/allow/Jobs/GetAppliedJob`,
+    queryOptions: {
+      enabled: activeTab === TabActive.applied,
+    },
+  });
+
+  const { data: favoriteJobsData, refetch: refetchFavoriteJobs } = useCustom<{
+    value: JobPost[];
+  }>({
+    url: `${apiUrl}/buss/allow/Jobs/GetFavorites`,
+    queryOptions: {
+      enabled: activeTab === TabActive.saved,
+    },
+  });
+
+  const { mutate: deleteAppliedJob } = useDelete({
+    resource: "Applications",
+    meta: { config: { auth: "auth", subSystem: "buss" } },
+    onSuccess: () => {
+      refetchAppliedJobs();
+    },
+  });
+
+  const appliedJobs = appliedJobsData?.data?.value || [];
+  const favoriteJobs = favoriteJobsData?.data?.value || [];
+
+  useEffect(() => {
+    const active = ((activeParam !== null &&
+      activeParam !== undefined &&
+      +activeParam) ||
+      TabActive.applied) as TabActive;
+    setActiveTab(active);
+  }, [activeParam]);
 
   const openJobModal = (job: any) => {
     setSelectedJob(job);
@@ -35,104 +94,13 @@ export default function MyJobsPage() {
     }
   };
 
-  // Mock data for applied jobs
-  const appliedJobs = [
-    {
-      id: "1",
-      title: "Senior Product Manager",
-      company: "Slack Technologies, LLC",
-      logo: "/placeholder.svg?height=40&width=40&text=S&bg=4A154B",
-      matchesProfile: true,
-      postedTime: "1 hour ago",
-      tags: ["Full Time", "Remote", "Senior Level"],
-      location: "San Francisco, CA",
-      salary: "$120,000 - $150,000",
-      activelyRecruiting: false,
-    },
-    {
-      id: "2",
-      title: "UX Designer",
-      company: "Adobe Inc.",
-      logo: "/placeholder.svg?height=40&width=40&text=A&bg=FF0000",
-      matchesProfile: false,
-      postedTime: "3 days ago",
-      tags: ["Full Time", "On-site", "Mid Level"],
-      location: "San Jose, CA",
-      salary: "$90,000 - $120,000",
-      activelyRecruiting: true,
-    },
-    {
-      id: "3",
-      title: "Frontend Developer",
-      company: "Spotify",
-      logo: "/placeholder.svg?height=40&width=40&text=S&bg=1DB954",
-      matchesProfile: true,
-      postedTime: "2 days ago",
-      tags: ["Contract", "Remote", "Senior Level"],
-      location: "New York, NY",
-      salary: "$110,000 - $140,000",
-      activelyRecruiting: false,
-    },
-  ];
-
-  // Mock data for saved jobs
-  const savedJobs = [
-    {
-      id: "3",
-      title: "Frontend Developer",
-      company: "Spotify",
-      logo: "/placeholder.svg?height=40&width=40&text=S&bg=1DB954",
-      matchesProfile: true,
-      postedTime: "2 days ago",
-      tags: ["Contract", "Remote", "Senior Level"],
-      location: "New York, NY",
-      salary: "$110,000 - $140,000",
-      activelyRecruiting: false,
-    },
-    {
-      id: "4",
-      title: "Product Manager",
-      company: "Figma, Inc.",
-      logo: "/placeholder.svg?height=40&width=40&text=F&bg=0ACF83",
-      matchesProfile: false,
-      postedTime: "2 hours ago",
-      tags: ["Full Time", "Remote", "Junior Level"],
-      location: "San Francisco, CA",
-      salary: "$80,000 - $100,000",
-      activelyRecruiting: true,
-    },
-    {
-      id: "5",
-      title: "Data Scientist",
-      company: "Netflix",
-      logo: "/placeholder.svg?height=40&width=40&text=N&bg=E50914",
-      matchesProfile: true,
-      postedTime: "5 hours ago",
-      tags: ["Full Time", "Hybrid", "Senior Level"],
-      location: "Los Gatos, CA",
-      salary: "$130,000 - $160,000",
-      activelyRecruiting: false,
-    },
-  ].filter((job) => savedJobIds.includes(job.id));
-
   // Get jobs based on active tab
-  const displayedJobs = activeTab === "applied" ? appliedJobs : savedJobs;
+  const displayedJobs =
+    activeTab === TabActive.applied ? appliedJobs : favoriteJobs;
 
-  // Find similar jobs based on job title and tags
-  const getSimilarJobs = (job: any) => {
-    const allJobs = [...appliedJobs, ...savedJobs];
-    return allJobs.filter(
-      (j) =>
-        j.id !== job.id &&
-        (j.title.includes(job.title.split(" ")[0]) ||
-          j.tags.some((tag) => job.tags.includes(tag)))
-    );
-  };
-
-  // Find other jobs from the same company
-  const getOtherJobsFromCompany = (job: any) => {
-    const allJobs = [...appliedJobs, ...savedJobs];
-    return allJobs.filter((j) => j.id !== job.id && j.company === job.company);
+  const onActiveTabChange = (tab: TabActive) => {
+    setActiveTab(tab);
+    handleSetParam(tab);
   };
 
   return (
@@ -145,23 +113,23 @@ export default function MyJobsPage() {
         <div className="flex border-b border-gray-200 mb-6">
           <button
             className={`py-3 px-6 font-medium text-sm ${
-              activeTab === "applied"
+              activeTab === TabActive.applied
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-500 hover:text-gray-700"
             }`}
-            onClick={() => setActiveTab("applied")}
+            onClick={() => onActiveTabChange(TabActive.applied)}
           >
             Đã ứng tuyển ({appliedJobs.length})
           </button>
           <button
             className={`py-3 px-6 font-medium text-sm ${
-              activeTab === "saved"
+              activeTab === TabActive.saved
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-500 hover:text-gray-700"
             }`}
-            onClick={() => setActiveTab("saved")}
+            onClick={() => onActiveTabChange(TabActive.saved)}
           >
-            Đã lưu ({savedJobs.length})
+            Đã lưu ({favoriteJobs.length})
           </button>
         </div>
 
@@ -172,22 +140,17 @@ export default function MyJobsPage() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Job
+                    Công việc
+                  </th>
+
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Mức lương
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Location
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Salary
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Posted
+                    Thời gian đăng tuyển
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    Thao tác
                   </th>
                 </tr>
               </thead>
@@ -202,8 +165,11 @@ export default function MyJobsPage() {
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
                           <Image
-                            src={job.logo || "/placeholder.svg"}
-                            alt={job.company}
+                            src={
+                              job.organization?.filePaths?.[0] ||
+                              "/placeholder.svg"
+                            }
+                            alt={"job.organization?.filePaths?.[0]"}
                             width={40}
                             height={40}
                             className="rounded-md object-cover"
@@ -213,13 +179,14 @@ export default function MyJobsPage() {
                           <div className="text-sm font-medium text-gray-900">
                             {job.title}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {job.company}
+                          <div className="flex items-center text-sm text-gray-500">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {job.location}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    {/* <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex flex-col space-y-1">
                         {job.matchesProfile && (
                           <div className="flex items-center text-xs text-gray-600">
@@ -234,7 +201,7 @@ export default function MyJobsPage() {
                           </div>
                         )}
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {job.tags.map((tag, index) => {
+                          {job.status.map((tag, index) => {
                             let bgColor = "bg-yellow-100 text-yellow-800";
                             if (tag.includes("Remote")) {
                               bgColor = "bg-blue-100 text-blue-800";
@@ -255,36 +222,37 @@ export default function MyJobsPage() {
                           })}
                         </div>
                       </div>
+                    </td> */}
+
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                      {`${job.fromSalary} - ${job.toSalary}`}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center text-sm text-gray-500">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        {job.location}
+                    <td className="px-4 py-4 whitespace-nowrap text-sm">
+                      {dayjs(job.effectiveDate).fromNow()}
+                      <div className="text-sm text-gray-500">
+                        Hết hạn trong {dayjs(job.expiredDate).fromNow()}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                      {job.salary}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {job.postedTime}
-                    </td>
                     <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={(e) => toggleSaveJob(job.id, e)}
-                        className={`text-sm font-medium flex items-center gap-1 ml-auto ${
-                          savedJobIds.includes(job.id)
-                            ? "text-blue-600"
-                            : "text-gray-500 hover:text-blue-600"
-                        }`}
-                      >
-                        <Bookmark
-                          className={`h-4 w-4 ${
-                            savedJobIds.includes(job.id)
-                              ? "fill-blue-600 text-blue-600"
-                              : ""
-                          }`}
+                      {activeTab === TabActive.saved && (
+                        <JobBookmark
+                          jobId={job.id}
+                          favorites={[{ jobId: job.id }]}
+                          onSuccess={refetchFavoriteJobs}
                         />
-                      </button>
+                      )}
+                      {/* {activeTab === TabActive.applied && (
+                        <Button
+                          color="orange"
+                          variant="soft"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteAppliedJob(job.id);
+                          }}
+                        >
+                          <Trash />
+                        </Button>
+                      )} */}
                     </td>
                   </tr>
                 ))}
@@ -294,25 +262,27 @@ export default function MyJobsPage() {
         ) : (
           <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              {activeTab === "applied" ? (
+              {activeTab === TabActive.applied ? (
                 <CheckCircle className="h-8 w-8 text-gray-400" />
               ) : (
                 <Bookmark className="h-8 w-8 text-gray-400" />
               )}
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-1">
-              No {activeTab === "applied" ? "applied" : "saved"} jobs yet
+              {activeTab === TabActive.applied
+                ? "Bạn chưa ứng tuyển công việc nào"
+                : "Bạn chưa lưu công việc nào"}
             </h3>
             <p className="text-gray-500 mb-4">
-              {activeTab === "applied"
-                ? "When you apply for jobs, they will appear here."
-                : "Save jobs you're interested in to view them later."}
+              {activeTab === TabActive.applied
+                ? "Khi bạn ứng tuyển vào một công việc, nó sẽ hiển thị ở đây."
+                : "Lưu các công việc bạn quan tâm để xem lại sau."}
             </p>
             <Link
               href="/find-jobs"
               className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
             >
-              Find Jobs
+              Tìm việc
             </Link>
           </div>
         )}
@@ -334,8 +304,6 @@ export default function MyJobsPage() {
           }}
           isOpen={isModalOpen}
           onClose={closeJobModal}
-          similarJobs={getSimilarJobs(selectedJob)}
-          otherJobsFromCompany={getOtherJobsFromCompany(selectedJob)}
           savedJobs={savedJobIds}
           onToggleSave={toggleSaveJob}
         />

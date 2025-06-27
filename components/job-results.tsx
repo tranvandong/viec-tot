@@ -819,19 +819,30 @@ export default function JobResult() {
 export function JobBookmark({
   favorites = [],
   jobId,
+  onSuccess,
 }: {
   favorites?: any[];
   jobId: string;
+  onSuccess?: () => void;
 }) {
   const [isFavorite, setIsFavorite] = useState(favorites.length > 0);
+  const { authorized } = useAuth();
   const { mutate: createFavorite } = useCreate({
     resource: "Favorites",
     meta: { config: { auth: "auth", subSystem: "buss" } },
+    onSuccess: () => {
+      onSuccess && onSuccess();
+      setIsFavorite(true);
+    },
   });
 
   const { mutate: deleteFavorite } = useDelete({
     resource: "Favorites",
     meta: { config: { auth: "auth", subSystem: "buss" } },
+    onSuccess: () => {
+      onSuccess && onSuccess();
+      setIsFavorite(false);
+    },
   });
 
   const toggleFavorite = (
@@ -842,12 +853,13 @@ export function JobBookmark({
 
     if (isFavorite) {
       deleteFavorite(jobId);
-      setIsFavorite(false);
     } else {
       createFavorite({ jobId });
-      setIsFavorite(true);
     }
   };
+  if (!authorized) {
+    return null;
+  }
   return (
     <Button variant="surface" onClick={(evt) => toggleFavorite(favorites, evt)}>
       <BookmarkIcon
