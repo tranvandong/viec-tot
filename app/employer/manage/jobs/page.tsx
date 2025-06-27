@@ -162,10 +162,12 @@ export default function EmployerJobsPage() {
       location,
       industry,
       status,
+      fromSalary,
+      toSalary,
       ...newSelectedJob
     } = updatedJob;
     updateJob(
-      { title, description, location, industry, status },
+      { title, description, location, industry, status, fromSalary, toSalary },
       {
         onSuccess: (data) => {
           toast({
