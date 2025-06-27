@@ -1,3 +1,4 @@
+"use client";
 type CompanyIntroSections = {
   intro: string[];
   vision: string[];
@@ -6,7 +7,9 @@ type CompanyIntroSections = {
   contact: string[];
 };
 
-export const parseCompanyIntro = (html: string): {
+export const parseCompanyIntro = (
+  html: string
+): {
   intro: string;
   vision: string;
   coreValues: string;
@@ -42,8 +45,8 @@ export const parseCompanyIntro = (html: string): {
       currentKey = "contact";
     } else if (currentKey) {
       if (child.tagName === "UL") {
-        const items = Array.from(child.querySelectorAll("li")).map((li) =>
-          li.textContent?.trim() || ""
+        const items = Array.from(child.querySelectorAll("li")).map(
+          (li) => li.textContent?.trim() || ""
         );
         sections[currentKey].push(...items);
       } else {
@@ -61,13 +64,18 @@ export const parseCompanyIntro = (html: string): {
   };
 };
 
-
 export const combineCompanyIntroHtml = () => {
-  const intro = (document.getElementById("intro") as HTMLTextAreaElement)?.value;
-  const vision = (document.getElementById("vision") as HTMLTextAreaElement)?.value;
-  const coreValues = (document.getElementById("coreValues") as HTMLTextAreaElement)?.value;
-  const services = (document.getElementById("services") as HTMLTextAreaElement)?.value;
-  const contact = (document.getElementById("contact") as HTMLTextAreaElement)?.value;
+  const intro = (document.getElementById("intro") as HTMLTextAreaElement)
+    ?.value;
+  const vision = (document.getElementById("vision") as HTMLTextAreaElement)
+    ?.value;
+  const coreValues = (
+    document.getElementById("coreValues") as HTMLTextAreaElement
+  )?.value;
+  const services = (document.getElementById("services") as HTMLTextAreaElement)
+    ?.value;
+  const contact = (document.getElementById("contact") as HTMLTextAreaElement)
+    ?.value;
 
   const createParagraphs = (title: string, text: string) => {
     const paragraphs = text
