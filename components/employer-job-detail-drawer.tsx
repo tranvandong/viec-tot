@@ -12,10 +12,16 @@ import {
   Calendar,
   Clock,
   DollarSign,
+  Briefcase,
+  GraduationCap,
+  User,
 } from "lucide-react";
-import parse from "html-react-parser";
+import parse, { domToReact } from "html-react-parser";
 import { formatVND } from "@/helpers";
 import { getStatusDisplayText } from "@/app/employer/manage/applied-candidates/page";
+import { useList } from "@/hooks/useDataProvider";
+import { JobPost, Organization } from "@/providers/types/definition";
+import { JobCard } from "@/app/employer/manage/profile/page";
 
 type JobDetailDrawerProps = {
   job: any;
@@ -30,7 +36,33 @@ export const JobDescriptionSection = ({
 }: {
   description: string;
 }) => {
-  return <div className="space-y-6">{parse(description)}</div>;
+  return (
+    <div className="space-y-4">
+      {parse(description, {
+        replace: (domNode) => {
+          if (domNode.type === "tag") {
+            const { name, children } = domNode;
+
+            if (name === "ul") {
+              return (
+                <ul className="list-disc ml-5 space-y-1 text-gray-700 text-sm">
+                  {domToReact(children)}
+                </ul>
+              );
+            }
+
+            if (name === "li") {
+              return (
+                <li className="leading-relaxed">{domToReact(children)}</li>
+              );
+            }
+
+            // Bỏ style cho <p>, <strong>
+          }
+        },
+      })}
+    </div>
+  );
 };
 
 export function EmployerJobDetailDrawer({
@@ -44,7 +76,18 @@ export function EmployerJobDetailDrawer({
   const [editedJob, setEditedJob] = useState<any>(job);
   const [currentMode, setCurrentMode] = useState<"view" | "edit">(mode);
 
-  console.log(job);
+  const { data, reload } = useList<Organization>({
+    resource: "Organizations/GetByUser",
+    meta: { config: { auth: "allow" } },
+    pagination: undefined,
+  });
+
+  const { data: jobfrom } = useList<JobPost>({
+    resource: "Jobs",
+  });
+  const jobs = jobfrom?.data || [];
+
+  const company = data?.data;
 
   useEffect(() => {
     if (isOpen) {
@@ -72,7 +115,12 @@ export function EmployerJobDetailDrawer({
     >
   ) => {
     const { name, value } = e.target;
-    setEditedJob({ ...editedJob, [name]: value });
+    const numericFields = ["fromSalary", "toSalary"];
+
+    setEditedJob((prev: any) => ({
+      ...prev,
+      [name]: numericFields.includes(name) ? Number(value) : value,
+    }));
   };
 
   const handleSave = () => {
@@ -186,372 +234,325 @@ export function EmployerJobDetailDrawer({
         </button>
 
         <div className="p-6">
-          {currentMode === "view" ? (
-            /* View Mode */
-            <div className="max-w-4xl mx-auto">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">{job.title}</h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={toggleEditMode}
-                    className="p-2 rounded-full hover:bg-gray-100 text-blue-600"
-                    title="Edit job"
-                  >
-                    <Edit className="h-5 w-5" />
-                  </button>
-                  <button
-                    className="p-2 rounded-full hover:bg-gray-100 text-red-600"
-                    title="Delete job"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
+          <div className=" mx-auto">
+            <div className="max-w-7xl mx-auto p-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                  <div className="bg-white p-6 rounded shadow-md space-y-4 mb-6">
+                    {currentMode === "view" ? (
+                      <h1 className="text-xl font-bold text-gray-800">
+                        {job.title}
+                      </h1>
+                    ) : (
+                      <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        value={editedJob.title}
+                        onChange={handleInputChange}
+                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        required
+                      />
+                    )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">
-                    Chi tiết công việc
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-5 w-5 text-gray-500 mt-0.5" />
-                      <div>
-                        <div className="font-medium">Địa chỉ</div>
-                        <div className="text-gray-600">{job.location}</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="w-4 h-4 text-green-600" />
+                        {currentMode === "view" ? (
+                          <span>
+                            {formatVND(job.fromSalary)} -{" "}
+                            {formatVND(job.toSalary)}
+                          </span>
+                        ) : (
+                          <div className="flex items-center gap-1 w-full">
+                            <input
+                              type="number"
+                              name="fromSalary"
+                              value={editedJob.fromSalary}
+                              onChange={handleInputChange}
+                              className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              placeholder="Từ lương"
+                            />
+                            <span className="text-gray-500">-</span>
+                            <input
+                              type="number"
+                              name="toSalary"
+                              value={editedJob.toSalary}
+                              onChange={handleInputChange}
+                              className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              placeholder="Đến lương"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-blue-600" />
+                        {currentMode === "view" ? (
+                          <span>{job.location}</span>
+                        ) : (
+                          <input
+                            type="text"
+                            id="location"
+                            name="location"
+                            value={editedJob.location}
+                            onChange={handleInputChange}
+                            className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            required
+                          />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-yellow-600" />
+                        {currentMode === "view" ? (
+                          <span>{job.experience}</span>
+                        ) : (
+                          <input
+                            type="text"
+                            id="experience"
+                            name="experience"
+                            value={editedJob.experience}
+                            onChange={handleInputChange}
+                            className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            required
+                          />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-yellow-600" />
+                        {currentMode === "view" ? (
+                          <span>{job.industry}</span>
+                        ) : (
+                          <select
+                            id="type"
+                            name="industry"
+                            value={editedJob.industry}
+                            onChange={handleInputChange}
+                            className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            required
+                          >
+                            <option value="Toàn thời gian">
+                              Toàn thời gian
+                            </option>
+                            <option value="Bán thời gian">Bán thời gian</option>
+                          </select>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-yellow-600" />
+                        {currentMode === "view" ? (
+                          <span>
+                            {new Date(job.effectiveDate).toLocaleDateString()}
+                          </span>
+                        ) : (
+                          <input
+                            type="date"
+                            value={
+                              new Date(editedJob.effectiveDate)
+                                .toISOString()
+                                .split("T")[0]
+                            }
+                            disabled
+                            className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm bg-gray-100 text-gray-700"
+                          />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-yellow-600" />
+                        {currentMode === "view" ? (
+                          <span>{getStatusDisplayText(job.status)}</span>
+                        ) : (
+                          <select
+                            id="status"
+                            name="status"
+                            value={editedJob.status}
+                            onChange={handleInputChange}
+                            className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            required
+                          >
+                            <option value="Approved">Đã duyệt</option>
+                          </select>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <Users className="h-5 w-5 text-gray-500 mt-0.5" />
+                  </div>
+                  <div className="bg-white p-6 rounded shadow-md">
+                    {currentMode === "view" ? (
+                      <div className="mb-1">
+                        <JobDescriptionSection description={job.description} />
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="space-y-4">
+                          <div>
+                            <label
+                              htmlFor="description"
+                              className="block text-sm font-medium text-gray-700 mb-1"
+                            >
+                              Mô tả*
+                            </label>
+                            <textarea
+                              id="description"
+                              name="description"
+                              rows={5}
+                              className="w-full text-sm rounded-md border border-gray-300 px-3 py-2 resize-none shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              placeholder="Nhập mô tả"
+                              defaultValue={description.join("\n")}
+                            />
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="requirements"
+                              className="block text-sm font-medium text-gray-700 mb-1"
+                            >
+                              Yêu cầu*
+                            </label>
+                            <textarea
+                              id="requirements"
+                              name="requirements"
+                              rows={4}
+                              className="w-full text-sm rounded-md border border-gray-300 px-3 py-2 resize-none shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              placeholder="Nhập yêu cầu"
+                              defaultValue={requirements.join("\n")}
+                            />
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="benefits"
+                              className="block text-sm font-medium text-gray-700 mb-1"
+                            >
+                              Quyền lợi*
+                            </label>
+                            <textarea
+                              id="benefits"
+                              name="benefits"
+                              rows={4}
+                              className="w-full text-sm rounded-md border border-gray-300 px-3 py-2 resize-none shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              placeholder="Nhập quyền lợi"
+                              defaultValue={benefits.join("\n")}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="bg-white p-6 rounded shadow-md">
+                    <div className="flex items-center gap-4 mb-4">
+                      <img
+                        src="https://cdn.logo.com/hotlink-ok/logo-social.png"
+                        alt="Company Logo"
+                        className="w-14 h-14 object-cover rounded-md border"
+                      />
                       <div>
-                        <div className="font-medium">Department</div>
-                        <div className="text-gray-600">{job.department}</div>
+                        <h3 className="text-base font-semibold">
+                          {company && company.name}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          {company && company.address}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
-                      <div>
-                        <div className="font-medium">Loại công việc</div>
-                        <div className="text-gray-600">{job.industry}</div>
+                    <div className="grid grid-cols-1 gap-2 text-sm text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4" />
+                        <span>
+                          {" "}
+                          {company && company.employeeCount} nhân viên
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="w-4 h-4" />
+                        <span>Ngành: Chưa cập nhật</span>
                       </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <Clock className="h-5 w-5 text-gray-500 mt-0.5" />
-                      <div>
-                        <div className="font-medium">Kinh nghiệm</div>
-                        <div className="text-gray-600">{job.experience}</div>
+                  </div>
+
+                  {/* Thông tin chung */}
+                  <div className="bg-white p-6 rounded shadow-md">
+                    <h2 className="text-lg font-semibold mb-4">
+                      Thông tin chung
+                    </h2>
+                    <div className="grid grid-cols-1 gap-3 text-sm text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="w-4 h-4" />
+                        <span>Cấp bậc: Nhân viên</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="w-4 h-4" />
+                        <span>Học vấn: Đại học trở lên</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4" />
+                        <span>Số lượng: 2 người</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        <span>{job.industry}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        <span>Giới tính: Nam, Nữ</span>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">
-                    Chi tiết bài đăng
-                  </h3>
+              </div>
+              {/* {currentMode === "view" && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold">
+                      Công việc liên quan
+                    </h2>
+                    <a
+                      href="/employer/manage/jobs"
+                      className="text-blue-600 text-sm"
+                    >
+                      Xem tất cả
+                    </a>
+                  </div>
                   <div className="space-y-4">
-                    <div className="flex items-start gap-2">
-                      <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
-                      <div>
-                        <div className="font-medium">Ngày đăng</div>
-                        <div className="text-gray-600">
-                          {new Date(job.effectiveDate).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Users className="h-5 w-5 text-gray-500 mt-0.5" />
-                      <div>
-                        <div className="font-medium">Người nộp đơn</div>
-                        <div className="text-gray-600">
-                          {job.applicants} người nộp đơn
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <DollarSign className="h-5 w-5 text-gray-500 mt-0.5" />
-                      <div>
-                        <div className="font-medium">Mức lương</div>
-                        <div className="text-gray-600">
-                          {formatVND(job.fromSalary)} -{" "}
-                          {formatVND(job.toSalary)}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <div
-                        className={`h-5 w-5 rounded-full ${
-                          job.status === "active"
-                            ? "bg-green-500"
-                            : "bg-gray-500"
-                        } mt-0.5`}
-                      ></div>
-                      <div>
-                        <div className="font-medium">Trạng thái</div>
-                        <div className="text-gray-600 capitalize">
-                          {getStatusDisplayText(job.status)}
-                        </div>
-                      </div>
-                    </div>
+                    {jobs.map((job) => (
+                      <JobCard
+                        key={job.id}
+                        title={job.title}
+                        type={job.industry || "Không rõ loại hình"} // Bán thời gian / Toàn thời gian
+                        mode="Onsite" // Hoặc job.mode nếu có
+                        exp={`${job.experience || "Không yêu cầu"} năm`}
+                        href="/employer/manage/jobs"
+                      />
+                    ))}
                   </div>
                 </div>
-              </div>
-
-              <div className="mb-8">
-                <JobDescriptionSection description={job.description} />
-              </div>
-
-              {/* <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-4">Yêu cầu</h3>
-                <ul className="list-disc pl-5 space-y-2 text-gray-600">
-                  <li>
-                    Bachelor's degree in {job.department} or related field
-                  </li>
-                  <li>{job.experience} of experience in a similar role</li>
-                  <li>Strong communication and collaboration skills</li>
-                  <li>Ability to work in a fast-paced environment</li>
-                  <li>Passion for creating exceptional user experiences</li>
-                </ul>
-              </div>
-
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-4">Quyền lợi</h3>
-                <ul className="list-disc pl-5 space-y-2 text-gray-600">
-                  <li>Competitive salary and benefits package</li>
-                  <li>Flexible working arrangements</li>
-                  <li>Professional development opportunities</li>
-                  <li>Collaborative and innovative work environment</li>
-                </ul>
-              </div> */}
+              )} */}
 
               <div className="flex justify-end gap-3">
                 <button
-                  onClick={onClose}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  onClick={
+                    currentMode === "view"
+                      ? onClose
+                      : () => {
+                          setCurrentMode("view");
+                        }
+                  }
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white text-sm shadow-sm transition hover:bg-gray-100 hover:shadow-md"
                 >
-                  Đóng
+                  {currentMode === "view" ? "Đóng" : "Huỷ"}
                 </button>
                 <button
-                  onClick={toggleEditMode}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  onClick={
+                    currentMode === "view" ? toggleEditMode : () => handleSave()
+                  }
+                  className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium shadow-sm transition hover:bg-blue-700 hover:shadow-md"
                 >
-                  Chỉnh sửa
+                  {currentMode === "view" ? "✏️ Chỉnh sửa" : "Lưu"}
                 </button>
               </div>
             </div>
-          ) : (
-            /* Edit Mode */
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl font-bold mb-6">CHỈNH SỬA</h2>
-
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label
-                      htmlFor="title"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Tên công việc*
-                    </label>
-                    <input
-                      type="text"
-                      id="title"
-                      name="title"
-                      value={editedJob.title}
-                      onChange={handleInputChange}
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="department"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Department*
-                    </label>
-                    <input
-                      type="text"
-                      id="department"
-                      name="department"
-                      value={editedJob.department}
-                      onChange={handleInputChange}
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="location"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Địa chỉ*
-                    </label>
-                    <input
-                      type="text"
-                      id="location"
-                      name="location"
-                      value={editedJob.location}
-                      onChange={handleInputChange}
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="type"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Loại công việc*
-                    </label>
-                    <select
-                      id="type"
-                      name="industry"
-                      value={editedJob.industry}
-                      onChange={handleInputChange}
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      required
-                    >
-                      <option value="Toàn thời gian">Toàn thời gian</option>
-                      <option value="Bán thời gian">Bán thời gian</option>
-                    </select>
-                  </div>
-
-                  {/* <div>
-                    <label
-                      htmlFor="workType"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Work Type*
-                    </label>
-                    <select
-                      id="workType"
-                      name="workType"
-                      value={editedJob.workType}
-                      onChange={handleInputChange}
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      required
-                    >
-                      <option value="Remote">Remote</option>
-                      <option value="On-site">On-site</option>
-                      <option value="Hybrid">Hybrid</option>
-                    </select>
-                  </div> */}
-
-                  {/* <div>
-                    <label
-                      htmlFor="experience"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Experience Level*
-                    </label>
-                    <select
-                      id="experience"
-                      name="experience"
-                      value={editedJob.experience}
-                      onChange={handleInputChange}
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      required
-                    >
-                      <option value="Entry Level">Entry Level</option>
-                      <option value="Mid Level">Mid Level</option>
-                      <option value="Senior Level">Senior Level</option>
-                      <option value="Executive">Executive</option>
-                    </select>
-                  </div> */}
-
-                  <div>
-                    <label
-                      htmlFor="status"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Trạng thái*
-                    </label>
-                    <select
-                      id="status"
-                      name="status"
-                      value={editedJob.status}
-                      onChange={handleInputChange}
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      required
-                    >
-                      <option value="Approved">Kích hoạt</option>
-                      {/* <option value="Rejected">Từ chối</option> */}
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="description"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Mô tả*
-                  </label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    rows={5}
-                    className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="Nhập mô tả"
-                    defaultValue={description.join("\n")}
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="requirements"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Yêu cầu*
-                  </label>
-                  <textarea
-                    id="requirements"
-                    name="requirements"
-                    rows={4}
-                    className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="Nhập yêu cầu"
-                    defaultValue={requirements.join("\n")}
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="benefits"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Quyền lợi*
-                  </label>
-                  <textarea
-                    id="benefits"
-                    name="benefits"
-                    rows={4}
-                    className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder="Nhập quyền lợi"
-                    defaultValue={benefits.join("\n")}
-                  />
-                </div>
-
-                <div className="flex justify-end gap-3">
-                  <button
-                    onClick={() => setCurrentMode("view")}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                  >
-                    Huỷ
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  >
-                    Lưu thay đổi
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

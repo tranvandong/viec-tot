@@ -5,13 +5,11 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Briefcase,
-  CalendarDays,
   Camera,
   Clock,
   Globe,
   Mail,
   MapPin,
-  Pencil,
   Users,
 } from "lucide-react";
 import ProvinceSelect from "@/components/ProvinceSelect";
@@ -23,8 +21,6 @@ import {
 } from "./companyIntroUtils";
 import parse from "html-react-parser";
 import { toast } from "@/hooks/use-toast";
-import { formatDate } from "../jobs/page";
-import { Calendar } from "@/components/ui/calendar";
 
 export default function CompanyProfile() {
   const { data, reload } = useList<Organization>({
@@ -472,7 +468,7 @@ function InfoItem({
   );
 }
 
-function JobCard({
+export function JobCard({
   title,
   type,
   mode,
