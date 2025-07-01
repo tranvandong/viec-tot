@@ -48,15 +48,13 @@ export function JobListing() {
               >
                 <div className="p-6">
                   <div className="flex gap-4">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Image
-                        src={logoUrl || "/placeholder-logo.png"}
-                        width={32}
-                        height={32}
-                        alt={job.organization?.name || "Company Logo"}
-                        className="w-8 h-8 rounded"
-                      />
-                    </div>
+                    <Image
+                      src={logoUrl || "/placeholder-logo.svg"}
+                      alt={`${job.organization?.name} logo`}
+                      width={48}
+                      height={48}
+                      className="w-12 h-12 rounded-lg object-contain border dark:border-gray-700"
+                    />
                     <div className="flex-1">
                       <div className="flex justify-between items-start mb-2">
                         <div>

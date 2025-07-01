@@ -54,6 +54,7 @@ import {
 } from "@/components/ui/command";
 import { SearchBox } from "@/components/search-box";
 import { JobListing } from "@/components/job-listing";
+import { CompanyCarousel } from "@/components/company-carousel";
 
 export default function Home() {
   const router = useRouter();
@@ -529,6 +530,22 @@ export default function Home() {
         </section>
 
         <JobListing />
+
+        {/* Featured Companies */}
+        <section className="py-16 bg-gray-50 dark:bg-gray-900">
+          <div className="container mx-auto px-4 md:px-8">
+            <h2 className="text-3xl font-bold text-center mb-4">
+              Công ty nổi bật
+              <br />
+              đang tuyển dụng
+            </h2>
+            <p className="text-center text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-12">
+              Các công ty phát triển nhanh nhất tin tưởng Việc Tốt để tìm kiếm
+              nhân tài. Tham gia ngay để khám phá các cơ hội.
+            </p>
+            <CompanyCarousel />
+          </div>
+        </section>
 
         {/* Blog Section */}
         <section className="py-16 dark:bg-gray-950">
