@@ -99,6 +99,7 @@ export default function CandidateProfile() {
     queryOptions: {
       retry: 1,
       refetchOnWindowFocus: false,
+      enabled: authorized, // Chỉ gọi API khi đã xác thực
     },
   });
 

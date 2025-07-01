@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const apiUrl = useApi();
   const { data: applicantData } = useCustom({
     url: `${apiUrl}/buss/allow/Applicants/GetByUser`,
+    queryOptions: { enabled: authorized },
   });
 
   const { data: userInfoData } = useCustom<{
@@ -45,6 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     queryOptions: {
       retry: 1,
       refetchOnWindowFocus: false,
+      enabled: authorized, // Chỉ gọi API khi đã xác thực
     },
   });
 

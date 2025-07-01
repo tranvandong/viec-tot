@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { odataCrudDataProvider } from "../providers/odataCrudDataProvider";
 import { HttpError } from "../providers/types/HttpError";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { dataProvider as provider } from "@/providers/dataProvider";
 import {
   BaseRecord,
@@ -283,6 +283,15 @@ export const useDeleteMany = (params: UseDeleteManyParams) => {
       await provider.deleteMany(params);
     },
   });
+};
+
+export const useGetSource = () => {
+  return useCallback((path: string) => {
+    if (!path) {
+      return undefined;
+    }
+    return provider.getSource(path);
+  }, []);
 };
 
 export const useApi = () => provider.getApiUrl();

@@ -21,12 +21,17 @@ import {
 } from "./companyIntroUtils";
 import parse from "html-react-parser";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/providers/contexts/AuthProvider";
 
 export default function CompanyProfile() {
+  const { authorized } = useAuth();
   const { data, reload } = useList<Organization>({
     resource: "Organizations/GetByUser",
     meta: { config: { auth: "allow" } },
     pagination: undefined,
+    queryOptions: {
+      enabled: authorized, // Chỉ gọi API khi đã xác thực
+    },
   });
 
   const { data: job } = useList<JobPost>({

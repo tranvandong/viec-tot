@@ -219,11 +219,19 @@ export default function JobResult() {
     if (target.value === "custom") {
       [salaryMin, salaryMax] = salaryRange.map((v) => v.toString());
     }
-    const queryString = createQueryString({
-      salary_from: salaryMin,
-      salary_to: salaryMax,
-      salary: target.value,
-    });
+    const salaryQuery: Record<string, any> = { salary: target.value };
+    const salaryRemoveKeys = [];
+    if (salaryMin) {
+      salaryQuery.salary_from = salaryMin;
+    } else {
+      salaryRemoveKeys.push("salary_from");
+    }
+    if (salaryMax) {
+      salaryQuery.salary_to = salaryMax;
+    } else {
+      salaryRemoveKeys.push("salary_to");
+    }
+    const queryString = createQueryString(salaryQuery, salaryRemoveKeys);
 
     setSalary(target.value);
     router.push(`${pathName}?${queryString}#search-results`);
@@ -262,6 +270,21 @@ export default function JobResult() {
       "categoryName",
     ]);
     router.push(`${pathName}?${queryString}`);
+  };
+
+  const onChangeSalaryRange = (value: number[]) => {
+    setSalaryRange(value);
+    const salaryFrom = value[0] / 1000000;
+    const salaryTo = value[1] / 1000000;
+    const queryString = createQueryString(
+      {
+        salary_from: `${salaryFrom}`,
+        salary_to: `${salaryTo}`,
+      },
+      ["salary", "salaryRange"]
+    );
+    setSalary("custom");
+    router.push(`${pathName}?${queryString}#search-results`);
   };
 
   useEffect(() => {
@@ -548,7 +571,7 @@ export default function JobResult() {
                     max={100000000}
                     defaultValue={salaryRange}
                     value={salaryRange}
-                    onValueChange={setSalaryRange}
+                    onValueChange={onChangeSalaryRange}
                     step={1000000}
                     color="orange"
                   />
