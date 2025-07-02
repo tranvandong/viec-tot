@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { odataCrudDataProvider } from "../providers/odataCrudDataProvider";
 import { HttpError } from "../providers/types/HttpError";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { dataProvider as provider } from "@/providers/dataProvider";
 import {
   BaseRecord,
@@ -15,9 +15,11 @@ import {
   CrudSorting,
   CustomParams,
   CustomResponse,
+  DeleteOneResponse,
   GetListResponse,
   GetManyResponse,
   GetOneResponse,
+  Join,
   UpdateResponse,
 } from "@/providers/types/IDataContext";
 
@@ -36,10 +38,10 @@ type Resource =
   | "Applications"
   | "Resumes"
   | "DMCategories"
-  | "Organizations/GetByUser"
+  | "Organizations/GetByUser";
 
 interface MetaQuery {
-  join?: string[];
+  join?: Join[];
   config?: {
     subSystem?: "admin" | "buss" | "default";
     auth?: "allow" | "auth" | "public"; // naming to scope
@@ -70,43 +72,43 @@ export const useList = <TQueryFnData extends BaseRecord = BaseRecord>(
   const [sorters, setSorters] = useState(params.sorters || []);
 
   const queryKey = [
-  "list",
-  params.resource,
-  {
-    ...params,
-    ...(params.pagination && {
-      pagination: { pageSize, page },
-    }),
-    filters,
-    sorters,
-  },
-];
+    "list",
+    params.resource,
+    {
+      ...params,
+      ...(params.pagination && {
+        pagination: { pageSize, page },
+      }),
+      filters,
+      sorters,
+    },
+  ];
 
   const query = useQuery({
     ...params.queryOptions,
     queryKey,
     queryFn: async () => {
-  const shouldPaginate = !!params.pagination;
+      const shouldPaginate = !!params.pagination;
 
-  const result = await provider.getList({
-    ...params,
-    filters,
-    sorters,
-    ...(shouldPaginate
-      ? {
-          pagination: {
-            pageSize,
-            current: page,
-          },
-        }
-      : {}),
-  });
+      const result = await provider.getList({
+        ...params,
+        filters,
+        sorters,
+        ...(shouldPaginate
+          ? {
+              pagination: {
+                pageSize,
+                current: page,
+              },
+            }
+          : {}),
+      });
 
-  return {
-    data: result.data as TQueryFnData[],
-    total: result.total,
-  };
-},
+      return {
+        data: result.data as TQueryFnData[],
+        total: result.total,
+      };
+    },
   });
 
   const pageCount = query.data?.total
@@ -251,23 +253,21 @@ export const useUpdateNew = <T = any>(params: UseUpdateParams<T>) => {
   });
 };
 
-export interface UseDeleteParams {
+export interface UseDeleteParams
+  extends UseMutationOptions<void, Error, unknown> {
   resource: string;
-  id: string | number;
+  meta?: Omit<MetaQuery, "join">;
 }
 
-export const useDelete = (params: UseDeleteParams) => {
+export const useDelete = ({ resource, meta, ...rest }: UseDeleteParams) => {
   return useMutation({
-    mutationFn: async () => {
-      await provider.deleteOne(params);
-    },
-  });
-};
-
-export const useDeleteNew = () => {
-  return useMutation({
-    mutationFn: async (params: UseDeleteParams) => {
-      await provider.deleteOne(params);
+    ...rest,
+    mutationFn: async (id: string) => {
+      await provider.deleteOne({
+        resource: resource,
+        id,
+        meta: meta,
+      });
     },
   });
 };
@@ -285,6 +285,15 @@ export const useDeleteMany = (params: UseDeleteManyParams) => {
   });
 };
 
+export const useGetSource = () => {
+  return useCallback((path: string) => {
+    if (!path) {
+      return undefined;
+    }
+    return provider.getSource(path);
+  }, []);
+};
+
 export const useApi = () => provider.getApiUrl();
 
 interface UseCustomConfig<TQuery = unknown, TPayload = unknown> {
@@ -299,21 +308,8 @@ interface UseCustomConfig<TQuery = unknown, TPayload = unknown> {
 type Method = "get" | "delete" | "head" | "options" | "post" | "put" | "patch";
 
 export type UseCustomProps<TQueryFnData, TError, TQuery, TPayload, TData> = {
-  /**
-   * request's URL
-   */
   url: string;
-  /**
-   * request's method (`GET`, `POST`, etc.)
-   */
-  method: "get";
-  /**
-   * The config of your request. You can send headers, payload, query, filters and sorters using this field
-   */
-  config?: UseCustomConfig<TQuery, TPayload>;
-  /**
-   * react-query's [useQuery](https://tanstack.com/query/v4/docs/reference/useQuery) options"
-   */
+  method?: "get";
   queryOptions?: Omit<
     UseQueryOptions<
       CustomResponse<TQueryFnData>,
@@ -322,10 +318,6 @@ export type UseCustomProps<TQueryFnData, TError, TQuery, TPayload, TData> = {
     >,
     "queryKey"
   >;
-
-  /**
-   * meta data for `dataProvider`
-   */
   meta?: MetaQuery;
   payload?: TPayload;
 };
@@ -338,13 +330,12 @@ export const useCustom = <
   TData extends BaseRecord = TQueryFnData
 >({
   url,
-  method,
-  config,
+  method = "get",
   queryOptions,
   meta,
 }: UseCustomProps<TQueryFnData, TError, TQuery, TPayload, TData>) => {
   return useQuery({
-    queryKey: ["custom", url, method, config, meta],
+    queryKey: ["custom", url, method, meta],
     queryFn: () =>
       provider.custom<TQueryFnData>({
         url,

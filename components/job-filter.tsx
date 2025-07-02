@@ -33,7 +33,7 @@ export default function JobFilter({
   const { data } = useList({ resource: "DMCategories" });
   const dmViecLams = data?.data || [];
 
-  const locationParam = searchParams.get("location");
+  const locationParam = searchParams?.get("location");
   const provinceCode = locationParam?.includes(",")
     ? locationParam.split(",")[1]
     : locationParam;
@@ -57,7 +57,7 @@ export default function JobFilter({
 
   const createQueryString = useCallback(
     (params: Record<string, string | undefined>, removeKeys: string[] = []) => {
-      const sParams = new URLSearchParams(searchParams.toString());
+      const sParams = new URLSearchParams(searchParams?.toString());
 
       // Remove specified keys
       removeKeys.forEach((key) => {
@@ -140,16 +140,16 @@ export default function JobFilter({
   };
 
   useEffect(() => {
-    const category = searchParams.get("category");
+    const category = searchParams?.get("category");
     if (category) {
       setLinhVuc(category);
     } else {
       setLinhVuc("");
     }
-    searchParams.get("jobType") &&
-      setJobType(searchParams.get("jobType") || "");
-    searchParams.get("salary") && setSalary(searchParams.get("salary") || "");
-    searchParams.get("experience") &&
+    searchParams?.get("jobType") &&
+      setJobType(searchParams?.get("jobType") || "");
+    searchParams?.get("salary") && setSalary(searchParams?.get("salary") || "");
+    searchParams?.get("experience") &&
       setExperience(searchParams.get("experience") || "");
   }, [pathName, searchParams]);
 
@@ -173,7 +173,7 @@ export default function JobFilter({
   };
 
   useEffect(() => {
-    const locationParam = searchParams.get("location") || "";
+    const locationParam = searchParams?.get("location") || "";
     if (locationParam) {
       refetch();
     }

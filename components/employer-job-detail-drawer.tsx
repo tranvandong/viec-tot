@@ -22,6 +22,7 @@ import { getStatusDisplayText } from "@/app/employer/manage/applied-candidates/p
 import { useList } from "@/hooks/useDataProvider";
 import { JobPost, Organization } from "@/providers/types/definition";
 import { JobCard } from "@/app/employer/manage/profile/page";
+import { useAuth } from "@/providers/contexts/AuthProvider";
 
 type JobDetailDrawerProps = {
   job: any;
@@ -75,11 +76,15 @@ export function EmployerJobDetailDrawer({
   const [isAnimating, setIsAnimating] = useState(false);
   const [editedJob, setEditedJob] = useState<any>(job);
   const [currentMode, setCurrentMode] = useState<"view" | "edit">(mode);
+  const { authorized } = useAuth();
 
   const { data, reload } = useList<Organization>({
     resource: "Organizations/GetByUser",
     meta: { config: { auth: "allow" } },
     pagination: undefined,
+    queryOptions: {
+      enabled: authorized, // Chỉ gọi API khi đã xác thực
+    },
   });
 
   const { data: jobfrom } = useList<JobPost>({

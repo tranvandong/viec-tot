@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { authProvider } from "../providers/authProvider";
 import { useToast } from "./use-toast";
 import { useRouter } from "next/navigation";
-import { UserRole } from "@/providers/types/auth";
+import { AuthActionResponse, UserRole } from "@/providers/types/auth";
 import { useAuth } from "@/providers/contexts/AuthProvider";
 // Đăng nhập
 export function useLogin(role: UserRole) {
@@ -48,10 +48,10 @@ export function useRegister() {
   const router = useRouter();
   return useMutation({
     mutationFn: async (params: any) => authProvider.register(params),
-    onSuccess(data: any) {
+    onSuccess(data: AuthActionResponse) {
       console.log(data);
 
-      if (data?.isSuccessed) {
+      if (data.success) {
         router.push("/login");
         toast({
           description: "Đăng ký tài khoản thành công",

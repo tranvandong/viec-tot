@@ -27,6 +27,9 @@ import { JobPost } from "@/providers/types/definition";
 import { dataProvider } from "@/providers/dataProvider";
 import dayjs from "@/lib/dayjs";
 import ApplyJobModal from "@/components/apply-job-modal";
+import { JobBookmark } from "@/components/job-results";
+import { useAuth } from "@/providers/contexts/AuthProvider";
+import { Join } from "@/providers/types/IDataContext";
 
 export default function JobDetail() {
   const router = useRouter();
@@ -46,12 +49,25 @@ export default function JobDetail() {
   const params = useParams();
   const slug = params?.slug as string;
   console.log(slug);
-
+  const { applicant, authorized } = useAuth();
+  const jobExpand: Join[] = ["Organization"];
+  authorized &&
+    jobExpand.push({
+      name: "favorites",
+      filters: [
+        {
+          field: "ApplicantId",
+          operator: "eq",
+          value: applicant?.id,
+          isUuid: true,
+        },
+      ],
+    });
   const { data, isLoading } = useOne<JobPost>({
     resource: "Jobs",
     id: slug as string,
     meta: {
-      join: ["Organization", "Favorites"],
+      join: jobExpand,
     },
   });
 
@@ -193,18 +209,7 @@ export default function JobDetail() {
                 >
                   Ứng tuyển ngay
                 </button>
-                <button
-                  onClick={(e) => onToggleSave(job.id, e)}
-                  className="p-2.5 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
-                >
-                  <Bookmark
-                    className={`h-5 w-5 ${
-                      savedJobs.includes(job.id)
-                        ? "fill-blue-500 text-blue-500"
-                        : ""
-                    }`}
-                  />
-                </button>{" "}
+                <JobBookmark jobId={job.id} favorites={job.favorites} />
                 <button
                   onClick={onShare}
                   className="p-2.5 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"

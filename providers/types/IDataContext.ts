@@ -13,9 +13,11 @@ export type ODataConfig = {
   mode?: MetaQueryMode;
 };
 
+export type Join = { name: string; filters?: CrudFilters } | string;
+
 export type MetaQuery = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  join?: any;
+  join?: Array<Join>;
   config?: ODataConfig;
 };
 
@@ -94,6 +96,7 @@ export type LogicalFilter = {
   operator: Exclude<CrudOperators, "or" | "and">;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
+  isUuid?: boolean;
 };
 
 export type ConditionalFilter = {

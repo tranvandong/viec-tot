@@ -18,7 +18,6 @@ import {
 import { EmployerJobDetailDrawer } from "@/components/employer-job-detail-drawer";
 import {
   useDelete,
-  useDeleteNew,
   UseDeleteParams,
   useList,
   useUpdate,
@@ -117,34 +116,31 @@ export default function EmployerJobsPage() {
     setIsDrawerOpen(true);
   };
 
-  const { mutate, isPending } = useDeleteNew();
+  const { mutate, isPending } = useDelete({ resource: "Jobs" });
 
   const handleDelete = (id: string) => {
-    mutate(
-      { resource: "Jobs", id },
-      {
-        onSuccess: () => {
-          toast({
-            description:
-              data?.error?.message || "Xoá thông báo tuyển dụng thành công ",
-            title: "Xoá thành công",
-            type: "background",
-            variant: "success",
-          });
-          reload();
-        },
-        onError: (err) => {
-          toast({
-            description:
-              data?.error?.message || "Xoá thông báo tuyển dụng thất bại ",
-            title: "Xoá thất bại",
-            type: "background",
-            variant: "warning",
-          });
-          console.error("Xoá thất bại:", err);
-        },
-      }
-    );
+    mutate(id, {
+      onSuccess: () => {
+        toast({
+          description:
+            data?.error?.message || "Xoá thông báo tuyển dụng thành công ",
+          title: "Xoá thành công",
+          type: "background",
+          variant: "success",
+        });
+        reload();
+      },
+      onError: (err) => {
+        toast({
+          description:
+            data?.error?.message || "Xoá thông báo tuyển dụng thất bại ",
+          title: "Xoá thất bại",
+          type: "background",
+          variant: "warning",
+        });
+        console.error("Xoá thất bại:", err);
+      },
+    });
   };
 
   const { mutate: updateJob } = useUpdateNew({

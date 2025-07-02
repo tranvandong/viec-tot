@@ -238,13 +238,13 @@ export function Nav() {
                     <span>Quản lý CV</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => onNavigate("/candidate/my-jobs")}
+                    onClick={() => onNavigate("/candidate/my-jobs?active=1")}
                   >
                     <FileText className="mr-2 h-4 w-4" />
                     <span>Việc đã ứng tuyển</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => onNavigate("/candidate/my-jobs")}
+                    onClick={() => onNavigate("/candidate/my-jobs?active=2")}
                   >
                     <Briefcase className="mr-2 h-4 w-4" />
                     <span>Việc đang theo dõi</span>

@@ -99,6 +99,7 @@ export default function CandidateProfile() {
     queryOptions: {
       retry: 1,
       refetchOnWindowFocus: false,
+      enabled: authorized, // Chỉ gọi API khi đã xác thực
     },
   });
 
@@ -106,6 +107,7 @@ export default function CandidateProfile() {
     resource: "Resumes",
     meta: { config: { auth: "auth", subSystem: "buss" } },
     onSuccess: (data) => {
+      refetchResume();
       setEditing(null);
       console.log("Resume created successfully:", data);
     },
@@ -117,6 +119,7 @@ export default function CandidateProfile() {
     meta: { config: { auth: "auth", subSystem: "buss" } },
     onSuccess: (data) => {
       setEditing(null);
+
       console.log("Resume created successfully:", data);
     },
   });
