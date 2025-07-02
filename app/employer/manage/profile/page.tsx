@@ -161,8 +161,11 @@ export default function CompanyProfile() {
   } = useForm<FormValues>();
 
   useEffect(() => {
-    const parsedSections = parseCompanyIntro(formData?.description || "");
-    reset(parsedSections);
+    if (formData && formData.description) {
+      const parsedSections = parseCompanyIntro(formData?.description || "");
+      reset(parsedSections);
+      return;
+    }
   }, [reset, formData]);
 
   if (!formData) {
