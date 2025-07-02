@@ -21,6 +21,15 @@ import {
 } from "./companyIntroUtils";
 import parse from "html-react-parser";
 import { toast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+
+type FormValues = {
+  intro: string;
+  vision: string;
+  coreValues: string;
+  services: string;
+  contact: string;
+};
 
 export default function CompanyProfile() {
   const { data, reload } = useList<Organization>({
@@ -120,17 +129,15 @@ export default function CompanyProfile() {
     );
   };
 
-  const handleEditClick = () => {
-    if (isEditing) {
-      const updatedDescriptionHtml = combineCompanyIntroHtml();
-      const updatedJob = {
-        ...formData,
-        description: updatedDescriptionHtml,
-      };
+  const onSubmit = (data: FormValues) => {
+    const updatedDescriptionHtml = combineCompanyIntroHtml(data);
+    const updatedJob = {
+      ...formData,
+      description: updatedDescriptionHtml,
+    };
 
-      handleJobUpdate(updatedJob);
-    }
-    setIsEditing(!isEditing);
+    handleJobUpdate(updatedJob);
+    setIsEditing(false);
   };
 
   const sections = {
@@ -141,141 +148,152 @@ export default function CompanyProfile() {
     contact: "Liên hệ",
   };
 
-  const parsedSections = parseCompanyIntro(formData?.description || "");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>();
+
+  useEffect(() => {
+    const parsedSections = parseCompanyIntro(formData?.description || "");
+    reset(parsedSections);
+  }, [reset, formData]);
 
   if (!formData) {
     return;
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Cover Image */}
-      <div className="relative w-full h-64 overflow-hidden group">
-        <Image src={coverImage} alt="cover" fill className="object-cover" />
-        {isEditing && (
-          <>
-            <div className="absolute inset-0 bg-black/30 group-hover:flex items-center justify-center hidden">
-              <button
-                onClick={() => coverInputRef.current?.click()}
-                className="text-white bg-black/50 p-2 rounded-full"
-              >
-                <Camera className="w-5 h-5" />
-              </button>
-            </div>
-            <input
-              type="file"
-              accept="image/*"
-              ref={coverInputRef}
-              onChange={(e) => {
-                if (e.target.files?.[0]) {
-                  const url = URL.createObjectURL(e.target.files[0]);
-                  setCoverImage(url);
-                }
-              }}
-              className="hidden"
-            />
-          </>
-        )}
-      </div>
-
-      {/* Info Card */}
-      <div className="relative bg-white rounded-xl shadow-lg p-6 mt-[-3rem] mx-auto max-w-4xl">
-        <div className="flex items-start gap-4">
-          <div className="relative">
-            <Image
-              src={logoImage}
-              alt="logo"
-              width={100}
-              height={100}
-              className="rounded-md border"
-            />
-            {isEditing && (
-              <>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="min-h-screen bg-gray-100">
+        {/* Cover Image */}
+        <div className="relative w-full h-64 overflow-hidden group">
+          <Image src={coverImage} alt="cover" fill className="object-cover" />
+          {isEditing && (
+            <>
+              <div className="absolute inset-0 bg-black/30 group-hover:flex items-center justify-center hidden">
                 <button
-                  onClick={() => logoInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow"
+                  onClick={() => coverInputRef.current?.click()}
+                  className="text-white bg-black/50 p-2 rounded-full"
                 >
-                  <Camera className="w-4 h-4 text-gray-600" />
+                  <Camera className="w-5 h-5" />
                 </button>
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={logoInputRef}
-                  onChange={(e) => {
-                    if (e.target.files?.[0]) {
-                      const url = URL.createObjectURL(e.target.files[0]);
-                      setLogoImage(url);
-                    }
-                  }}
-                  className="hidden"
-                />
-              </>
-            )}
-          </div>
-          <div className="flex-1">
-            {isEditing ? (
-              <>
-                <input
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="text-2xl font-semibold w-full border rounded px-2 py-1"
-                />
-                {/* <input
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                ref={coverInputRef}
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    const url = URL.createObjectURL(e.target.files[0]);
+                    setCoverImage(url);
+                  }
+                }}
+                className="hidden"
+              />
+            </>
+          )}
+        </div>
+
+        {/* Info Card */}
+        <div className="relative bg-white rounded-xl shadow-lg p-6 mt-[-3rem] mx-auto max-w-4xl">
+          <div className="flex items-start gap-4">
+            <div className="relative">
+              <Image
+                src={logoImage}
+                alt="logo"
+                width={100}
+                height={100}
+                className="rounded-md border"
+              />
+              {isEditing && (
+                <>
+                  <button
+                    onClick={() => logoInputRef.current?.click()}
+                    className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow"
+                  >
+                    <Camera className="w-4 h-4 text-gray-600" />
+                  </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={logoInputRef}
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        const url = URL.createObjectURL(e.target.files[0]);
+                        setLogoImage(url);
+                      }
+                    }}
+                    className="hidden"
+                  />
+                </>
+              )}
+            </div>
+            <div className="flex-1">
+              {isEditing ? (
+                <>
+                  <input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="text-2xl font-semibold w-full border rounded px-2 py-1"
+                  />
+                  {/* <input
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
                   className="mt-1 text-gray-600 w-full border rounded px-2 py-1"
                 /> */}
-              </>
-            ) : (
-              <>
-                <h1 className="text-2xl font-semibold">{formData.name}</h1>
-                {/* <p className="text-gray-600">{formData.description}</p> */}
-              </>
-            )}
-
-            <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-700">
-              <InfoItem
-                icon={<Globe className="w-4 h-4" />}
-                name="website"
-                value={formData.website ?? "Chưa cập nhật"}
-                isEditing={isEditing}
-                onChange={handleChange}
-              />
-              {isEditing ? (
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4 text-gray-600" />
-                  <ProvinceSelect
-                    value={formData.address}
-                    onChange={(value) =>
-                      setFormData({ ...formData, address: value })
-                    }
-                    className="flex-1"
-                    label="" // Không cần label vì đã có icon
-                  />
-                </div>
+                </>
               ) : (
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <MapPin className="w-4 h-4 text-gray-600" />
-                  <span>{formData.address}</span>
-                </div>
+                <>
+                  <h1 className="text-2xl font-semibold">{formData.name}</h1>
+                  {/* <p className="text-gray-600">{formData.description}</p> */}
+                </>
               )}
-              <InfoItem
-                icon={<Users className="w-4 h-4" />}
-                name="employeeCount"
-                value={formData.employeeCount}
-                isEditing={isEditing}
-                onChange={handleChange}
-              />
-              <InfoItem
-                icon={<Briefcase className="w-4 h-4" />}
-                name="industry"
-                value={formData.industry ?? "Giám đốc"}
-                isEditing={isEditing}
-                onChange={handleChange}
-              />
-              {/* <InfoItem
+
+              <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-700">
+                <InfoItem
+                  icon={<Globe className="w-4 h-4" />}
+                  name="website"
+                  value={formData.website ?? "Chưa cập nhật"}
+                  isEditing={isEditing}
+                  onChange={handleChange}
+                />
+                {isEditing ? (
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4 text-gray-600" />
+                    <ProvinceSelect
+                      value={formData.address}
+                      onChange={(value) =>
+                        setFormData({ ...formData, address: value })
+                      }
+                      className="flex-1"
+                      label="" // Không cần label vì đã có icon
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <MapPin className="w-4 h-4 text-gray-600" />
+                    <span>{formData.address}</span>
+                  </div>
+                )}
+                <InfoItem
+                  icon={<Users className="w-4 h-4" />}
+                  name="employeeCount"
+                  value={formData.employeeCount}
+                  isEditing={isEditing}
+                  onChange={handleChange}
+                />
+                <InfoItem
+                  icon={<Briefcase className="w-4 h-4" />}
+                  name="industry"
+                  value={formData.industry ?? "Giám đốc"}
+                  isEditing={isEditing}
+                  onChange={handleChange}
+                />
+                {/* <InfoItem
                 icon={<CalendarDays className="w-4 h-4" />}
                 name="createdDate"
                 value={formatDate(formData.createdDate)}
@@ -283,7 +301,7 @@ export default function CompanyProfile() {
                 onChange={() => {}}
                 onClick={() => setShowCalendar(true)}
               /> */}
-              {/* {showCalendar && (
+                {/* {showCalendar && (
                 <div
                   className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
                   onClick={() => setShowCalendar(false)} // Click nền sẽ tắt
@@ -312,126 +330,154 @@ export default function CompanyProfile() {
                 </div>
               )} */}
 
-              <InfoItem
-                icon={<Mail className="w-4 h-4" />}
-                name="email"
-                value={formData.email}
-                isEditing={isEditing}
-                onChange={handleChange}
-              />
-              <InfoItem
-                icon={<Clock className="w-4 h-4" />}
-                name="workingTime"
-                value={formData.workingTime}
-                isEditing={isEditing}
-                onChange={handleChange}
-              />
+                <InfoItem
+                  icon={<Mail className="w-4 h-4" />}
+                  name="email"
+                  value={formData.email}
+                  isEditing={isEditing}
+                  onChange={handleChange}
+                />
+                <InfoItem
+                  icon={<Clock className="w-4 h-4" />}
+                  name="workingTime"
+                  value={formData.workingTime}
+                  isEditing={isEditing}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
-          </div>
-          <Button className="ml-auto" onClick={handleEditClick}>
-            {isEditing ? "Save" : "Edit"}
-          </Button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left */}
-        <div className="md:col-span-2">
-          {/* About */}
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
             {isEditing ? (
-              <div className="space-y-4">
-                {Object.entries(sections).map(([key, label]) => (
-                  <div key={key} className="mb-4">
-                    <label
-                      htmlFor={key}
-                      className="block text-base font-semibold text-gray-800 mb-2"
-                    >
-                      {label}
-                    </label>
-                    <textarea
-                      id={key}
-                      name={key}
-                      rows={5}
-                      className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      placeholder={`Nhập ${label.toLowerCase()}`}
-                      defaultValue={
-                        parsedSections[key as keyof typeof parsedSections]
-                      }
-                    />
-                  </div>
-                ))}
+              <div className="flex gap-2">
+                <Button type="submit">Save</Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Cancel
+                </Button>
               </div>
             ) : (
-              <div className="space-y-3">{parse(formData.description)}</div>
+              <Button type="button" onClick={() => setIsEditing(true)}>
+                Edit
+              </Button>
             )}
-          </div>
-
-          {/* Jobs */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">
-                Công việc từ {formData.name}
-              </h2>
-              <a href="/employer/manage/jobs" className="text-blue-600 text-sm">
-                Xem tất cả
-              </a>
-            </div>
-            <div className="space-y-4">
-              {jobs.map((job) => (
-                <JobCard
-                  key={job.id}
-                  title={job.title}
-                  type={job.industry || "Không rõ loại hình"} // Bán thời gian / Toàn thời gian
-                  mode="Onsite" // Hoặc job.mode nếu có
-                  exp={`${job.experience || "Không yêu cầu"} năm`}
-                  href="/employer/manage/jobs"
-                />
-              ))}
-            </div>
           </div>
         </div>
 
-        {/* Right */}
-        <div className="space-y-6">
-          {/* People */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold mb-4">
-              Nhân viên tại {formData.name}
-            </h2>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <strong>Trần Quanh Ánh</strong> – Nhà sáng lập
-              </li>
-              <li>
-                <strong>Trần Thùy Linh</strong> – Đồng sáng lập
-              </li>
-              <li>
-                <strong>Phạm Quốc Duy</strong> – Thiết kế giao diện
-              </li>
-              <li>
-                <strong>Võ Kim Anh</strong> – Minh họa & Hình ảnh
-              </li>
-            </ul>
-            <Button variant="outline" className="mt-4 w-full text-sm">
-              Show All
-            </Button>
+        {/* Main Content */}
+        <div className="max-w-6xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Left */}
+          <div className="md:col-span-2">
+            {/* About */}
+            <div className="bg-white rounded-lg shadow p-6 mb-6">
+              {isEditing ? (
+                <div className="space-y-4">
+                  {Object.entries(sections).map(([key, label]) => (
+                    <div key={key}>
+                      <label
+                        htmlFor={key}
+                        className="block text-base font-semibold text-gray-800 mb-2"
+                      >
+                        {label}
+                      </label>
+                      {/* <textarea
+                        id={key}
+                        rows={5}
+                        placeholder={`Nhập ${label.toLowerCase()}`}
+                        {...register(key as keyof FormValues)}
+                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      /> */}
+                      <textarea
+                        id={key}
+                        rows={5}
+                        placeholder={`Nhập ${label.toLowerCase()}`}
+                        {...register(key as keyof FormValues)}
+                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                      {errors[key as keyof FormValues] && (
+                        <p className="text-red-500 text-sm mt-1">
+                          Trường này là bắt buộc
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">{parse(formData.description)}</div>
+              )}
+            </div>
+
+            {/* Jobs */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold">
+                  Công việc từ {formData.name}
+                </h2>
+                <a
+                  href="/employer/manage/jobs"
+                  className="text-blue-600 text-sm"
+                >
+                  Xem tất cả
+                </a>
+              </div>
+              <div className="space-y-4">
+                {jobs.map((job) => (
+                  <JobCard
+                    key={job.id}
+                    title={job.title}
+                    type={job.industry || "Không rõ loại hình"} // Bán thời gian / Toàn thời gian
+                    mode="Onsite" // Hoặc job.mode nếu có
+                    exp={`${job.experience || "Không yêu cầu"} năm`}
+                    href="/employer/manage/jobs"
+                  />
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Related Companies */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold mb-4">Người dùng cũng xem</h2>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li>FPT Software – Hà Nội</li>
-              <li>VNG Corporation – TP. Hồ Chí Minh</li>
-              <li>MoMo – TP. Hồ Chí Minh</li>
-              <li>VNPT – Hà Nội</li>
-            </ul>
+          {/* Right */}
+          <div className="space-y-6">
+            {/* People */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold mb-4">
+                Nhân viên tại {formData.name}
+              </h2>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <strong>Trần Quanh Ánh</strong> – Nhà sáng lập
+                </li>
+                <li>
+                  <strong>Trần Thùy Linh</strong> – Đồng sáng lập
+                </li>
+                <li>
+                  <strong>Phạm Quốc Duy</strong> – Thiết kế giao diện
+                </li>
+                <li>
+                  <strong>Võ Kim Anh</strong> – Minh họa & Hình ảnh
+                </li>
+              </ul>
+              <Button variant="outline" className="mt-4 w-full text-sm">
+                Show All
+              </Button>
+            </div>
+
+            {/* Related Companies */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold mb-4">
+                Người dùng cũng xem
+              </h2>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>FPT Software – Hà Nội</li>
+                <li>VNG Corporation – TP. Hồ Chí Minh</li>
+                <li>MoMo – TP. Hồ Chí Minh</li>
+                <li>VNPT – Hà Nội</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }
 
