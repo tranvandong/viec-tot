@@ -34,29 +34,21 @@ type FormValues = {
 
 export default function CompanyProfile() {
   const { authorized } = useAuth();
+
   const { data, reload } = useList<Organization>({
     resource: "Organizations/GetByUser",
     meta: { config: { auth: "allow" } },
     pagination: undefined,
-    queryOptions: {
-      enabled: authorized, // Chỉ gọi API khi đã xác thực
-    },
+    queryOptions: { enabled: authorized },
   });
 
-  const { data: job } = useList<JobPost>({
-    resource: "Jobs",
-  });
+  const { data: job } = useList<JobPost>({ resource: "Jobs" });
   const jobs = job?.data || [];
 
   const [formData, setFormData] = useState<Organization>();
-  const [selected, setSelected] = React.useState<Date | undefined>();
-  const [showCalendar, setShowCalendar] = useState(false);
-
-  useEffect(() => {
-    setFormData(data?.data);
-  }, [data]);
-
   const [isEditing, setIsEditing] = useState(false);
+  const [selected, setSelected] = useState<Date | undefined>();
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const [coverImage, setCoverImage] = useState(
     "https://images.unsplash.com/photo-1504384308090-c894fdcc538d"
@@ -64,15 +56,42 @@ export default function CompanyProfile() {
   const [logoImage, setLogoImage] = useState(
     "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
   );
-
-  const logoInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  // Field mapping
+  const sections = {
+    intro: "Giới thiệu",
+    vision: "Tầm nhìn & Sứ mệnh",
+    coreValues: "Giá trị cốt lõi",
+    services: "Sản phẩm & Dịch vụ",
+    contact: "Liên hệ",
+  };
+
+  // Form
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>();
+
+  useEffect(() => {
+    setFormData(data?.data);
+  }, [data]);
+
+  useEffect(() => {
+    if (formData?.description) {
+      const parsedSections = parseCompanyIntro(formData.description);
+      reset(parsedSections);
+    }
+  }, [formData, reset]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    console.log(e.target.name);
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => (prev ? { ...prev, [name]: value } : prev));
   };
 
   const { mutate: updateInfo } = useUpdateNew({
@@ -86,8 +105,7 @@ export default function CompanyProfile() {
     },
   });
 
-  // Handle job update
-  const handleJobUpdate = (updatedJob: any) => {
+  const handleJobUpdate = (updatedJob: Partial<Organization>) => {
     const {
       description,
       name,
@@ -96,8 +114,8 @@ export default function CompanyProfile() {
       address,
       email,
       workingTime,
-      ...newSelectedJob
     } = updatedJob;
+
     updateInfo(
       {
         description,
@@ -111,9 +129,9 @@ export default function CompanyProfile() {
       {
         onSuccess: (data) => {
           toast({
+            title: "Cập nhật thành công",
             description:
               data?.message || "Cập nhật thông tin công việc thành công",
-            title: "Cập nhật thành công",
             type: "background",
             variant: "success",
           });
@@ -121,10 +139,10 @@ export default function CompanyProfile() {
         },
         onError: (err: any) => {
           toast({
+            title: "Cập nhật thất bại",
             description:
               err?.response?.data?.message ||
               "Cập nhật thông tin công việc thất bại",
-            title: "Cập nhật thất bại",
             type: "background",
             variant: "warning",
           });
@@ -136,7 +154,7 @@ export default function CompanyProfile() {
 
   const onSubmit = (data: FormValues) => {
     const updatedDescriptionHtml = combineCompanyIntroHtml(data);
-    const updatedJob = {
+    const updatedJob: Partial<Organization> = {
       ...formData,
       description: updatedDescriptionHtml,
     };
@@ -144,29 +162,6 @@ export default function CompanyProfile() {
     handleJobUpdate(updatedJob);
     setIsEditing(false);
   };
-
-  const sections = {
-    intro: "Giới thiệu",
-    vision: "Tầm nhìn & Sứ mệnh",
-    coreValues: "Giá trị cốt lõi",
-    services: "Sản phẩm & Dịch vụ",
-    contact: "Liên hệ",
-  };
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormValues>();
-
-  useEffect(() => {
-    if (formData && formData.description) {
-      const parsedSections = parseCompanyIntro(formData?.description || "");
-      reset(parsedSections);
-      return;
-    }
-  }, [reset, formData]);
 
   if (!formData) {
     return;
@@ -389,13 +384,6 @@ export default function CompanyProfile() {
                       >
                         {label}
                       </label>
-                      {/* <textarea
-                        id={key}
-                        rows={5}
-                        placeholder={`Nhập ${label.toLowerCase()}`}
-                        {...register(key as keyof FormValues)}
-                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      /> */}
                       <textarea
                         id={key}
                         rows={5}
