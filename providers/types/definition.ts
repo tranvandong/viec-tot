@@ -93,3 +93,9 @@ export interface Application {
   job?: JobPost[];
   applicant?: Applicant;
 }
+
+export interface UserInfo {
+  displayName: string;
+  role: "HR" | "MEMBER";
+  // Add other properties as needed
+}

@@ -32,6 +32,8 @@ import { JobPost } from "@/providers/types/definition";
 export default function JobResult() {
   const { applicant, authorized } = useAuth();
   const jobExpand: Join[] = ["Organization"];
+  console.log("applicant:", applicant);
+
   authorized &&
     jobExpand.push({
       name: "favorites",

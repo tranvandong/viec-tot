@@ -68,7 +68,7 @@ export function CompanyCarousel() {
                 <div className="p-1 h-full">
                   <div className="flex flex-col bg-white dark:bg-gray-800 border dark:border-gray-700 shadow-sm rounded-xl h-full">
                     <div className="p-6 flex flex-col flex-grow">
-                      <div className="flex items-center gap-4 mb-4">
+                      <div className="flex items-start gap-4 mb-4">
                         <Image
                           src={
                             (company?.filePaths?.[0] &&

@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
-import { ThemeProviders } from "./providers";
+import { Providers } from "./providers";
 import { AuthProvider } from "@/providers/contexts/AuthProvider";
 
 export const metadata: Metadata = {
@@ -26,10 +26,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 transition-colors">
         <QueryProvider>
-          <ThemeProviders>
+          <Providers>
             <AuthProvider>{children}</AuthProvider>
             <Toaster />
-          </ThemeProviders>
+          </Providers>
         </QueryProvider>
       </body>
     </html>

@@ -3,11 +3,15 @@ import { authProvider } from "../providers/authProvider";
 import { useToast } from "./use-toast";
 import { useRouter } from "next/navigation";
 import { AuthActionResponse, UserRole } from "@/providers/types/auth";
-import { useAuth } from "@/providers/contexts/AuthProvider";
+import { signOut } from "next-auth/react";
 // Đăng nhập
+import { dataProvider } from "@/providers/dataProvider";
+
+import { useAuth } from "@/providers/contexts/AuthProvider";
+
 export function useLogin(role: UserRole) {
   const { toast } = useToast();
-  const { resetAuth } = useAuth();
+  const { establishSession } = useAuth();
   const router = useRouter();
   return useMutation({
     mutationFn: (params: { username: string; password: string }) =>
@@ -17,9 +21,13 @@ export function useLogin(role: UserRole) {
         role,
       }),
     onSuccess(data) {
+      console.log("Login response:", data);
+
       if (data?.success) {
-        resetAuth(); // Reset the auth state
-        router.push(data.redirectTo || "/");
+        // Instead of redirecting, call the function to fetch data and create the session
+        establishSession().then(() => {
+          router.push(data.redirectTo || "/");
+        });
       } else {
         toast({
           description:
@@ -78,12 +86,12 @@ export function useRegister() {
 
 // Đăng xuất
 export function useLogout() {
-  const { handleUnauthorized } = useAuth();
   const router = useRouter();
   return useMutation({
-    mutationFn: () => authProvider.logout(),
-    onSuccess() {
-      handleUnauthorized();
+    mutationFn: authProvider.logout,
+    async onSuccess() {
+      // After the backend cookie is cleared, sign out of the NextAuth session
+      await signOut({ redirect: false });
       router.push("/");
     },
   });

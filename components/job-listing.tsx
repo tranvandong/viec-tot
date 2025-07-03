@@ -42,9 +42,10 @@ export function JobListing() {
               getSource(job.organization.filePaths[0]);
 
             return (
-              <div
+              <Link
+                href={`/job/${job.id}`}
                 key={job.id}
-                className="flex flex-col bg-white dark:bg-gray-800 border dark:border-gray-700 shadow-sm rounded-xl"
+                className="flex flex-col bg-white dark:bg-gray-800 border dark:border-gray-700 shadow-sm rounded-xl cursor-pointer"
               >
                 <div className="p-6">
                   <div className="flex gap-4">
@@ -53,7 +54,7 @@ export function JobListing() {
                       alt={`${job.organization?.name} logo`}
                       width={48}
                       height={48}
-                      className="w-12 h-12 rounded-lg object-contain border dark:border-gray-700"
+                      className="w-12 h-12 rounded-lg object-contain"
                     />
                     <div className="flex-1">
                       <div className="flex justify-between items-start mb-2">
@@ -90,7 +91,7 @@ export function JobListing() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

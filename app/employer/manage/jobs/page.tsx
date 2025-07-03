@@ -344,10 +344,10 @@ export default function EmployerJobsPage() {
                 Số ứng viên trung bình
               </div>
               <div className="text-2xl font-bold mt-1">
-                {Math.round(
+                {/* {Math.round(
                   filteredJobs.reduce((sum, job) => sum + 10, 0) /
                     filteredJobs.length
-                )}
+                )} */}
               </div>
             </div>
           </div>

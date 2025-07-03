@@ -223,7 +223,7 @@ export interface CustomParams<TQuery = unknown, TPayload = unknown> {
   filters?: CrudFilter[];
   payload?: TPayload;
   query?: TQuery;
-  headers?: Record<string, never>;
+  headers?: Record<string, string>;
   meta?: MetaQuery;
 }
 

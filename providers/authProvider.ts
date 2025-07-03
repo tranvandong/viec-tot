@@ -35,9 +35,11 @@ export const authProvider: AuthBindings = {
           };
         }
 
+        // Return the full user data on success
         return {
           success: true,
           redirectTo: role === "candidate" ? "/" : "/employer/manage/jobs",
+          data: data, // Pass the user data
         };
       }
 

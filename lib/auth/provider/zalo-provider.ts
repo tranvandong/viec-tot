@@ -1,8 +1,4 @@
-import {
-  dataProvider,
-  apiUrl,
-  serverSideApiUrl,
-} from "@/providers/dataProvider";
+import { serverSideApiUrl } from "@/providers/dataProvider";
 import { OAuthConfig, OAuthUserConfig } from "next-auth/providers/oauth";
 
 export interface ZaloProfile {
@@ -71,22 +67,27 @@ export default function ZaloProvider<P extends ZaloProfile>(): OAuthConfig<P> {
     userinfo: {
       async request(context) {
         const accessToken = context.tokens.access_token;
-        console.log("accessToken: ", accessToken);
-        const response = await fetch(
+        const graphResponse = await fetch(
           `https://graph.zalo.me/v2.0/me?access_token=${accessToken}&fields=id,name,picture,phone`
         );
+        const user = await graphResponse.json();
 
-        const user = await response.json();
         let isLoginSuccess = false;
         try {
-          const { data } = await dataProvider.custom({
-            url: `${serverSideApiUrl}/default/public/UserApplicant/LoginByZalo`,
-            method: "post",
-            payload: { accessToken },
-            meta: { config: { mode: "server" } },
-          });
-          isLoginSuccess = data.isSuccessed;
-        } catch (error) {}
+          // Use a direct fetch call instead of dataProvider for server-side safety
+          const loginResponse = await fetch(
+            `${serverSideApiUrl}/default/public/UserApplicant/LoginByZalo`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ accessToken }),
+            }
+          );
+          const loginData = await loginResponse.json();
+          isLoginSuccess = loginData.isSuccessed;
+        } catch (error) {
+          console.error("Zalo login API call failed", error);
+        }
 
         return {
           id: user.id,
@@ -96,8 +97,14 @@ export default function ZaloProvider<P extends ZaloProfile>(): OAuthConfig<P> {
         };
       },
     },
-    profile(profile: ZaloProfile) {
-      return profile;
+    profile(profile: P) {
+      return {
+        id: profile.id,
+        name: profile.name,
+        image: profile.picture?.data?.url ?? null,
+        // The accessToken will be added in the jwt callback
+        accessToken: "",
+      };
     },
   };
 }
