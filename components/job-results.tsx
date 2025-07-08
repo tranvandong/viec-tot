@@ -3,7 +3,13 @@
 import type React from "react";
 
 import { useCallback, useEffect, useState } from "react";
-import { BookmarkIcon, ChevronDown, ChevronUp, Clock } from "lucide-react";
+import {
+  Bookmark,
+  BookmarkIcon,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+} from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Select as RadixSelect,
@@ -11,6 +17,7 @@ import {
   RadioGroup,
   Button,
   Flex,
+  ButtonProps,
 } from "@radix-ui/themes";
 import {
   useApi,
@@ -67,7 +74,7 @@ export default function JobResult() {
   const jobFilters = [];
   if (district) {
     jobFilters.push({
-      field: "dmHuyenCode",
+      field: "dmXaCode",
       operator: "eq",
       value: district,
     });
@@ -271,7 +278,7 @@ export default function JobResult() {
       "experience_to",
       "categoryName",
     ]);
-    router.push(`${pathName}?${queryString}`);
+    router.push(`/find-jobs?${queryString}`);
   };
 
   const onChangeSalaryRange = (value: number[]) => {
@@ -841,18 +848,21 @@ export default function JobResult() {
   );
 }
 
+interface JobBookmarkProps extends ButtonProps {
+  favorites?: any[];
+  jobId: string;
+  onSuccess?: () => void;
+}
+
 export function JobBookmark({
   favorites = [],
   jobId,
   onSuccess,
-}: {
-  favorites?: any[];
-  jobId: string;
-  onSuccess?: () => void;
-}) {
+  ...props
+}: JobBookmarkProps) {
   const [isFavorite, setIsFavorite] = useState(favorites.length > 0);
   const { authorized } = useAuth();
-  const { mutate: createFavorite } = useCreate({
+  const { mutate: createFavorite, isPending: isPendingCreate } = useCreate({
     resource: "Favorites",
     meta: { config: { auth: "auth", subSystem: "buss" } },
     onSuccess: () => {
@@ -861,7 +871,7 @@ export function JobBookmark({
     },
   });
 
-  const { mutate: deleteFavorite } = useDelete({
+  const { mutate: deleteFavorite, isPending: isPendingDelete } = useDelete({
     resource: "Favorites",
     meta: { config: { auth: "auth", subSystem: "buss" } },
     onSuccess: () => {
@@ -886,12 +896,13 @@ export function JobBookmark({
     return null;
   }
   return (
-    <Button variant="surface" onClick={(evt) => toggleFavorite(favorites, evt)}>
-      <BookmarkIcon
-        width={18}
-        height={18}
-        fill={isFavorite ? "#3b82f6" : "none"}
-      />
+    <Button
+      {...props}
+      variant={isFavorite ? "solid" : "outline"}
+      onClick={(evt) => toggleFavorite(favorites, evt)}
+      loading={isPendingCreate || isPendingDelete}
+    >
+      <Bookmark width={20} />
     </Button>
   );
 }

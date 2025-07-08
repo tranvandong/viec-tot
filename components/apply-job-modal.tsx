@@ -20,10 +20,16 @@ import {
 interface ApplyJobModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
   job?: JobPost;
 }
 
-const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
+const ApplyJobModal: FC<ApplyJobModalProps> = ({
+  isOpen,
+  onClose,
+  job,
+  onSuccess,
+}) => {
   const params = useParams();
   const slug = params?.slug as string | undefined;
   const apiUrl = useApi();
@@ -39,7 +45,7 @@ const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
     resource: "Applications",
   });
 
-  const { mutate: applyJob1 } = useCustomMutation({
+  const { mutate: applyJob1, isPending } = useCustomMutation({
     url: `${apiUrl}/default/allow/Applications/AppliedJob`,
     method: "post",
   });
@@ -51,6 +57,7 @@ const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
     };
     applyJob1(formData, {
       onSuccess: () => {
+        onSuccess?.();
         onClose();
       },
       onError: (error) => {
@@ -130,7 +137,9 @@ const ApplyJobModal: FC<ApplyJobModalProps> = ({ isOpen, onClose, job }) => {
             </Button>
           </Dialog.Close>
           <Dialog.Close>
-            <Button onClick={() => onSubmit()}>Ứng tuyển</Button>
+            <Button onClick={() => onSubmit()} loading={isPending}>
+              Ứng tuyển
+            </Button>
           </Dialog.Close>
         </Flex>
       </Dialog.Content>

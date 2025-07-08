@@ -2,7 +2,6 @@ export type JobPost = {
   createdDate: string;
   createdName: string | null;
   description: string;
-  dmHuyenCode: string;
   dmTinhCode: string;
   dmXaCode: string;
   experience: string;
@@ -22,6 +21,7 @@ export type JobPost = {
   toSalary: number | null;
   views: number;
   favorites?: Array<{ jobId: string }>;
+  applications?: Application[];
 };
 
 export type Organization = {

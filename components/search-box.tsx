@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, ChevronLeft, ChevronDown, X } from "lucide-react";
+import { Search, ChevronLeft, ChevronDown, X, MapPin } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -33,24 +33,36 @@ export function SearchBox() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categorySearch, setCategorySearch] = useState("");
   const [showCategories, setShowCategories] = useState(false);
-  const createQueryString = useCallback(
-    (params: Record<string, string | undefined>, removeKeys: string[] = []) => {
-      const sParams = new URLSearchParams(searchParams.toString());
+  // const createQueryString = useCallback(
+  //   (params: Record<string, string | undefined>, removeKeys: string[] = []) => {
+  //     const sParams = new URLSearchParams(searchParams?.toString() || "");
 
-      // Remove specified keys
-      removeKeys.forEach((key) => {
+  //     // Remove specified keys
+  //     removeKeys.forEach((key) => {
+  //       sParams.delete(key);
+  //     });
+
+  //     // Add/update params
+  //     Object.entries(params).forEach(([name, value]) => {
+  //       if (value === undefined || value === "") {
+  //         sParams.delete(name);
+  //       } else {
+  //         sParams.set(name, value);
+  //       }
+  //     });
+
+  //     return sParams.toString();
+  //   },
+  //   [searchParams]
+  // );
+  const qs = useQueryString();
+
+  const deleteQueryString = useCallback(
+    (keys: string[]) => {
+      const sParams = new URLSearchParams(searchParams?.toString() || "");
+      keys.forEach((key) => {
         sParams.delete(key);
       });
-
-      // Add/update params
-      Object.entries(params).forEach(([name, value]) => {
-        if (value === undefined || value === "") {
-          sParams.delete(name);
-        } else {
-          sParams.set(name, value);
-        }
-      });
-
       return sParams.toString();
     },
     [searchParams]
@@ -62,6 +74,16 @@ export function SearchBox() {
         ? prev.filter((c) => c !== category)
         : [...prev, category]
     );
+  };
+
+  const onClearLocation = () => {
+    setLocation("");
+    setProvince("");
+    setDistrict("");
+  };
+
+  const onClearTextSearch = () => {
+    setJobTitle("");
   };
 
   const handleSearchCategories = (e: FormEvent) => {
@@ -83,10 +105,10 @@ export function SearchBox() {
 
   // Set default values from query params
   useEffect(() => {
-    const job = searchParams.get("job") || "";
-    const locationName = searchParams.get("locationName") || "";
-    const district = searchParams.get("district") || "";
-    const province = searchParams.get("province") || "";
+    const job = searchParams?.get("job") || "";
+    const locationName = searchParams?.get("locationName") || "";
+    const district = searchParams?.get("district") || "";
+    const province = searchParams?.get("province") || "";
 
     setJobTitle(job);
     setLocation(locationName);
@@ -151,7 +173,7 @@ export function SearchBox() {
         : "tim-viec-lam-tai-" + `${handleSlug(provinceName)}-p${province}`;
     }
 
-    return slug;
+    return slug || "find-jobs";
   };
 
   const handleSearch = (e: FormEvent) => {
@@ -165,7 +187,7 @@ export function SearchBox() {
     } else if (province) {
       locationParam = `p${province}`;
     }
-    const queryString = createQueryString({
+    const queryString = qs.sets({
       job: jobTitle,
       location: locationParam,
       locationName: location,
@@ -281,7 +303,7 @@ export function SearchBox() {
       </div>
       <div className="h-6 w-px bg-gray-200 dark:bg-gray-800"></div> */}
       <div className="flex items-center flex-1 pl-2">
-        <Search className="h-5 w-5 text-gray-400 mr-2 pl-2" />
+        <Search className="h-8 w-8 text-gray-400 mr-2 pl-2" />
         <input
           type="text"
           className="py-2 px-3 block w-full border-0 bg-transparent dark:text-white focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-500"
@@ -289,36 +311,32 @@ export function SearchBox() {
           value={jobTitle}
           onChange={(e) => setJobTitle(e.target.value)}
         />
+        {jobTitle !== "" && (
+          <X
+            className="h-4 w-4 text-gray-400 ml-2 flex-shrink-0"
+            onClick={onClearTextSearch}
+          />
+        )}
       </div>
       <div className="h-6 w-px bg-gray-200 dark:bg-gray-800"></div>
       <div className="flex items-center flex-1 pl-2">
-        <svg
-          className="h-5 w-5 text-gray-400 mr-2"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
+        <MapPin className="h-8 w-8 text-gray-400 mr-2 pl-2" />
         <Popover>
-          <PopoverTrigger asChild>
+          <PopoverTrigger asChild hidden>
             <button
               className="py-2 px-3 flex items-center justify-between w-full border-0 bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-0 cursor-pointer"
               aria-expanded="false"
             >
               {location ? location : "Tất cả địa điểm"}
-              <ChevronDown className="h-4 w-4 text-gray-400 ml-2 flex-shrink-0" />
+              <Flex>
+                {!!location && (
+                  <X
+                    className="h-4 w-4 text-gray-400 ml-2 flex-shrink-0"
+                    onClick={onClearLocation}
+                  />
+                )}
+                <ChevronDown className="h-4 w-4 text-gray-400 ml-2 flex-shrink-0" />
+              </Flex>
             </button>
           </PopoverTrigger>
           <PopoverContent className="p-0 w-[300px]">
@@ -357,16 +375,6 @@ export function SearchBox() {
                         }}
                       >
                         Tất cả địa điểm
-                      </button>
-                      <button
-                        className="w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-gray-100"
-                        onClick={() => {
-                          setProvince("Từ xa");
-                          setDistrict("");
-                          setLocation("Từ xa");
-                        }}
-                      >
-                        Từ xa
                       </button>
                       {/* Province selection */}
                       {provinces

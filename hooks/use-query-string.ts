@@ -2,33 +2,35 @@ import { useSearchParams } from "next/navigation";
 
 export const useQueryString = () => {
   const searchParams = useSearchParams();
-  const urlSearchParams = new URLSearchParams(searchParams);
+  const urlSearchParams = new URLSearchParams(searchParams?.toString() || "");
 
-  const getQueryString = (key: string) => {
+  const get = (key: string) => {
     return urlSearchParams.get(key);
   };
 
-  const setQueryString = (key: string, value: string) => {
+  const set = (key: string, value: string) => {
     urlSearchParams.set(key, value);
-    window.history.replaceState(
-      {},
-      "",
-      `${location.pathname}?${urlSearchParams.toString()}`
-    );
+    return urlSearchParams.toString();
   };
 
-  const removeQueryString = (key: string) => {
-    urlSearchParams.delete(key);
-    window.history.replaceState(
-      {},
-      "",
-      `${location.pathname}?${urlSearchParams.toString()}`
-    );
+  const sets = (queryStrings: Record<string, string>) => {
+    Object.entries(queryStrings).forEach(([name, value]) => {
+      urlSearchParams.set(name, value);
+    });
+    return urlSearchParams.toString();
+  };
+
+  const remove = (keys: string[]) => {
+    keys.forEach((key) => {
+      urlSearchParams.delete(key);
+    });
+    return urlSearchParams.toString();
   };
 
   return {
-    getQueryString,
-    setQueryString,
-    removeQueryString,
+    get,
+    set,
+    sets,
+    remove,
   };
 };

@@ -23,6 +23,23 @@ async function getJob(slug: string) {
         },
       ],
     });
+    jobExpand.push({
+      name: "Applications",
+      filters: [
+        {
+          field: "applicantId",
+          operator: "eq",
+          value: applicant,
+          isUuid: true,
+        },
+        {
+          field: "jobId",
+          operator: "eq",
+          value: slug,
+          isUuid: true,
+        },
+      ],
+    });
   }
 
   try {
@@ -55,6 +72,7 @@ export default async function JobDetail({
   const { slug } = await params;
   console.log("slug:", slug);
   const job = await getJob(slug);
+  console.log("job:", job);
 
   if (!job) {
     return (

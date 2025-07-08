@@ -25,9 +25,13 @@ import { dataProvider } from "@/providers/dataProvider";
 import dayjs from "@/lib/dayjs";
 import ApplyJobModal from "@/components/apply-job-modal";
 import { JobBookmark } from "@/components/job-results";
+import { Button } from "@radix-ui/themes";
 
 export default function JobDetailClient({ job }: { job: JobPost }) {
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isApplicated, setIsApplicated] = useState(
+    (job?.applications?.length && job.applications.length > 0) || false
+  );
 
   const onShare = () => {
     if (navigator.share) {
@@ -132,13 +136,19 @@ export default function JobDetailClient({ job }: { job: JobPost }) {
               </div>
 
               <div className="flex items-center gap-6 mb-8">
-                <button
+                <Button
+                  disabled={isApplicated}
+                  variant="solid"
                   onClick={() => setIsOpenModal(true)}
-                  className="py-2.5 px-5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+                  size={"3"}
                 >
-                  Ứng tuyển ngay
-                </button>
-                <JobBookmark jobId={job.id} favorites={job.favorites} />
+                  {isApplicated ? "Đã ứng tuyển" : "Ứng tuyển ngay"}
+                </Button>
+                <JobBookmark
+                  jobId={job.id}
+                  favorites={job.favorites}
+                  size={"3"}
+                />
                 <button
                   onClick={onShare}
                   className="p-2.5 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
@@ -158,6 +168,9 @@ export default function JobDetailClient({ job }: { job: JobPost }) {
       <ApplyJobModal
         isOpen={isOpenModal}
         onClose={() => setIsOpenModal(false)}
+        onSuccess={() => {
+          setIsApplicated(true);
+        }}
       />
     </>
   );

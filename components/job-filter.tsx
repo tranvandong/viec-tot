@@ -169,7 +169,7 @@ export default function JobFilter({
       "locationName",
     ]);
 
-    router.push(`${pathName}?${queryString}`);
+    router.push(`/find-jobs?${queryString}`);
   };
 
   useEffect(() => {

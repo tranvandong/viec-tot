@@ -38,7 +38,7 @@ export async function getJobs({
   }
   if (sp.district) {
     filters.push({
-      field: "dmHuyenCode",
+      field: "dmXaCode",
       operator: "eq",
       value: sp.district,
     });

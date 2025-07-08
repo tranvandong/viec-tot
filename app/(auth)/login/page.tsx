@@ -9,6 +9,7 @@ import { signIn, getSession, getProviders, useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useLogin } from "@/hooks/useAuth";
+import { Button } from "@radix-ui/themes";
 
 export default function LoginPage() {
   const { toast } = useToast();
@@ -230,12 +231,15 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <button
+            <Button
               type="submit"
-              className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              variant="solid"
+              className="!w-full"
+              size={"3"}
+              loading={isPending}
             >
               Đăng nhập
-            </button>
+            </Button>
           </form>
 
           <div className="mt-6 text-center">

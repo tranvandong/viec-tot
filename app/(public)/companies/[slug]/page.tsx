@@ -211,7 +211,7 @@ export default function CompanyDetail() {
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex flex-col md:flex-row md:items-start gap-6">
             {/* Logo */}
-            <div className="w-16 h-16 bg-black text-white flex items-center justify-center rounded-lg text-2xl font-bold flex-shrink-0">
+            <div className="w-16 h-16 text-white flex items-center justify-center rounded-lg text-2xl font-bold flex-shrink-0">
               <IImage
                 filePath={company?.filePaths?.[0]}
                 alt="Office"
@@ -240,7 +240,7 @@ export default function CompanyDetail() {
               </div>
 
               {/* Company Details Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 py-4">
                 <div>
                   <div className="text-sm text-gray-500 mb-1">Website</div>
                   <a
@@ -258,10 +258,10 @@ export default function CompanyDetail() {
                   <div className="text-sm text-gray-500 mb-1">Quy mô</div>
                   <div className="font-medium">{company?.employeeCount}</div>
                 </div>
-                <div>
+                {/* <div>
                   <div className="text-sm text-gray-500 mb-1">Loại công ty</div>
                   <div className="font-medium">Vệ sinh môi trường</div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
