@@ -27,6 +27,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 transition-colors">
         <QueryProvider>
           <Providers>
+            <div id="radix-portal-root" />
             <AuthProvider>{children}</AuthProvider>
             <Toaster />
           </Providers>
