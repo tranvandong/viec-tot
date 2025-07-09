@@ -13,15 +13,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Briefcase, FileText } from "lucide-react";
+import { Briefcase, FileText, Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useApi, useCustom } from "@/hooks/useDataProvider";
 import { useAuth } from "@/providers/contexts/AuthProvider";
 import { useLogout } from "@/hooks/useAuth";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export function Nav() {
   // Header scroll hide/show logic
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { authorized } = useAuth();
   const { mutate: logout } = useLogout();
   const lastScrollY = useRef(0);
@@ -171,23 +179,167 @@ export function Nav() {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          {/* <div className="hidden md:block">
-            <ThemeToggle />
-          </div> */}
+          {/* Mobile Menu Toggle */}
+          <div className="md:hidden">
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-white">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="left"
+                className="w-[250px] sm:w-[300px] bg-blue-950 text-white"
+              >
+                <SheetHeader>
+                  <SheetTitle className="text-white">
+                    <Link
+                      href="/"
+                      className="flex items-center gap-2"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Image
+                        src={"/logo.png"}
+                        width={100}
+                        height={50}
+                        alt="logo viec tot"
+                      />
+                    </Link>
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-4 mt-8">
+                  <Link
+                    href="/"
+                    className="text-lg font-medium text-white"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Trang chủ
+                  </Link>
+                  <Link
+                    href="/find-jobs"
+                    className="text-lg font-medium text-white"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Tìm việc
+                  </Link>
+                  <Link
+                    href="/companies"
+                    className="text-lg font-medium text-white"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Công ty
+                  </Link>
+                  <div className="border-t border-gray-700 pt-4 mt-4">
+                    {!authorized && (
+                      <>
+                        <Link
+                          href="/register"
+                          className="block py-2 text-lg font-medium text-white"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Đăng ký
+                        </Link>
+                        <Link
+                          href="/login"
+                          className="block py-2 text-lg font-medium text-white"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Đăng nhập
+                        </Link>
+                        <Link
+                          href="/employer/login"
+                          className="block py-2 text-lg font-medium text-white"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Nhà tuyển dụng
+                        </Link>
+                      </>
+                    )}
+                    {authorized && userInfo?.role === "MEMBER" && (
+                      <>
+                        <Link
+                          href="/candidate/profile"
+                          className="block py-2 text-lg font-medium text-white"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Quản lý CV
+                        </Link>
+                        <Link
+                          href="/candidate/my-jobs?active=1"
+                          className="block py-2 text-lg font-medium text-white"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Việc đã ứng tuyển
+                        </Link>
+                        <Link
+                          href="/candidate/my-jobs?active=2"
+                          className="block py-2 text-lg font-medium text-white"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Việc đang theo dõi
+                        </Link>
+                        <button
+                          onClick={() => {
+                            logout();
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="block py-2 text-lg font-medium text-white w-full text-left"
+                        >
+                          Đăng xuất
+                        </button>
+                      </>
+                    )}
+                    {authorized && userInfo?.role === "HR" && (
+                      <>
+                        <Link
+                          href="/employer/manage/profile"
+                          className="block py-2 text-lg font-medium text-white"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Quản lý hồ sơ
+                        </Link>
+                        <Link
+                          href="/employer/manage/applied-candidates"
+                          className="block py-2 text-lg font-medium text-white"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Ứng tuyển
+                        </Link>
+                        <button
+                          onClick={() => {
+                            logout();
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="block py-2 text-lg font-medium text-white w-full text-left"
+                        >
+                          Đăng xuất
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          {/* Desktop Auth/Profile */}
           {!authorized && (
             <>
-              <Link href="/register" className="text-sm font-medium text-white">
+              <Link
+                href="/register"
+                className="hidden md:block  text-xs md:text-sm font-medium text-white"
+              >
                 Đăng ký
               </Link>
               <Link
                 href="/login"
-                className="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
+                className="hidden md:block  py-2 px-4 inline-flex items-center gap-x-2 text-xs md:text-sm font-semibold rounded-full border border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
               >
                 Đăng nhập
               </Link>
               <Link
                 href="/employer/login"
-                className="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-full border border-white text-white"
+                className="hidden md:block py-2 px-4 inline-flex items-center gap-x-2 text-xs md:text-sm font-semibold rounded-full border border-white text-white"
               >
                 Nhà tuyển dụng
               </Link>

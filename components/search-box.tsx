@@ -2,7 +2,14 @@
 
 import { useState, type FormEvent, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, ChevronLeft, ChevronDown, X, MapPin } from "lucide-react";
+import {
+  Search,
+  ChevronLeft,
+  ChevronDown,
+  X,
+  MapPin,
+  SearchIcon,
+} from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -31,30 +38,6 @@ export function SearchBox() {
   const [provinceSearch, setProvinceSearch] = useState("");
   const [districtSearch, setDistrictSearch] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [categorySearch, setCategorySearch] = useState("");
-  const [showCategories, setShowCategories] = useState(false);
-  // const createQueryString = useCallback(
-  //   (params: Record<string, string | undefined>, removeKeys: string[] = []) => {
-  //     const sParams = new URLSearchParams(searchParams?.toString() || "");
-
-  //     // Remove specified keys
-  //     removeKeys.forEach((key) => {
-  //       sParams.delete(key);
-  //     });
-
-  //     // Add/update params
-  //     Object.entries(params).forEach(([name, value]) => {
-  //       if (value === undefined || value === "") {
-  //         sParams.delete(name);
-  //       } else {
-  //         sParams.set(name, value);
-  //       }
-  //     });
-
-  //     return sParams.toString();
-  //   },
-  //   [searchParams]
-  // );
   const qs = useQueryString();
 
   const deleteQueryString = useCallback(
@@ -114,38 +97,6 @@ export function SearchBox() {
     setLocation(locationName);
     setDistrict(district);
     setProvince(province);
-
-    // if (locationName) {
-    //   // Nếu có dấu phẩy thì có district code
-    //   if (locationName.includes(",")) {
-    //     const [districtCode, provinceCode] = locationName.split(",");
-    //     setProvince(provinceCode);
-    //     setDistrict(districtCode);
-
-    //     const provinceObj = provinces.find((p) => p.code === provinceCode);
-    //     const districtObj = ((provinceObj?.dmHuyens as any[]) || []).find(
-    //       (d) =>
-    //         d.code === `${provinceCode}-${districtCode}` ||
-    //         d.code === districtCode
-    //     );
-
-    //     if (provinceObj && districtObj) {
-    //       setLocation(`${districtObj.name}, ${provinceObj.name}`);
-    //     } else if (provinceObj) {
-    //       setLocation(provinceObj.name);
-    //     }
-    //   } else {
-    //     // chỉ có province code
-    //     setProvince(locationName);
-    //     setDistrict("");
-    //     const provinceObj = provinces.find((p) => p.code === locationName);
-    //     if (provinceObj) setLocation(provinceObj.name);
-    //   }
-    // } else {
-    //   setProvince("");
-    //   setDistrict("");
-    //   setLocation("");
-    // }
   }, [searchParams]);
 
   const createSlugFromJobTitleAndLocation = (jobTitle: string) => {
@@ -201,112 +152,13 @@ export function SearchBox() {
   return (
     <form
       onSubmit={handleSearch}
-      className="bg-white dark:bg-gray-800 rounded-full p-2 flex items-center gap-2 mb-4 mx-auto text-gray-800 dark:text-gray-200"
+      className="bg-white dark:bg-gray-800 rounded-full p-2 flex flex-row items-center gap-1 md:gap-2 mb-4 mx-auto text-gray-800 dark:text-gray-200"
     >
-      {/* <div className="w-auto mx-auto px-2">
-        <Popover open={showCategories} onOpenChange={setShowCategories}>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className="flex items-center justify-between w-full border-0 bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-0 cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <svg
-                  className="h-5 w-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 10h16M4 14h16M4 18h16"
-                  />
-                </svg>
-                <span
-                  className={`text-sm ${
-                    selectedCategories.length > 0
-                      ? "text-gray-900 dark:text-white font-medium"
-                      : "text-gray-500 dark:text-gray-400"
-                  }`}
-                >
-                  {selectedCategories.length > 0
-                    ? `Nghề nghiệp đã chọn`
-                    : "Danh mục nghề nghiệp"}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 pl-2">
-                {selectedCategories.length > 0 && (
-                  <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
-                    {selectedCategories.length}
-                  </span>
-                )}
-                <ChevronDown className="h-4 w-4 text-gray-400" />
-              </div>
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[500px] p-0 mt-4" align="start">
-             <div className="border-b border-gray-200 dark:border-gray-700 p-3">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Nhập từ khóa tìm kiếm"
-                  className="w-full pl-8 pr-3 py-2 border border-gray-200 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800"
-                  value={categorySearch}
-                  onChange={(e) => setCategorySearch(e.target.value)}
-                />
-              </div> 
-            </div>
-            <div className="p-3">
-              <div className="max-h-60 overflow-y-auto space-y-2 px-4">
-                {filteredCategories.map((category) => (
-                  <Text key={category} as="label" size="2">
-                    <Flex
-                      gap="2"
-                      className={`${
-                        selectedCategories.includes(category)
-                          ? "text-blue-600 font-medium"
-                          : "text-gray-700 dark:text-gray-300"
-                      }`}
-                    >
-                      <Checkbox
-                        id={category}
-                        checked={selectedCategories.includes(category)}
-                        onCheckedChange={() => handleCategoryToggle(category)}
-                      />
-
-                      {category}
-                    </Flex>
-                  </Text>
-                ))}
-              </div>
-              {selectedCategories.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      Đã chọn: {selectedCategories.length} danh mục
-                    </span>
-                    <button
-                      onClick={() => setSelectedCategories([])}
-                      className="text-xs text-red-500 hover:text-red-700"
-                    >
-                      Xóa tất cả
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
-      <div className="h-6 w-px bg-gray-200 dark:bg-gray-800"></div> */}
-      <div className="flex items-center flex-1 pl-2">
-        <Search className="h-8 w-8 text-gray-400 mr-2 pl-2" />
+      <div className="flex items-center flex-1 w-6 md:w-full md:w-auto pl-2">
+        <Search className="h-6 w-6 md:h-8 md:w-8 text-gray-400 mr-1 md:mr-2 pl-0 md:pl-2" />
         <input
           type="text"
-          className="py-2 px-3 block w-full border-0 bg-transparent dark:text-white focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-500"
+          className="py-2 px-1 md:py-2 md:px-3 block w-full border-0 bg-transparent dark:text-white focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-500"
           placeholder="Chức danh, từ khóa hoặc công ty"
           value={jobTitle}
           onChange={(e) => setJobTitle(e.target.value)}
@@ -318,16 +170,20 @@ export function SearchBox() {
           />
         )}
       </div>
-      <div className="h-6 w-px bg-gray-200 dark:bg-gray-800"></div>
-      <div className="flex items-center flex-1 pl-2">
-        <MapPin className="h-8 w-8 text-gray-400 mr-2 pl-2" />
+      <div className="h-6 w-px bg-gray-200 dark:bg-gray-800 my-2 md:my-0"></div>
+      <div className="flex items-center flex-1 w-full md:w-auto pl-px md:pl-2">
+        <MapPin className="h-6 w-6 md:h-8 md:w-8 text-gray-400 mr-1 md:mr-2 pl-0 md:pl-2" />
         <Popover>
-          <PopoverTrigger asChild hidden>
+          <PopoverTrigger asChild>
             <button
-              className="py-2 px-3 flex items-center justify-between w-full border-0 bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-0 cursor-pointer"
+              className="p-1 md:py-2 md:px-3 text-sm flex items-center justify-between w-full border-0 bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-0 cursor-pointer"
               aria-expanded="false"
             >
-              {location ? location : "Tất cả địa điểm"}
+              {location ? (
+                <span className="text-xs">{location}</span>
+              ) : (
+                "Tất cả"
+              )}
               <Flex>
                 {!!location && (
                   <X
@@ -367,14 +223,14 @@ export function SearchBox() {
                   <div className="max-h-[300px] overflow-y-auto">
                     <div className="p-1">
                       <button
-                        className="w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-gray-100"
+                        className="w-full text-left px-2 py-1.5 text-xs md:text-sm rounded-md hover:bg-gray-100"
                         onClick={() => {
                           setProvince("");
                           setDistrict("");
                           setLocation("");
                         }}
                       >
-                        Tất cả địa điểm
+                        Tất cả
                       </button>
                       {/* Province selection */}
                       {provinces
@@ -479,9 +335,10 @@ export function SearchBox() {
       </div>
       <button
         type="submit"
-        className="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
+        className="py-2 px-4 inline-flex items-center justify-center w-auto gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
       >
-        Tìm kiếm
+        <span className="hidden md:inline">Tìm kiếm</span>
+        <SearchIcon className="h-4 w-4 md:hidden inline" />
       </button>
     </form>
   );

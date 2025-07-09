@@ -700,7 +700,7 @@ export default function JobResult() {
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h1 className="text-gray-600 dark:text-gray-300 ">
-                  Tuyển dụng{" "}
+                  Đang tuyển dụng{" "}
                   <span className="font-semibold">{jobData?.total}</span> việc
                   làm{" "}
                   <span className="font-semibold">
@@ -733,60 +733,93 @@ export default function JobResult() {
             </div>
 
             <div className="space-y-4">
-              {jobData?.data.map((job) => (
-                <div
-                  key={`${job.id}-${job?.favorites?.length}`}
-                  className="block bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
-                  // onClick={(e) => openJobModal(job, e)}
-                >
-                  <div className="flex justify-between">
-                    <div className="flex gap-4">
-                      <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
-                        <Image
-                          src={
-                            job?.organization?.filePaths &&
-                            job.organization.filePaths.length > 0
-                              ? dataProvider.getSource(
-                                  job.organization!.filePaths[0]
-                                )
-                              : "/placeholder.svg"
-                          }
-                          alt={job.organizationId}
-                          width={48}
-                          height={48}
-                          className="w-12 h-12 rounded-lg object-contain"
-                        />
+              {(isLoadingJobs || isFetchingJobs) && (
+                <>
+                  {[...Array(3)].map((_, index) => (
+                    <div
+                      key={index}
+                      className="block bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+                    >
+                      <div className="flex justify-between">
+                        <div className="flex gap-4">
+                          <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                          <div>
+                            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-48 mb-2 animate-pulse"></div>
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                              <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+                        </div>
                       </div>
-                      <div>
-                        <Link href={`/job/${job.id}`}>
-                          <h3 className="font-semibold text-lg dark:text-white">
-                            {job.title}
-                          </h3>
-                        </Link>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                          {job?.organization?.name} • {job.location}
-                        </p>
+                      <div className="flex justify-between items-center mt-3">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-40 animate-pulse"></div>
+                        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+              {!isLoadingJobs &&
+                !isFetchingJobs &&
+                jobData?.data.map((job) => (
+                  <div
+                    key={`${job.id}-${job?.favorites?.length}`}
+                    className="block bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
+                    // onClick={(e) => openJobModal(job, e)}
+                  >
+                    <div className="flex justify-between">
+                      <div className="flex gap-4">
+                        <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
+                          <Image
+                            src={
+                              job?.organization?.filePaths &&
+                              job.organization.filePaths.length > 0
+                                ? dataProvider.getSource(
+                                    job.organization!.filePaths[0]
+                                  )
+                                : "/placeholder.svg"
+                            }
+                            alt={job.organizationId}
+                            width={48}
+                            height={48}
+                            className="w-12 h-12 rounded-lg object-contain"
+                          />
+                        </div>
+                        <div>
+                          <Link href={`/job/${job.id}`}>
+                            <h3 className="font-semibold text-lg dark:text-white">
+                              {job.title}
+                            </h3>
+                          </Link>
+                          <p className="text-gray-600 dark:text-gray-300 text-sm">
+                            {job?.organization?.name} • {job.location}
+                          </p>
 
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
-                            {job.industry}
-                          </span>
-                          {/* <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
+                              {job.industry}
+                            </span>
+                            {/* <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
                               {job.shift === "Remote"
                                 ? "Từ xa"
                                 : job.shift === "Onsite"
                                 ? "Tại văn phòng"
                                 : "Kết hợp"}
                             </span> */}
-                          <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
-                            {job.experience}
-                          </span>
+                            <span className="inline-flex items-center gap-x-1 py-1 px-2 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
+                              {job.experience}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex flex-col items-end">
-                      {/* <button
+                      <div className="flex flex-col items-end">
+                        {/* <button
                           onClick={(e) => toggleSaveJob(job.id, e)}
                           className="text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400 mb-2"
                           aria-label="Lưu việc làm"
@@ -825,27 +858,27 @@ export default function JobResult() {
                             </svg>
                           )}
                         </button> */}
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-300 text-sm"></span>
-                        <span className="font-semibold text-gray-600 dark:text-blue-500">
-                          {" "}
-                          {formatVND(job.fromSalary)} -{" "}
-                          {formatVND(job.toSalary || 0)}
-                        </span>
+                        <div>
+                          <span className="text-gray-600 dark:text-gray-300 text-sm"></span>
+                          <span className="font-semibold text-gray-600 dark:text-blue-500">
+                            {" "}
+                            {formatVND(job.fromSalary)} -{" "}
+                            {formatVND(job.toSalary || 0)}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex justify-between items-center mt-3">
-                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>
-                        {dayjs(job.createdDate).fromNow()} • {job.views} lượt
-                        xem
-                      </span>
-                    </div>
+                    <div className="flex justify-between items-center mt-3">
+                      <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                        <Clock className="h-3 w-3 mr-1" />
+                        <span>
+                          {dayjs(job.createdDate).fromNow()} • {job.views} lượt
+                          xem
+                        </span>
+                      </div>
 
-                    {/* <Button
+                      {/* <Button
                       variant="surface"
                       onClick={(evt) => toggleFavorite(job, evt)}
                     >
@@ -860,10 +893,10 @@ export default function JobResult() {
                         }
                       />
                     </Button> */}
-                    <JobBookmark favorites={job.favorites} jobId={job.id} />
+                      <JobBookmark favorites={job.favorites} jobId={job.id} />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         </div>
