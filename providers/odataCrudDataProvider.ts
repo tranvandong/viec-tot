@@ -3,6 +3,7 @@ import { axiosInstance, transformHttpError } from "./utils";
 import {
   CrudFilter,
   CrudFilters,
+  CrudSorting,
   IDataContextProvider,
   Join,
   MetaQueryMode,
@@ -82,9 +83,7 @@ const buildFilterString = (filters?: CrudFilters): string => {
 };
 
 // Helper function to build orderby string
-const buildOrderByString = (
-  sorters?: { field: string; order: string }[]
-): string => {
+const buildOrderByString = (sorters?: CrudSorting): string => {
   if (!sorters || sorters.length === 0) {
     return "";
   }
@@ -142,7 +141,7 @@ const buildExpandString = (join?: Join[]): string => {
 
 const buildODataQuery = (params: {
   filters?: CrudFilters;
-  sorters?: any[];
+  sorters?: CrudSorting;
   pagination?: {
     current?: number;
     pageSize?: number;

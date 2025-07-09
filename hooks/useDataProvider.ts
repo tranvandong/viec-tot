@@ -54,8 +54,8 @@ interface UseListParams<TQueryFnData> {
     current?: number;
     pageSize?: number;
   };
-  filters?: any[];
-  sorters?: any[];
+  filters?: CrudFilters;
+  sorters?: CrudSorting;
   meta?: MetaQuery;
   queryOptions?: Omit<
     UseQueryOptions<GetListResponse<TQueryFnData>>,

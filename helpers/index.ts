@@ -10,7 +10,7 @@ export const handleSlug = (str: string) =>
     trim: true, // trim leading and trailing replacement chars, defaults to `true`
   });
 
-export const formatVND = (value: number) => {
+export const formatVND = (value = 0) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",

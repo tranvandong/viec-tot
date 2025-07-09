@@ -26,7 +26,7 @@ import {
   useDelete,
   useList,
 } from "@/hooks/useDataProvider";
-import { handleSlug } from "@/helpers";
+import { formatVND, handleSlug } from "@/helpers";
 import { on } from "events";
 import Image from "next/image";
 import { dataProvider } from "@/providers/dataProvider";
@@ -35,6 +35,7 @@ import dayjs from "@/lib/dayjs";
 import { CrudFilters, Join } from "@/providers/types/IDataContext";
 import { useAuth } from "@/providers/contexts/AuthProvider";
 import { JobPost } from "@/providers/types/definition";
+import { useQueryString } from "@/hooks/use-query-string";
 
 export default function JobResult() {
   const { applicant, authorized } = useAuth();
@@ -67,11 +68,12 @@ export default function JobResult() {
   const [salary, setSalary] = useState("");
   const [jobType, setJobType] = useState("");
   const [experience, setExperience] = useState("");
+  const qs = useQueryString();
   const district = searchParams?.get("district");
   const province = searchParams?.get("province");
   const jobTitle =
     searchParams?.get("job") || searchParams?.get("categoryName");
-  const jobFilters = [];
+  const jobFilters: CrudFilters = [];
   if (district) {
     jobFilters.push({
       field: "dmXaCode",
@@ -102,6 +104,8 @@ export default function JobResult() {
     refetch: refetchJobs,
     isLoading: isLoadingJobs,
     isFetching: isFetchingJobs,
+    sorters,
+    setSorters,
   } = useList<JobPost>({
     resource: "Jobs",
     // queryOptions: { enabled: false },
@@ -296,12 +300,17 @@ export default function JobResult() {
     router.push(`${pathName}?${queryString}#search-results`);
   };
 
+  const onSortJobs = (value: string) => {
+    const queryString = qs.set("sort", value);
+    router.push(`${pathName}?${queryString}#search-results`);
+  };
+
+  const salaryMin = searchParams?.get("salary_from");
+  const salaryMax = searchParams?.get("salary_to");
+  const experienceMin = searchParams?.get("experience_from");
+  const experienceMax = searchParams?.get("experience_to");
+  const jobTypeParam = searchParams?.get("jobType");
   useEffect(() => {
-    const salaryMin = searchParams?.get("salary_from");
-    const salaryMax = searchParams?.get("salary_to");
-    const experienceMin = searchParams?.get("experience_from");
-    const experienceMax = searchParams?.get("experience_to");
-    const jobType = searchParams?.get("jobType");
     setFilters((prevFilter: CrudFilters) => {
       const newFilter: CrudFilters = [...prevFilter];
       const salaryFromFilter = newFilter.find(
@@ -370,16 +379,27 @@ export default function JobResult() {
       // Remove existing jobType filter if it exists
       if (jobTypeFilter) {
         newFilter.splice(newFilter.indexOf(jobTypeFilter), 1);
-      } else if (jobType) {
+      }
+      if (jobTypeParam) {
         newFilter.push({
           field: "industry",
           operator: "eq",
-          value: jobType,
+          value: jobTypeParam,
         });
       }
       return newFilter;
     });
-  }, [searchParams]);
+  }, [salaryMin, salaryMax, experienceMin, experienceMax, jobTypeParam]);
+
+  const sortValue = searchParams?.get("sort");
+  useEffect(() => {
+    const sortValue = searchParams?.get("sort");
+    if (sortValue === "newest") {
+      setSorters([{ field: "effectiveDate", order: "desc" }]);
+    } else {
+      setSorters([]);
+    }
+  }, [sortValue]);
 
   return (
     <div className="container mx-auto py-8">
@@ -697,7 +717,10 @@ export default function JobResult() {
                 <span className="text-sm text-gray-600 dark:text-gray-300">
                   Sắp xếp theo
                 </span>
-                <RadixSelect.Root defaultValue="newest">
+                <RadixSelect.Root
+                  defaultValue="relative"
+                  onValueChange={onSortJobs}
+                >
                   <RadixSelect.Trigger />
                   <RadixSelect.Content>
                     <RadixSelect.Item value="relative">
@@ -731,7 +754,7 @@ export default function JobResult() {
                           alt={job.organizationId}
                           width={48}
                           height={48}
-                          className="object-cover"
+                          className="w-12 h-12 rounded-lg object-contain"
                         />
                       </div>
                       <div>
@@ -804,9 +827,10 @@ export default function JobResult() {
                         </button> */}
                       <div>
                         <span className="text-gray-600 dark:text-gray-300 text-sm"></span>
-                        <span className="font-semibold text-blue-500">
+                        <span className="font-semibold text-gray-600 dark:text-blue-500">
                           {" "}
-                          {job.fromSalary} - {job.toSalary} VND
+                          {formatVND(job.fromSalary)} -{" "}
+                          {formatVND(job.toSalary || 0)}
                         </span>
                       </div>
                     </div>
