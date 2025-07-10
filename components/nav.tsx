@@ -30,27 +30,11 @@ export function Nav() {
   // Header scroll hide/show logic
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { authorized } = useAuth();
+  const { authorized, userInfo } = useAuth();
   const { mutate: logout } = useLogout();
   const lastScrollY = useRef(0);
   const router = useRouter();
   const apiUrl = useApi();
-  const { data } = useCustom<{
-    isSuccessed: boolean;
-    resultObj: {
-      displayName: string;
-      role: "HR" | "MEMBER";
-    };
-  }>({
-    url: `${apiUrl}/default/allow/UserInfo/UserInfo`,
-    method: "get",
-    queryOptions: {
-      retry: 1,
-      enabled: authorized,
-      refetchOnWindowFocus: false,
-    },
-  });
-  const userInfo = data?.data?.resultObj;
 
   // Mock data for the candidate profile
   const profile = {

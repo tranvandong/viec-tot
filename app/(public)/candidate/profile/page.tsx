@@ -52,7 +52,7 @@ export default function CandidateProfile() {
   const [editing, setEditing] = useState<string | null>(null);
   const [applicantId, setApplicantId] = useState("");
   const apiUrl = useApi();
-  const { authorized } = useAuth();
+  const { authorized, userInfo } = useAuth();
   // Mock data for the candidate profile
   const [profile, setProfile] = useState<
     Omit<Resume, "hrViewCount" | "applicantId">
@@ -87,22 +87,6 @@ export default function CandidateProfile() {
     }
   }, [data]);
 
-  const { data: userInfoData } = useCustom<{
-    isSuccessed: boolean;
-    resultObj: {
-      displayName: string;
-      role: "HR" | "MEMBER";
-    };
-  }>({
-    url: `${apiUrl}/default/allow/UserInfo/UserInfo`,
-    method: "get",
-    queryOptions: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-      enabled: authorized, // Chỉ gọi API khi đã xác thực
-    },
-  });
-
   const { mutate: createResume } = useCreate<Partial<Resume>>({
     resource: "Resumes",
     meta: { config: { auth: "auth", subSystem: "buss" } },
@@ -123,8 +107,6 @@ export default function CandidateProfile() {
       console.log("Resume created successfully:", data);
     },
   });
-
-  const userInfo = userInfoData?.data?.resultObj;
 
   const handleEditToggle = (section: string) => {
     if (editing === section) {
