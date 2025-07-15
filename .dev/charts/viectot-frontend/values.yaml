@@ -72,10 +72,10 @@ affinity: {}
 
 extraEnvs:
   - name: NEXTAUTH_SECRET
-    value: hySZDRRtv5nPwDreXeGVwHxGzPQXZa5d
+    value: "hySZDRRtv5nPwDreXeGVwHxGzPQXZa5d"
   - name: NEXT_PUBLIC_ZALO_APP_ID
-    value: 2873380454691200822
+    value: "2873380454691200822"
   - name: NEXT_PUBLIC_ZALO_SECRET_KEY
-    value: XVBQ1X23hWqLEVAMMII9
+    value: "XVBQ1X23hWqLEVAMMII9"
   - name: NEXT_PUBLIC_CLIENT_ID
-    value: 8VMDljyXs92lXM15kEaS7LuXKvzQIns1
+    value: "8VMDljyXs92lXM15kEaS7LuXKvzQIns1"
