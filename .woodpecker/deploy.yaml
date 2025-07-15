@@ -18,7 +18,7 @@ steps:
       - "image.repository=${CI_REPO}"
       - "--set"
       - "image.tag=${CI_COMMIT_SHA:0:8}"
-    directory: dev/charts/viectot-frontend
+    directory: .dev/charts/viectot-frontend
     backend_options:
       kubernetes:
         serviceAccountName: "ci-runner"

@@ -12,7 +12,7 @@ steps:
     privileged: true
     commands:
       - echo $${DOCKER_SECRET} | buildah login -u $${DOCKER_LOGIN} --password-stdin code.nextform.vn
-      - buildah build --file dev/docker/Dockerfile --tag code.nextform.vn/${CI_REPO}:${CI_COMMIT_SHA:0:8} .
+      - buildah build --file .dev/docker/Dockerfile --tag code.nextform.vn/${CI_REPO}:${CI_COMMIT_SHA:0:8} .
       - buildah push code.nextform.vn/${CI_REPO}:${CI_COMMIT_SHA:0:8}
     environment:
       DOCKER_LOGIN:
