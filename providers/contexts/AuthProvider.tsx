@@ -99,6 +99,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return Promise.reject(error);
       }
     );
+    console.log("status:", status);
 
     if (status === "authenticated") {
       console.log("Session is unauthenticated, establishing session...");

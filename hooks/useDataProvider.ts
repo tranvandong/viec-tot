@@ -38,7 +38,8 @@ type Resource =
   | "Applications"
   | "Resumes"
   | "DMCategories"
-  | "Organizations/GetByUser";
+  | "Organizations/GetByUser"
+  | "Notifies";
 
 interface MetaQuery {
   join?: Join[];
@@ -132,6 +133,26 @@ export const useList = <TQueryFnData extends BaseRecord = BaseRecord>(
   };
 };
 
+interface UseCountParams {
+  resource: Resource;
+  filters?: CrudFilters;
+  meta?: MetaQuery;
+  queryOptions?: Omit<UseQueryOptions<number>, "queryKey">;
+}
+
+export const useCount = (params: UseCountParams) => {
+  const queryKey = ["count", params.resource, params.filters, params.meta];
+
+  return useQuery({
+    ...params.queryOptions,
+    queryKey,
+    queryFn: async () => {
+      const result = await provider.getCount(params);
+      return result;
+    },
+  });
+};
+
 interface UseManyParams<TQueryFnData> {
   resource: string;
   ids: (string | number)[];
@@ -211,27 +232,32 @@ export const useCreate = <T = BaseRecord>({
     },
   });
 };
-interface UseUpdateParams<T = BaseRecord>
-  extends UseMutationOptions<UpdateResponse<T>, Error, T> {
-  resource: string;
+interface UpdateMutationVariables<T> {
   id: string | number;
-  variables?: T;
+  variables: Partial<T>;
+}
+
+interface UseUpdateParams<T = BaseRecord>
+  extends Omit<
+    UseMutationOptions<UpdateResponse<T>, Error, UpdateMutationVariables<T>>,
+    "mutationFn"
+  > {
+  resource: Resource;
   meta?: Omit<MetaQuery, "join">;
 }
 
 export const useUpdate = <T = BaseRecord>({
   resource,
   meta,
-  id,
   ...rest
 }: UseUpdateParams<T>) => {
-  return useMutation<UpdateResponse<T>, Error, T>({
+  return useMutation<UpdateResponse<T>, Error, UpdateMutationVariables<T>>({
     ...rest,
-    mutationFn: async (values: T) => {
+    mutationFn: async ({ id, variables }: UpdateMutationVariables<T>) => {
       const result = await provider.update({
         resource: resource,
         id: id,
-        variables: values,
+        variables: variables,
         ...(meta ? { meta: meta } : {}),
       });
       return result as UpdateResponse<T>;
@@ -241,11 +267,11 @@ export const useUpdate = <T = BaseRecord>({
 
 export const useUpdateNew = <T = any>(params: UseUpdateParams<T>) => {
   return useMutation({
-    mutationFn: async (variables?: T) => {
+    mutationFn: async ({ id, variables }: UpdateMutationVariables<T>) => {
       const result = await provider.updateNew({
         resource: params.resource,
-        id: params.id,
-        variables: variables || params.variables,
+        id: id,
+        variables: variables,
         ...(params.meta ? { meta: params.meta } : {}),
       });
       return result.data as T;

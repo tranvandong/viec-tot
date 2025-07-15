@@ -412,6 +412,7 @@ export function JobBookmark({
       variant={isFavorite ? "solid" : "outline"}
       onClick={(evt) => toggleFavorite(favorites, evt)}
       loading={isPendingCreate || isPendingDelete}
+      size={"icon"}
     >
       <Bookmark width={20} />
     </Button>

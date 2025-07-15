@@ -242,6 +242,7 @@ export interface IDataContextProvider {
   getList: <TData extends BaseRecord = BaseRecord>(
     params: GetListParams
   ) => Promise<GetListResponse<TData>>;
+  getCount?: (params: GetListParams) => Promise<number>;
 
   getMany?: <TData extends BaseRecord = BaseRecord>(
     params: GetManyParams

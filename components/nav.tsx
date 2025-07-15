@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Briefcase, FileText, Menu, X } from "lucide-react";
+import { Bell, Briefcase, FileText, Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useApi, useCustom } from "@/hooks/useDataProvider";
 import { useAuth } from "@/providers/contexts/AuthProvider";
@@ -25,115 +25,37 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useSSENotifies } from "@/hooks/use-sse-notify";
+import dayjs from "@/lib/dayjs";
 
 export function Nav() {
   // Header scroll hide/show logic
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(3); // Dummy count
+  const [notifications, setNotifications] = useState([
+    // Dummy notifications
+    { id: 1, message: "Bạn có một công việc mới phù hợp!", read: false },
+    {
+      id: 2,
+      message: "Hồ sơ của bạn đã được xem bởi FPT Software.",
+      read: false,
+    },
+    {
+      id: 3,
+      message:
+        "Chúc mừng bạn đã ứng tuyển thành công vị trí Senior Frontend Developer.",
+      read: false,
+    },
+    { id: 4, message: "Nhà tuyển dụng đã phản hồi hồ sơ của bạn.", read: true },
+  ]);
   const { authorized, userInfo } = useAuth();
   const { mutate: logout } = useLogout();
   const lastScrollY = useRef(0);
   const router = useRouter();
-  const apiUrl = useApi();
-
-  // Mock data for the candidate profile
-  const profile = {
-    name: "Đồng Trần",
-    title: "Senior Frontend Developer",
-    location: "Hồ Chí Minh",
-    email: "dongtran@example.com",
-    phone: "+84 123 456 789",
-    birthday: "1990-01-01",
-    about:
-      "Tôi là một lập trình viên Frontend với hơn 5 năm kinh nghiệm làm việc với React, Next.js và TypeScript. Tôi đam mê xây dựng giao diện người dùng đẹp mắt và trải nghiệm người dùng tuyệt vời.",
-    skills: [
-      "React",
-      "Next.js",
-      "TypeScript",
-      "JavaScript",
-      "HTML",
-      "CSS",
-      "Tailwind CSS",
-      "Redux",
-      "GraphQL",
-    ],
-    languages: ["Tiếng Việt (Bản địa)", "Tiếng Anh (Thành thạo)"],
-    experiences: [
-      {
-        id: 1,
-        title: "Senior Frontend Developer",
-        company: "Tech Solutions",
-        location: "Hồ Chí Minh",
-        from: "2020-01",
-        to: "Hiện tại",
-        current: true,
-        description:
-          "Phát triển và duy trì các ứng dụng web sử dụng React và Next.js. Làm việc trong một nhóm Agile để cung cấp các tính năng mới và cải thiện hiệu suất.",
-      },
-      {
-        id: 2,
-        title: "Frontend Developer",
-        company: "Digital Agency",
-        location: "Hồ Chí Minh",
-        from: "2018-03",
-        to: "2019-12",
-        current: false,
-        description:
-          "Xây dựng giao diện người dùng cho các trang web thương mại điện tử và ứng dụng web. Cộng tác với các nhà thiết kế và nhà phát triển backend.",
-      },
-    ],
-    education: [
-      {
-        id: 1,
-        degree: "Cử nhân Khoa học Máy tính",
-        institution: "Đại học Khoa học Tự nhiên",
-        location: "Hồ Chí Minh",
-        from: "2014",
-        to: "2018",
-        description: "Chuyên ngành Phát triển phần mềm. Tốt nghiệp loại Giỏi.",
-      },
-    ],
-    certifications: [
-      {
-        id: 1,
-        name: "AWS Certified Developer",
-        issuer: "Amazon Web Services",
-        date: "2021-06",
-        expires: "2024-06",
-        description: "Chứng chỉ phát triển ứng dụng trên nền tảng AWS.",
-      },
-    ],
-    projects: [
-      {
-        id: 1,
-        name: "E-commerce Platform",
-        role: "Frontend Lead",
-        from: "2020-06",
-        to: "2021-03",
-        description:
-          "Xây dựng nền tảng thương mại điện tử sử dụng Next.js và GraphQL. Triển khai thanh toán, giỏ hàng và tìm kiếm sản phẩm.",
-      },
-    ],
-  };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
-        // Scrolling down & past header height
-        setIsHeaderVisible(false);
-      } else {
-        // Scrolling up
-        setIsHeaderVisible(true);
-      }
-
-      lastScrollY.current = currentScrollY;
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const { notifies, isLoading, loadMore, unreadCount, markAsRead } =
+    useSSENotifies();
+  console.log(notifies);
 
   const onNavigate = (path: string) => {
     router.push(path);
@@ -328,6 +250,73 @@ export function Nav() {
                 Nhà tuyển dụng
               </Link>
             </>
+          )}
+          {authorized && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative text-white h-10 w-10 rounded-full"
+                >
+                  <Bell className="h-8 w-8" />
+                  {unreadCount !== undefined && unreadCount > 0 && (
+                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
+                      {unreadCount}
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-80 max-h-[70vh] overflow-y-auto"
+                align="end"
+                forceMount
+              >
+                <div className="flex items-center justify-between p-2">
+                  <p className="font-medium">Thông báo</p>
+                  <Button variant="link" className="text-xs">
+                    Đánh dấu đã đọc tất cả
+                  </Button>
+                </div>
+                <DropdownMenuSeparator />
+                {notifies.length > 0 ? (
+                  notifies.map((notification) => (
+                    <DropdownMenuItem
+                      key={notification.id}
+                      className={`flex flex-col items-start gap-1 p-2 ${
+                        notification.isNew ? "font-semibold" : "font-medium"
+                      }`}
+                      onClick={() => markAsRead(notification.id)}
+                    >
+                      <p className="text-sm ">{notification.content}</p>
+                      <span className="text-xs text-muted-foreground">
+                        {dayjs(notification.createdDate).fromNow()}
+                      </span>{" "}
+                      {/* Dummy timestamp */}
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <DropdownMenuItem className="p-2 text-center text-muted-foreground">
+                    Không có thông báo mới
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  className="justify-center"
+                >
+                  <div
+                    onClick={loadMore}
+                    className="text-sm text-blue-600 cursor-pointer"
+                  >
+                    Xem thêm
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
           {authorized && userInfo?.role === "MEMBER" && (
             <>

@@ -99,3 +99,13 @@ export interface UserInfo {
   role: "HR" | "MEMBER";
   // Add other properties as needed
 }
+
+export type Notify = {
+  userId: string;
+  key: string;
+  content: string;
+  type: string;
+  isNew: boolean;
+  id: string;
+  createdDate: string;
+};

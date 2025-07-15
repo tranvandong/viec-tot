@@ -193,6 +193,20 @@ export const odataCrudDataProvider = (
       };
     },
 
+    getCount: async ({ resource, filters, meta }) => {
+      const url = buildUrl(resource, meta?.config);
+      const query = buildODataQuery({
+        filters,
+        join: meta?.join,
+      });
+
+      const queryUrl = query ? `${url}/$count?${query}` : `${url}/$count`;
+
+      const { data } = await httpClient.get(queryUrl);
+
+      return data;
+    },
+
     getMany: async ({ resource, ids, meta }) => {
       const url = buildUrl(resource, meta?.config);
       const query = buildODataQuery({

@@ -99,7 +99,6 @@ export default function CandidateProfile() {
 
   const { mutate: updateResume } = useUpdate({
     resource: "Resumes",
-    id: data?.data?.applicantId || "",
     meta: { config: { auth: "auth", subSystem: "buss" } },
     onSuccess: (data) => {
       setEditing(null);
@@ -119,7 +118,7 @@ export default function CandidateProfile() {
   const handleSave = (section: keyof typeof profile) => {
     const updatedProfile = { [section]: profile[section] } as Partial<Resume>;
     if (data?.data?.applicantId) {
-      updateResume(updatedProfile);
+      updateResume({ id: data.data.applicantId, variables: updatedProfile });
     } else {
       createResume(updatedProfile);
     }
