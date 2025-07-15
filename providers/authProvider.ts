@@ -147,6 +147,42 @@ export const authProvider: AuthBindings = {
       };
     }
   },
+  loginZalo: async ({ accessToken }: { accessToken: string }) => {
+    try {
+      const { data } = await dataProvider.custom<{
+        isSuccessed: boolean;
+        message: string;
+      }>({
+        url: `${apiUrl}/default/public/UserApplicant/LoginByZalo`,
+        payload: { accessToken },
+        method: "post",
+      });
+
+      if (!data.isSuccessed) {
+        return {
+          success: false,
+          error: {
+            name: "LoginError",
+            message: data.message || "Đăng nhập Zalo thất bại",
+          },
+        };
+      }
+
+      return {
+        success: true,
+        redirectTo: "/",
+        data: data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: {
+          name: "LoginError",
+          message: error?.message || "Đã có lỗi xảy ra khi đăng nhập Zalo",
+        },
+      };
+    }
+  },
 };
 
 export { axiosInstance };

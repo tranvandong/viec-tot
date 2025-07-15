@@ -9,6 +9,8 @@ export interface ZaloProfile {
       url: string;
     };
   };
+  accessToken?: string;
+  isLoginSuccess?: boolean;
 }
 
 export default function ZaloProvider<P extends ZaloProfile>(): OAuthConfig<P> {
@@ -72,28 +74,11 @@ export default function ZaloProvider<P extends ZaloProfile>(): OAuthConfig<P> {
         );
         const user = await graphResponse.json();
 
-        let isLoginSuccess = false;
-        try {
-          // Use a direct fetch call instead of dataProvider for server-side safety
-          const loginResponse = await fetch(
-            `${serverSideApiUrl}/default/public/UserApplicant/LoginByZalo`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ accessToken }),
-            }
-          );
-          const loginData = await loginResponse.json();
-          isLoginSuccess = loginData.isSuccessed;
-        } catch (error) {
-          console.error("Zalo login API call failed", error);
-        }
-
         return {
           id: user.id,
           name: user.name,
           image: user.picture?.data?.url ?? null,
-          isLoginSuccess,
+          accessToken: accessToken,
         };
       },
     },
@@ -102,8 +87,8 @@ export default function ZaloProvider<P extends ZaloProfile>(): OAuthConfig<P> {
         id: profile.id,
         name: profile.name,
         image: profile.picture?.data?.url ?? null,
-        // The accessToken will be added in the jwt callback
-        accessToken: "",
+        accessToken: profile.accessToken || "",
+        isLoginSuccess: profile.isLoginSuccess || false,
       };
     },
   };

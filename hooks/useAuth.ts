@@ -49,6 +49,49 @@ export function useLogin(role: UserRole) {
   });
 }
 
+// Đăng nhập Zalo
+export function useLoginZalo() {
+  const { toast } = useToast();
+  const { establishSession } = useAuth();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (params: { accessToken: string }) => {
+      if (authProvider && typeof authProvider.loginZalo === "function") {
+        return authProvider.loginZalo(params);
+      }
+      return Promise.reject(
+        new Error("authProvider.loginZalo is not available")
+      );
+    },
+    onSuccess(data) {
+      console.log("Zalo Login response:", data);
+
+      if (data?.isSuccessed) {
+        establishSession().then(() => {
+          router.push(data.redirectTo || "/");
+        });
+      } else {
+        toast({
+          description: data?.error?.message || "Đăng nhập Zalo thất bại",
+          title: "Đăng nhập thất bại",
+          type: "foreground",
+          variant: "warning",
+        });
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        description:
+          error?.message || "Đã có lỗi trong quá trình đăng nhập Zalo",
+        title: "Đăng nhập thất bại",
+        type: "foreground",
+        variant: "destructive",
+      });
+    },
+  });
+}
+
 // Đăng ký
 export function useRegister() {
   const { toast } = useToast();

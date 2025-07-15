@@ -81,8 +81,8 @@ export function useSSENotifies() {
       return;
     }
 
-    const url = `${apiUrl}/default/auth/Notifies`;
-    const eventSource = new EventSource(url, { withCredentials: true });
+    const url = `${apiUrl}/default/allow/Notification/Sse/sse`;
+    const eventSource = new EventSource(url);
     eventSource.addEventListener("ping", (event) => {
       console.log(
         "🚀 ~ file: notification.tsx:33 ~ source.addEventListener ~ event:PINGGGGGGG",

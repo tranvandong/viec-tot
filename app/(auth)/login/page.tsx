@@ -8,7 +8,7 @@ import Image from "next/image";
 import { signIn, getSession, getProviders, useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { useLogin } from "@/hooks/useAuth";
+import { useLogin, useLoginZalo } from "@/hooks/useAuth";
 import { Button } from "@radix-ui/themes";
 
 export default function LoginPage() {
@@ -17,8 +17,20 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // const session = getSession();
-  // console.log(session);
+  const { data: session, status } = useSession();
+  const { mutate: loginZaloMutation } = useLoginZalo();
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.accessToken) {
+      loginZaloMutation({ accessToken: session.user.accessToken as string });
+    } else if (status === "authenticated") {
+      toast({
+        title: "Đăng nhập thất bại",
+        description: "Có lỗi xảy ra khi đăng nhập Zalo. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    }
+  }, [session, status, router, toast, loginZaloMutation]);
 
   const {
     register,
