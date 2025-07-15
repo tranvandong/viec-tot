@@ -1,0 +1,21 @@
+when:
+  - event: push
+    branch:
+      - main
+labels:
+  ci.job: build
+steps:
+  - name: Build Docker image
+    image: quay.io/buildah/stable:v1
+    pull: true
+    dns: "8.8.8.8"
+    privileged: true
+    commands:
+      - echo $${DOCKER_SECRET} | buildah login -u $${DOCKER_LOGIN} --password-stdin code.nextform.vn
+      - buildah build --file .dev/docker/Dockerfile --tag code.nextform.vn/${CI_REPO}:${CI_COMMIT_SHA:0:8} .
+      - buildah push code.nextform.vn/${CI_REPO}:${CI_COMMIT_SHA:0:8}
+    environment:
+      DOCKER_LOGIN:
+        from_secret: DOCKER_LOGIN
+      DOCKER_SECRET:
+        from_secret: DOCKER_SECRET

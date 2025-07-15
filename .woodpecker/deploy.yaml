@@ -1,0 +1,26 @@
+when:
+  - event: push
+    branch:
+      - main
+labels:
+  ci.job: deploy
+steps:
+  - name: Deploy helm chart
+    image: ghcr.io/cognvn/helm:3
+    entrypoint:
+      - "helm"
+      - "upgrade"
+      - "--install"
+      - "-n=viectot"
+      - "${CI_REPO_NAME}"
+      - "."
+      - "--set"
+      - "image.repository=${CI_REPO}"
+      - "--set"
+      - "image.tag=${CI_COMMIT_SHA:0:8}"
+    directory: .dev/charts/viectot-frontend
+    backend_options:
+      kubernetes:
+        serviceAccountName: "ci-runner"
+depends_on:
+  - build
